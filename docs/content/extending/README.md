@@ -6,7 +6,7 @@ description: What each of the 3 layers lets you extend, which page covers it, an
 
 # Extending
 
-Behat Steps ships 3 layers, and each one takes code of your own where the shipped behavior stops short of what your suite needs. [Logical architecture](../architecture/logical-architecture.md) shows how the layers stack. This section has 1 page per layer:
+This section is for you when your suite needs behavior that Behat Steps doesn't ship. The package has 3 layers, and each one takes code of your own. [Logical architecture](../architecture/logical-architecture.md) shows how the layers stack. This section has 1 page per layer:
 
 | Layer | What you extend | Page |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ Behat Steps ships 3 layers, and each one takes code of your own where the shippe
 
 ## What semantic versioning covers
 
-[Public API and versioning](../architecture/versioning.md) lists the 5 surfaces semantic versioning covers. It doesn't cover the internals of `src/Extension` and `src/Backend` that none of them exposes, so a minor release can change those, and several extension points reach into them:
+[Public API and versioning](../architecture/versioning.md) lists the 5 surfaces semantic versioning covers. A minor release can change the internals of `src/Extension` and `src/Backend` that none of them exposes, and several extension points reach into those internals:
 
 | Extension point | What semantic versioning covers |
 | --- | --- |
@@ -28,7 +28,7 @@ Behat Steps ships 3 layers, and each one takes code of your own where the shippe
 | [The HTTP client factory](extension.md#the-http-client-factory-and-browser-adapters) | `getHttpClientFactory()`. The `behat_steps.http_client_factory` service, the arguments the container passes it and the protected methods of `HttpClientFactory` aren't covered |
 | [A browser adapter](extension.md#the-http-client-factory-and-browser-adapters) | `getBrowserCapabilityResolver()`, a helper |
 | [A registry or an authenticator](extension.md#swap-a-registry-or-an-authenticator) | The helpers that hand them to a context: `getBackendRegistry()`, `getBasicAuthenticator()`, `authGetAuthenticator()` and `authGetUserRegistry()`. The `*.class` parameters and the arguments the container passes aren't covered |
-| [Option resolution](extension.md#replace-option-resolution) | `getOptionResolverFactory()`, a helper. The `behat_steps.config.resolver_factory` service isn't covered |
+| [Option resolution](extension.md#replace-option-resolution) | `getOptionResolverFactory()`, a helper. The `behat_steps.config.resolver_factory` service, its `*.class` parameter and the arguments the container passes aren't covered |
 | [Field handlers](backend.md#field-handlers) | The `drupal.field_handlers` option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface`. The shipped handlers' protected methods aren't covered |
 | [Creation aliases](backend.md#creation-aliases) | The `drupal.creation_aliases` and `drush.creation_aliases` options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` |
 | [A Core of your own](backend.md#core) | The `drupal.core` option. `CoreInterface` and the Core classes aren't covered |

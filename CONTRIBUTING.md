@@ -1,16 +1,16 @@
 # 🤝 Contributing
 
-Below are some guidelines for developing and maintaining the Behat steps.
+This page holds the rules for code in this repository, for contributors and the AI agents that work on it. Tests, linters and `docs.php` enforce most of them, so read the sections a change touches before you make it. [Code](docs/content/contributing/code.md) walks through a change from start to finish.
 
-New here? [docs/content/architecture/](docs/content/architecture/README.md) shows how the pieces fit together - the layers, the step traits, and the tooling that documents and tests them - in a logical architecture, a class inheritance and a data flow diagram.
+New to the codebase? The [architecture pages](docs/content/architecture/README.md) show how the layers, the step traits and their tooling fit together, in a logical architecture, a class inheritance and a data flow diagram.
 
 ## Steps format
 
-A step is 1 plain English sentence. Every step follows every rule below, and a step that doesn't fit a rule is reworded rather than exempted. `ahoy lint-docs` checks the rules marked (lint).
+A step is 1 plain English sentence. No step is exempt from a rule in this section, so reword a step that doesn't fit one. `ahoy lint-docs` checks the rules marked (lint), and only the named part of a rule marked (lint: ...).
 
 **Who acts**
 
-1. Every step method's docblock declares `@actor:person` or `@actor:system`, on its own line after the last `@endcode` with a blank line before it. It's `person` when a person does or sees the step through the browser, a terminal or an HTTP client, and `system` otherwise. (lint)
+1. Every step method's docblock declares `@actor:person` or `@actor:system`, on its own line after the last `@endcode` with a blank line before it. It's `person` when a person does or sees the step through the browser, a terminal or an HTTP client, and `system` otherwise. (lint: the tag and its value)
 
    ```php
    /**
@@ -44,20 +44,20 @@ A step is 1 plain English sentence. Every step follows every rule below, and a s
 
 **Words**
 
-13. Each action has 1 verb: follow a link, click on an element, press a button or a key, fill in a field, check a checkbox, select an option, visit a page. (lint)
+13. Each action has 1 verb: follow a link, click on an element, press a button or a key, fill in a field, check a checkbox, select an option, visit a page. (lint: follow, click and press)
 14. A state is a word, never a value: `is enabled` in a `Given`, `should be enabled` in a `Then`.
-15. A count of what a thing holds reads `should have 3 <things>`. A count of events reads `the number of <events> should be 3`. (lint)
+15. A count of what a thing holds reads `should have 3 <things>`. A count of events reads `the number of <events> should be 3`. (lint: `should have 3`)
 16. A step that takes a table introduces it with `the following <noun>:`, as in `Given the following users exist:`. (lint)
-17. A step never starts with a value, writes acronyms in capitals, and never uses a phrase from `rejected_step_phrases()` in `docs.php`, such as `the current`, or Mink's own `I should see :text`, which is why a step of ours reads `I should see the text "Welcome" in the modal`. `step_acronyms()` lists the acronyms. (lint)
+17. A step never starts with a value, and it writes the acronyms `step_acronyms()` in `docs.php` lists in capitals. It never uses a phrase from `rejected_step_phrases()`, such as `the current` or Mink's own `I should see :text`, so a step of ours reads `I should see the text "Welcome" in the modal`. (lint)
 
 **Names**
 
 18. A step is words and placeholders, never a regular expression. A placeholder is `snake_case`, matches its method parameter and has 1 name per idea: `:name`, `:value`, `:count`, `:index`, `:address`, and `:partial_<name>` for a partial match. `:text` is only for text on the page. `non_descriptive_placeholders()` and `placeholder_synonyms()` in `docs.php` list the names it rejects. (lint)
-19. A step method's name starts with its trait's name, uses `Assert` in a `Then` and `Visit` when it opens a page, and carries 1 step. (lint)
+19. A step method's name starts with its trait's name, uses `Assert` in a `Then` and `Visit` when it opens a page, and carries 1 step. `TraitMethodNamingTest` checks the prefix and `Visit`. (lint: `Assert` and 1 step)
 
 ## Step arguments
 
-Behat binds every placeholder as a string, and a Turnip pattern can't make a placeholder optional. A step method declares exactly that: a required `string` for each placeholder, named as the placeholder is, plus a trailing `TableNode` or `PyStringNode` for a step that ends with a colon. Nothing is nullable, nothing has a default, and nothing else is accepted. `tests/phpunit/src/StepArgumentTest.php` enforces it.
+Behat binds every placeholder as a string, and a Turnip pattern can't make a placeholder optional. A step method declares exactly that: a required `string` for each placeholder, named as the placeholder is, plus a trailing `TableNode` or `PyStringNode` for a step that ends with a colon. No parameter is nullable or has a default, and the method takes nothing else. `tests/phpunit/src/StepArgumentTest.php` enforces it.
 
 ### Numbers
 
@@ -72,15 +72,15 @@ public function tableAssertRowCount(string $selector, string $count): void {
 }
 ```
 
-`stringParseInteger()` accepts what `FILTER_VALIDATE_INT` accepts, and `stringParseNumber()` accepts what `FILTER_VALIDATE_FLOAT` accepts. Both throw `\RuntimeException` naming the argument, which is the exception an invalid step argument throws everywhere in this package: `The count must be an integer, but "abc" was given.` Pass the smallest value the step accepts as `$min`, and a value below it fails the same way: `The count must be 0 or greater, but "-1" was given.` Leave `$min` out when the helper the value goes to checks the range itself, as `elementGetNth()` does for an index, so each range rule lives in 1 place.
+`stringParseInteger()` accepts what `FILTER_VALIDATE_INT` accepts, and `stringParseNumber()` accepts what `FILTER_VALIDATE_FLOAT` accepts. Both throw a `\RuntimeException` naming the argument, the exception every invalid step argument in this package throws: `The count must be an integer, but "abc" was given.` Pass the smallest value the step accepts as `$min`, and a value below it fails the same way: `The count must be 0 or greater, but "-1" was given.` Leave `$min` out when the helper the value goes to checks the range itself, as `elementGetNth()` does for an index, so each range rule lives in 1 place.
 
-A native `int` parameter would hand the check to PHP. Behat calls a step without strict types, so PHP reads `1e3` as 1000 and `3.5` as 3 with a deprecation notice, and `abc` fails with a `TypeError` that Behat reports as `Type error: ...` rather than the `\RuntimeException` a consumer catches.
+A native `int` parameter would hand the check to PHP. Behat calls a step without strict types, so PHP reads `1e3` as 1000 and `3.5` as 3 with a deprecation notice. `abc` fails with a `TypeError`, which Behat reports as `Type error: ...` in place of the `\RuntimeException` a consumer catches.
 
 ### Optional arguments
 
 A step has none. A variation of a step is a step of its own. When 2 steps differ only by a qualifier one of them leaves out, both call a shared helper rather than one calling the other with `NULL`: `linkAssertExistsWithHref()` and `linkAssertExistsWithHrefWithinElement()` both call `linkAssertHrefMatches()`. A flag that only PHP code passes belongs on a helper too.
 
-When leaving out a helper's string argument means "not given", the parameter defaults to `NULL`, with a nullable type, and `NULL` is the one value that means it: `contentVisitActionPageWithTitle()` opens the content page for a `NULL` subpath, and `configGet()` returns the whole configuration object for a `NULL` key. A parameter never defaults to an empty string, so `''` stays a value a caller passes on purpose: `cookieAssertExists()` skips the value check for `NULL` and asserts an empty value for `''`. A default that is a value in its own right stays, as `DrushBackend`'s `$binary = 'drush'` does. `tests/phpunit/src/OptionalParameterTest.php` rejects an empty-string default on every class, interface and trait under `src/`.
+When leaving out a helper's string argument means "not given", the parameter is nullable and defaults to `NULL`, the only value that means "not given": `queryEntityIds()` matches every bundle for a `NULL` bundle, and `configGet()` returns the whole configuration object for a `NULL` key. A parameter never defaults to an empty string, so `''` stays a value a caller passes on purpose: `cookieAssertExists()` skips the value check for `NULL` and asserts an empty value for `''`. A default that is a value in its own right stays, as `DrushBackend`'s `$binary = 'drush'` does. `tests/phpunit/src/OptionalParameterTest.php` rejects an empty-string default on every class, interface and trait under `src/`.
 
 ## Failure messages
 
@@ -108,34 +108,34 @@ Which exception a step throws is part of the public contract: consumers catch on
 
 Never throw a plain `\Exception` or an `\InvalidArgumentException` from `src/`.
 
-A trait without a Mink session is one that never calls `$this->getSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Don't add a session to a trait just to reach `ExpectationException`.
+A trait without a Mink session is one that never calls `$this->getSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Don't add a session to a trait only to reach `ExpectationException`.
 
 In a `@test-trait:` scenario, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
 
 ## Method naming conventions
 
-Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, hook, lookup, word order, batch and spelling conventions below.
+Every method a trait contributes begins with the trait's own name, so that traits mixed into 1 context can't collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, hook, lookup, word order, batch and spelling conventions in this section.
 
-The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context, since any of them can collide with another trait's: `tests/phpunit/src/PublicSurfaceTest.php` holds constants to it in upper snake case, and review holds properties to it.
+The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. Don't repeat the prefix as the verb: `waitSeconds()`, not `waitWaitForSeconds()`. The prefix applies to every member a trait mixes into the context, since any of them can collide with another trait's: `tests/phpunit/src/PublicSurfaceTest.php` holds constants to it in upper snake case, and review holds properties to it.
 
-`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Steps\Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleCreateNode()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Extension` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Backend` is composed into no context: its 1 trait, `CreationAliasRegistryTrait`, is composed by `DrushBackend` and `Core`.
+`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps`, the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Steps\Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleCreateNode()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Extension` are out of scope, because Behat's and Mink's interfaces dictate their names. `src/Backend` is composed into no context: its 1 trait, `CreationAliasRegistryTrait`, is composed by `DrushBackend` and `Core`.
 
 ### Assertions
 
-An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` directly after the prefix and nowhere else. Every `Then` step is an assertion, and so is a helper that only checks something and fails with an assertion exception, so it's `cookieAssertExists()`, not `cookieExists()`, and `xmlAssertResponseMatchesXsd()`, not `xmlValidateXsd()`. A helper that returns what it found or produced is named for that instead, even when a miss fails the step: `elementGetNth()` returns an element, `jsonGetValue()` the value at a JSON path and `jsonDecodeLoose()` the decoded value. `Assert` always says what it asserts: `messageAssertExistsOfType()`, not a bare `messageAssert()`.
+An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` directly after the prefix and nowhere else. Every `Then` step is an assertion. So is a helper that only checks something and fails with an assertion exception: `cookieAssertExists()`, not `cookieExists()`, and `xmlAssertResponseMatchesXsd()`, not `xmlValidateXsd()`. A helper that returns what it found or produced is named for that instead, even when a miss fails the step: `elementGetNth()` returns an element, `jsonGetValue()` the value at a JSON path and `jsonDecodeLoose()` the decoded value. `Assert` always says what it asserts: `messageAssertExistsOfType()`, not a bare `messageAssert()`.
 
 - **Existence**: never `Present`, `Absent` or `Missing`.
-  - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `taxonomyAssertVocabularyNotExists()`)
-  - Plural subjects → `Exist` or `NotExist` (e.g., `redirectAssertExist()`)
-- **Containment**: always `Contains` or `NotContains`, never `Includes` (e.g., `xmlAssertElementContains()`, `responseAssertHeaderNotContains()`)
+  - Singular subjects → `Exists` or `NotExists`, as in `fieldAssertExists()` and `taxonomyAssertVocabularyNotExists()`
+  - Plural subjects → `Exist` or `NotExist`, as in `redirectAssertExist()`
+- **Containment**: always `Contains` or `NotContains`, never `Includes`, as in `xmlAssertElementContains()` and `responseAssertHeaderNotContains()`
 - **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`. The subject is what the step asserts about, so `I should see the text :text in the row containing :partial_text` is `tableAssertRowContains()`, not `tableAssertTextInRow()`.
 - **Qualifiers last**: a qualifier that narrows the subject, opened by a word such as `With`, `By`, `In`, `Within`, `Of` or `Containing`, follows the predicate, as in `mediaAssertExistsWithName()` and `blockAssertNotExistsInRegion()`. That keeps the slot after the subject free for `Not`: `cookieAssertNotExistsWithName()`, not `cookieAssertWithNameNotExists()`.
 - **`Has` names something the subject holds**, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`. It never stands in for another predicate: a value compared against reads `Equals` or `Contains` (`stateAssertValueEquals()`, not `stateAssertHasValue()`), and entries that must be absent read `NotExist` (`watchdogAssertErrorsNotExist()`).
-- **No copula**: `Assert` already states that the subject is something, so `Is` is dropped - `elementAssertVisible()`, not `elementAssertIsVisible()`.
+- **No copula**: `Assert` already states that the subject is something, so `Is` is dropped: `elementAssertVisible()`, not `elementAssertIsVisible()`.
 
 A check that throws `\RuntimeException` on a bad step argument or a missing precondition isn't an assertion, so it isn't named `Assert`. It takes the verb for what it does instead: `stringParseInteger()` turns a step argument into an integer, and `commandRequireRun()` fails when no command has run yet.
 
-`TraitMethodNamingTest` reads every name for this shape: `Assert` right after the prefix with something after it, no qualifier ahead of `Not` or `Exists`, no `Includes` or `Present`, no `Has` before a compared value, and an assertion exception from every `Assert` method that throws one directly. A `Has` standing in for existence looks just like one naming something held, so review holds that half of the `Has` rule.
+`TraitMethodNamingTest` reads every name for this shape: `Assert` right after the prefix with something after it, no qualifier ahead of `Not` or `Exists`, no `Includes` or `Present`, no `Has` before a compared value, and an assertion exception from every `Assert` method that throws one directly. A `Has` standing in for existence looks the same as one naming something held, so review holds that half of the `Has` rule.
 
 ### Negation
 
@@ -149,7 +149,7 @@ A check that throws `\RuntimeException` on a bad step argument or a missing prec
 | `elementAssertIsVisuallyHidden()` | `elementAssertNotVisuallyVisible()` |
 | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
 
-The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out. A method follows its step, so a step reading `should not` takes `Not`, while a step that names a state of its own takes that state's word: `the module :module should be disabled` is `moduleAssertDisabled()` and `the command should fail` is `commandAssertFailure()`, because the step asserts that state rather than negating another. `TraitMethodNamingTest` fails a `should not` step whose method carries no `Not`, and pairs every `should not` step with its `should` twin in the same trait, failing a pair whose method names differ by anything but `Not`.
+The determiner `No`, the copula `Is`, `DoesNot`, `DoNot` and an antonym standing in for a negation are all out. A method follows its step. A step reading `should not` takes `Not`, and a step that names a state of its own asserts that state, so it takes the state's word: `the module :module should be disabled` is `moduleAssertDisabled()` and `the command should fail` is `commandAssertFailure()`. `TraitMethodNamingTest` fails a `should not` step whose method carries no `Not`, and pairs every `should not` step with its `should` twin in the same trait, failing a pair whose method names differ by anything but `Not`.
 
 ### Actions
 
@@ -161,13 +161,13 @@ A qualifier that the step opens with `with` reads `With` in the name, and a seco
 
 ### Consumer override points
 
-A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and semantic versioning covers it. A project's override relies on the package calling the method at the same point with the same signature, and a protected method promises neither, so a docblock never invites an override of one.
+A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and semantic versioning covers it. A project's override relies on the package calling the method at the same point with the same signature. A protected method promises neither, so no docblock invites an override of one.
 
-`src/Backend` publishes no override point at all, because semantic versioning covers none of its internals, so no docblock there invites an override, public or protected. A project adds or replaces a field handler through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface` rather than a subclass of `Core`, and a creation alias through the `drupal.creation_aliases` and `drush.creation_aliases` options or `CreationAliasCapabilityInterface` rather than a subclass of `Core` or a backend.
+`src/Backend` publishes no override point, because semantic versioning covers none of its internals. No docblock there invites an override, public or protected. A project adds or replaces a field handler through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface`, never a subclass of `Core`. It adds a creation alias through the `drupal.creation_aliases` and `drush.creation_aliases` options or `CreationAliasCapabilityInterface`, never a subclass of `Core` or a backend.
 
-`PublicSurfaceTest` fails a docblock that says `Override to`, `Override when`, or `override this` followed by `method`, `to` or `when`, on a trait's protected method and on any method under `src/Backend`.
+`PublicSurfaceTest` fails a docblock that says `Override to`, `Override when` or `override this` followed by `method`, `to` or `when`, on a trait's protected method and on any method under `src/Backend`.
 
-A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`, `accessibilityGetBlankUrls()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityFormatUrl()` or `restResolveUrl()`.
+A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included: `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`, `accessibilityGetBlankUrls()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityFormatUrl()` or `restResolveUrl()`.
 
 A trait reads each of its options inside a public `<trait>Get...()` method and nowhere else, so a project can override any option a hook or a step acts on: `watchdogAfterStep()` asks `watchdogGetFailOnErrors()` rather than reading `watchdog.fail_on_errors` itself, and `mappingGetFlattened()` builds on `mappingGetGroups()`. The `enabled` option is the exception, because `skipTag()` reads it, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes. `OptionDeclarationsTest` fails an option read anywhere else.
 
@@ -181,7 +181,7 @@ Every published helper names what it does with a verb: `messageGetSelector()`, n
 
 A hook is named `<trait><Event>`, for the event it runs on rather than what it does: `timeAfterScenario()`, `watchdogBeforeScenario()`, `contentBeforeNodeCreate()`. 2 methods can't share a name, so a trait registers 1 hook per event. When a trait has 2 jobs on 1 event, its hook calls a protected helper for each, in the order they need to run: `authAfterScenario()` runs `authCleanUsers()` and then `authCleanRoles()`.
 
-Behat runs every hook on an event even when an earlier one fails, and reports each failure, but 2 calls inside 1 hook get neither for free. A hook running 2 teardowns still runs the second when the first throws, then rethrows the first failure. When both throw, it throws 1 `\RuntimeException` that names both and keeps the first as its previous exception, as `authAfterScenario()` does.
+Behat runs every hook on an event even when an earlier one fails, and reports each failure. 2 calls inside 1 hook get neither for free. A hook running 2 teardowns still runs the second when the first throws, then rethrows the first failure. When both throw, it throws 1 `\RuntimeException` that names both and keeps the first as its previous exception, as `authAfterScenario()` does.
 
 `TraitMethodNamingTest` fails a hook named anything but `<trait><Event>`.
 
@@ -190,14 +190,14 @@ Behat runs every hook on an event even when an earlier one fails, and reports ea
 A lookup's verb says what it does when nothing matches, so a caller knows whether to check for `NULL` or catch an exception without opening the docblock.
 
 - **`Find`** returns `NULL` when nothing matches, and its return type is nullable: `tableFindRowByText()`, `blockFindByLabel()`, `cookieFindByName()`.
-- **`Get`** throws when nothing matches and never returns `NULL`, so its return type excludes `NULL`: `tableGetRowByText()`, `blockGetByLabel()`, `regionGet()`. A consumer override point is a `Get` for the same reason - it always supplies a value.
+- **`Get`** throws when nothing matches and never returns `NULL`, so its return type excludes `NULL`: `tableGetRowByText()`, `blockGetByLabel()`, `regionGet()`. A consumer override point is a `Get`, because it always supplies a value.
 - **`Load`** loads a set and returns an empty array when nothing matches, as `userLoadMultiple()` does, or loads a document into the trait's own state, as `xmlLoadDocument()` does. A lookup for 1 item is a `Find` or a `Get`, never a `Load`.
 
-A trait that needs both contracts for one lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one. `Read` isn't one either: it reads a file's contents, as `fixtureDirectoryReadFile()` does, and names nothing else.
+A trait that needs both contracts for 1 lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one. `Read` isn't one either: it reads a file's contents, as `fixtureDirectoryReadFile()` does, and names nothing else.
 
 When a stored `NULL` and a miss look the same, a yes-or-no question tells them apart: `stateFindValue()` returns `NULL` for both, and `stateExists()` answers which it was. A helper that removes what it returns names the removal instead of a lookup verb, so `watchdogClearErrors()` deletes the errors it hands back and a later call returns only new ones.
 
-An entity comes back as a stub, never as a Drupal object: a `Get` or a `Find` for 1 entity returns an `EntityStubInterface` carrying its ID under the entity type's id key, and every `<trait>LoadMultiple()` returns such a stub per entity, keyed by entity ID, so reading 1 of them tells you what the rest return. `queryEntityStubs()` builds the set from the IDs `queryEntityIds()` returns, so call `queryEntityIds()` when you only need the IDs. `webformLoadMultiple()` takes a partial title instead of conditions. A helper that acts on an entity takes its stub, and `queryGetEntityId()` reads the ID from it. `queryEntityIds()` resolves `EntityLookupCapabilityInterface`, so it runs on any backend providing it, and never `\Drupal::entityQuery()`. A condition is a value, matched with `=`, or an `[operator, value]` pair over `=`, `IN`, `CONTAINS` and `LIKE`: `userExistsByMail()` matches with `LIKE` and `webformLoadMultiple()` with `CONTAINS`.
+An entity comes back as a stub, never as a Drupal object: a `Get` or a `Find` for 1 entity returns an `EntityStubInterface` carrying its ID under the entity type's ID key, and every `<trait>LoadMultiple()` returns such a stub per entity, keyed by entity ID. `queryEntityStubs()` builds the set from the IDs `queryEntityIds()` returns, so call `queryEntityIds()` when you only need the IDs. `webformLoadMultiple()` takes a partial title instead of conditions. A helper that acts on an entity takes its stub, and `queryGetEntityId()` reads the ID from it. `queryEntityIds()` resolves `EntityLookupCapabilityInterface` and never calls `\Drupal::entityQuery()`, so it runs on any backend providing that capability. A condition is a value, matched with `=`, or an `[operator, value]` pair over `=`, `IN`, `CONTAINS` and `LIKE`: `userExistsByMail()` matches with `LIKE` and `webformLoadMultiple()` with `CONTAINS`.
 
 When several entities share the title, label, name or description a lookup matches on, a lookup for 1 entity returns the newest, and nothing picks with `reset()`, `current()`, `end()` or a sort of its own:
 
@@ -239,9 +239,9 @@ A class name states the role the class plays, so a reader can tell a lookup tabl
 
 Every other class takes the name of the framework type it extends or implements. The contexts end in `Context` and the hook scopes in `Scope`, while `BehatStepsExtension`, `BackendPass`, `ClassGenerator` and `DocumentElement` follow Behat, Symfony and Mink. An interface ends in `Interface` and a trait in `Trait`.
 
-A class the container builds is a registry or an agent noun, because a value is never a service. `ClassNamingTest` fails one in `services.yml` whose name doesn't end in a suffix from its `ROLE_SUFFIXES`, so a service named for a new role adds that suffix there in the same change.
+A class the container builds is a registry or an agent noun, because a value is never a service. `ClassNamingTest` fails a class that a `*.class` parameter in `services.yml` names when its name doesn't end in a suffix from `ROLE_SUFFIXES`, so a service named for a new role adds that suffix there in the same change.
 
-`Manager` is not a role, so it names nothing. Do not reach for it, or for `Handler`, `Helper` or `Service` as a class suffix under `src/Extension` - each would describe every class there equally well.
+`Manager` is not a role, so it names nothing. Don't use it, `Handler`, `Helper` or `Service` as a class suffix under `src/Extension`: each would describe every class there equally well.
 
 A namespace follows the same rule. It's named for the role its classes share, as `Registry` and `Listener` are, or for the concern they serve, as `Auth` and `Config` are, so the registries live in `Extension\Registry` and the authenticators in `Extension\Auth`. `ClassNamingTest` fails a class or a namespace under `src/Extension` whose name ends in `Manager`, `Handler`, `Helper` or `Service`.
 
@@ -259,17 +259,17 @@ A type goes in the sub-namespace of its role or concern, never at the root of `s
 
 ### A capability wrapper is not a class
 
-Do not write a class whose only job is to forward to a capability interface. The capability interface already is the abstraction, and a trait reaches it through `backendFor(SomeCapabilityInterface::class)` on `WebRawContext`. A wrapper adds a second name for the same contract, a second place to keep in step, and nothing else - which is why the one that existed was never wired into the container.
+Do not write a class whose only job is to forward to a capability interface. The capability interface already is the abstraction, and a trait reaches it through `backendFor(SomeCapabilityInterface::class)` on `WebRawContext`. A wrapper adds only a second name for the same contract and a second place to keep in step.
 
-A class earns its place when it holds state across calls, composes more than one collaborator, or decides something the capability cannot. Forwarding 4 methods and renaming them on the way through is none of those.
+A class earns its place when it holds state across calls, composes more than 1 collaborator or decides something the capability can't. Forwarding 4 methods and renaming them on the way through is none of those.
 
 ## Final classes
 
-A concrete class under `src/` is `final` unless a project is meant to extend it. Sealing a class that has shipped breaks every project extending it, while opening one breaks nothing, so a new class starts `final` and is opened once a project has a reason to extend it.
+A concrete class under `src/` is `final` unless a project is meant to extend it. Sealing a class that has shipped breaks every project extending it, and opening one breaks nothing. So a new class starts `final`, and opens after a project has a reason to extend it.
 
 These are the extension points. Each one stays open, along with every class that extends or implements it:
 
-- **The contexts**: `WebRawContext`, `WebContext` and `DrupalContext`, one of which a project's own context extends.
+- **The contexts**: `WebRawContext`, `WebContext` and `DrupalContext`, 1 of which a project's own context extends.
 - **The backends**: a project backend may extend `DrupalBackend`, `DrushBackend` or `BlackboxBackend` rather than implement `BackendInterface` from scratch.
 - **`Core`**: a version core extends it to change what its Drupal major changed, and the class the `drupal.core` option names can extend the Core for the site's major.
 - **The field handlers**: a handler for another field type extends a shipped one, the way `OgStandardReferenceHandler` extends `EntityReferenceHandler`.
@@ -278,7 +278,7 @@ These are the extension points. Each one stays open, along with every class that
 
 `DocumentElement` stays open as well. It's installed in place of Mink's own `DocumentElement`, which other code extends. A class that another class under `src/` extends, such as `ParseException`, is open because PHP requires it.
 
-An open class promises a project nothing about its protected members. A subclass of a backend, `Core` or a field handler relies on methods a minor release can rename or stop calling, as [Consumer override points](#consumer-override-points) says. A project's own field handler implements `FieldHandlerInterface` and is registered through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface`, and its own creation alias implements `PreCreateAliasInterface` or `PostCreateAliasInterface` and is registered through the `creation_aliases` options or `CreationAliasCapabilityInterface`.
+An open class promises a project nothing about its protected members. A subclass of a backend, `Core` or a field handler relies on methods a minor release can rename or stop calling, as [Consumer override points](#consumer-override-points) says. A project's own field handler implements `FieldHandlerInterface` and is registered through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface`. Its own creation alias implements `PreCreateAliasInterface` or `PostCreateAliasInterface` and is registered through the `creation_aliases` options or `CreationAliasCapabilityInterface`.
 
 Every other class is replaced rather than extended. A suite that swaps in its own registry or authenticator through a `*.class` container parameter implements that class's interface, and option resolution is replaced through `TraitOptionResolverFactoryInterface`. A final class keeps its members `protected`, like every other class here, so `rector.php` skips the Rector rules that would make them private.
 
@@ -294,7 +294,7 @@ Every other class is replaced rather than extended. A suite that swaps in its ow
 | **Browser driver** | Mink's driver behind the session: BrowserKit, Selenium2 or Chrome | `browserDriverFor()` and `browserDriverHas()` on `WebRawContext`, the adapters and capabilities under `src/Extension/Browser` |
 | **HTTP client** | What a step sends its own request through: the page, detached or bare client | `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()` on `WebRawContext`, `HttpClientFactory` |
 
-Mink owns the word "driver" across the Behat ecosystem, so no name this package owns uses it for anything else. `Backend` in one of our identifiers means a backend, and `Driver` or `BrowserDriver` means Mink's. In prose, Mink's is a "browser driver", never a "Mink driver" or "the session's driver", and that holds inside `src/Extension/Browser` too. An HTTP client is neither. It's a BrowserKit `AbstractBrowser`, so a docblock may call the object a browser.
+Mink owns the word "driver" across the Behat ecosystem, so no name this package owns uses it for anything else. `Backend` in an identifier of ours means a backend, and `Driver` or `BrowserDriver` means Mink's. In prose, Mink's is a "browser driver", never a "Mink driver" or "the session's driver", and that holds inside `src/Extension/Browser` too. An HTTP client is neither. It's a BrowserKit `AbstractBrowser`, so a docblock may call the object a browser.
 
 Each side has a counterpart on the other, and the names keep the 2 apart:
 
@@ -308,9 +308,9 @@ A file that needs both of a pair imports each under its own name, with no alias.
 
 ## The helper API
 
-The package is 2 products in 1: the steps, and the helpers the steps are built on. A project that outgrows the shipped steps stops calling the helpers from Gherkin and starts calling them from PHP, so the helpers are public API in the same sense the step text is. [docs/content/guides/scenario-styles.md](docs/content/guides/scenario-styles.md) argues why.
+The package is 2 products in 1: the steps, and the helpers the steps are built on. A project that outgrows the shipped steps stops calling the helpers from Gherkin and starts calling them from PHP, so the helpers are public API in the same sense the step text is. [docs/content/guides/scenario-styles.md](docs/content/guides/scenario-styles.md) explains why.
 
-**Visibility is the marker.** A `public` method is a helper; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the 2, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
+**Visibility is the marker.** A `public` method is a helper; a `protected` one is an implementation detail that promises nothing and may change in any release. Apart from `@internal`, nothing else tells the 2 apart, so declare a helper worth calling from a project's own step definitions `public`, and keep one that only serves the machinery `protected`.
 
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
@@ -323,8 +323,8 @@ A member is published in [HELPERS.md](HELPERS.md) when all of the following hold
 3 obligations follow from publishing a member:
 
 - **It needs a summary.** `ahoy lint-docs` fails on a published helper with no docblock description, because the reference would carry a blank entry, and `PublicSurfaceTest` fails on the same thing from the other side. A `{@inheritdoc}` docblock is resolved to the interface or parent that declares the method, so implementing an interface is enough.
-- **It is named as carefully as a step.** The naming conventions above apply to a helper exactly as they do to a step method.
-- **It shows up in review.** [HELPERS.md](HELPERS.md) is committed and gated by `--fail-on-change`, so promoting a method to `public` lands in the diff with its signature and summary. That diff is what keeps the surface deliberate: a method cannot be narrowed again before the next major.
+- **It is named as carefully as a step.** The [method naming conventions](#method-naming-conventions) apply to a helper exactly as they do to a step method.
+- **It shows up in review.** [HELPERS.md](HELPERS.md) is committed and gated by `--fail-on-change`, so promoting a method to `public` lands in the diff with its signature and summary. Review of that diff keeps the surface deliberate, because a published method can't be narrowed before the next major.
 
 Withdraw a member that exists only to serve the machinery with `@internal`, naming who calls it:
 
@@ -341,7 +341,7 @@ Withdraw a member that exists only to serve the machinery with `@internal`, nami
 
 What a project can call shouldn't depend on which trait a helper happens to sit in, so a job published in 1 trait is published in every trait that does it. `xmlGetFirstNode()` is public because `jsonGetValue()` is: both are the lookup a trait's element or path assertions run, and both throw when nothing matches. `xmlGetContent()` and `jsonGetContent()` return the content the steps read, a fixture step's content included, so they're public next to the `xmlParse()` and `jsonDecodeLoose()` that take it.
 
-A helper that only resembles a published one is decided on its own. `metatagResolveUrl()` resolves a URL against the origin of a base URL, the Mink base URL unless the caller passes another, rather than against the whole base URL `restResolveUrl()` uses, and `metatagFetchUrl()` serves only the hreflang return-link check, where `httpDetachedClient()` already covers fetching a page in general, so both stay protected.
+A helper that only resembles a published one is decided on its own. `metatagResolveUrl()` resolves a URL against the origin of a base URL, the Mink base URL unless the caller passes another. `restResolveUrl()` resolves against the whole base URL. `metatagFetchUrl()` serves only the hreflang return-link check, and `httpDetachedClient()` already fetches a page in general. So both metatag helpers stay protected.
 
 A class follows the same rule among its own members. `Authenticator` is final and replaced through its interfaces, so its 3 page-element getters are all protected.
 
@@ -353,7 +353,7 @@ A step body is a thin wrapper over named helpers, so every behavior a scenario c
 
 - **No step calls another step of its trait.** When 2 steps share logic, it moves into a helper both call, typed to what each caller has, so nothing builds a `TableNode` or passes `'1'` just to fit another step's signature. `blockCreateInstance()` hands the block it just created to `blockApplyConfiguration()` instead of making `blockConfigure()` look it up again by label.
 - **No `switch`, `match`, `try`, closure or arrow function.** Each one is logic of its own.
-- **A loop only dispatches.** Its body holds guards and then at most 1 call, as in `foreach ($table->getHash() as $row) { $this->taxonomyCreate($vocabulary, $row); }`.
+- **A loop only dispatches.** Its body holds guards and then at most 1 call, as in `foreach ($table->getHash() as $values) { $this->taxonomyCreate($vocabulary, $values); }`.
 - **At most 4 statements, guards aside.** A guard is an `if` with no `else` whose body only throws. A step that needs a fifth statement is usually doing a helper's job.
 
 ## Member ordering within a trait
@@ -365,26 +365,26 @@ Traits lay their members out in this order:
 3. `Given` steps, then `When` steps, then `Then` steps.
 4. Helpers, public and protected together. Visibility marks what is published, not where a member sits, so a helper stays next to the ones it reads with.
 
-Within each of those groups, keep the members in whatever order reads best - the rule settles the groups, not what happens inside one. `tests/phpunit/src/MemberOrderTest.php` enforces it.
+Within each group, keep the members in whatever order reads best: the rule settles only the groups. `tests/phpunit/src/MemberOrderTest.php` enforces it.
 
 Reordering an existing trait into this layout leaves [STEPS.md](STEPS.md) untouched. `docs.php` already groups steps by `Given`, `When` and `Then` and keeps source order inside each group, so this layout only applies a sort the generated documentation applies anyway.
 
 ## Unsettled style questions
 
-These 5 style questions have no dominant form in this codebase. Every form listed is correct and behavior-identical where it appears, and converging any of them would churn 25 to 400 sites for no functional gain. Match the surrounding file and do not convert existing code from one form to the other as a drive-by change.
+These 5 style questions have no dominant form in this codebase. Every form listed is correct and behavior-identical where it appears, and converging any of them would churn many sites for no functional gain. Match the surrounding file, and don't convert existing code from one form to the other as a drive-by change.
 
-- **Nullable-object absence**: `if (!$element)` (~40 sites) and `=== NULL` (~35 sites) are both accepted. `is_null()` is not - it has been converged away.
-- **Array emptiness**: `empty($array)` (~30 sites) and `$array === []` (~25 sites) are both accepted. Newer code leans strict, which is a weak preference rather than a rule.
+- **Nullable-object absence**: `if (!$element)` and `=== NULL` are both accepted. `is_null()` isn't, and no code uses it.
+- **Array emptiness**: `empty($array)` and `$array === []` are both accepted.
 - **Docblock tag order and `@code` indentation**: `@param` before `@code` and the reverse both appear, as do flush and indented example bodies. `docs.php` renders `@code` bodies into [STEPS.md](STEPS.md), so changing indentation reflows the generated documentation.
-- **Test method names**: `test<Scenario>` (~410 methods, as in `testAnUnsetParameterIsNull()`), `test<Method><Scenario>` (~290, as in `testApplyAfterCreateIgnoresNonArrayValues()`) and `test<Method>` (~85, as in `testNormalize()`) are all accepted. A third of the test classes mix shapes, so name a new test like the existing tests of the same method, or like the rest of its class when there are none.
-- **Data provider form**: a generator declared as `\Iterator` (~150 providers) and a plain array declared as `array` (~165) are both accepted. `iterable` is not - it has been converged away, so the return type always tells the 2 apart.
+- **Test method names**: `test<Scenario>`, as in `testAnUnsetParameterIsNull()`, `test<Method><Scenario>`, as in `testApplyAfterCreateIgnoresNonArrayValues()`, and `test<Method>`, as in `testNormalize()`, are all accepted. Name a new test like the existing tests of the same method, or like the rest of its class when there are none.
+- **Data provider form**: a generator declared as `\Iterator` and a plain array declared as `array` are both accepted. `iterable` isn't, so the return type always tells the 2 apart.
 
 ## Settled style questions
 
 Each of these has 1 answer. Write new code this way, and where a tool holds the form, its name is given.
 
 - **Coding standard**: code follows the Drupal coding standards. A local variable or a method argument is `snake_case`, and a method name or a class property is `camelCase`.
-- **Line breaks**: `"\n"` reads and `PHP_EOL` writes. Code that splits, matches, trims or replaces line breaks in text it received - a docblock, a file, command output, page text or a PyString - uses `"\n"`, because splitting on it handles both `\n` and `\r\n` text, while `PHP_EOL` on Windows misses every `\n`-only line. Console output, exception and assertion messages, and generated documentation and reports end their lines with `PHP_EOL`, and a string built with `PHP_EOL` is split with `PHP_EOL` too. A line break spliced into a nowdoc or heredoc template, or into text built only to be searched or parsed in place, stays `"\n"` so the result never mixes line endings.
+- **Line breaks**: `"\n"` reads and `PHP_EOL` writes. Code that splits, matches, trims or replaces line breaks in text it received - a docblock, a file, command output, page text or a PyString - uses `"\n"`, because splitting on it handles both `\n` and `\r\n` text, while `PHP_EOL` on Windows misses every `\n`-only line. Console output, exception messages, assertion messages, generated documentation and reports end their lines with `PHP_EOL`, and a string built with `PHP_EOL` is split with `PHP_EOL` too. A line break spliced into a nowdoc or heredoc template, or into text built only to be searched or parsed in place, stays `"\n"` so the result never mixes line endings.
 - **Paths**: a path is built with `/`, which PHP accepts on every platform: `$directory . '/' . $file`, `__DIR__ . '/fixtures'`. `DIRECTORY_SEPARATOR` only compares against, splits or trims a path the platform returned - from `realpath()`, `getcwd()`, `getFileName()` or a directory iterator - because on Windows that path holds backslashes.
 - **Closures**: a closure or arrow function that never touches `$this` is `static`. `SlevomatCodingStandard.Functions.StaticClosure` fails the rest in `ahoy lint`, and `ahoy lint-fix` adds the keyword. The sniff can't see a closure that calls an instance method through `self::` or `static::`, which still needs `$this`, so check those by hand.
 - **Empty bodies**: an empty class, interface, trait, enum, function or closure body is `{}` on its declaration line, a promoted constructor's included: `) {}`. `tests/phpunit/src/EmptyBodyTest.php` enforces it.
@@ -402,7 +402,7 @@ Each of these has 1 answer. Write new code this way, and where a tool holds the 
 
 The PHPUnit suite under `tests/phpunit/src/` holds each of these in 1 form. [tests/phpunit/src/TestConventionTest.php](tests/phpunit/src/TestConventionTest.php) enforces all 8.
 
-- **Base class**: a unit test extends `UnitTestCase`, directly or through a base that does, and a kernel test extends Drupal's `KernelTestBase`. `UnitTestCase` gives each test a workspace that `tearDown()` removes, along with the hook scope builders and the helpers below, so call `parent::setUp()` and `parent::tearDown()` when you override them.
+- **Base class**: a unit test extends `UnitTestCase`, directly or through a base that does, and a kernel test extends Drupal's `KernelTestBase`. `UnitTestCase` gives each test a workspace that `tearDown()` removes, along with the hook scope builders and the helpers this list names, so call `parent::setUp()` and `parent::tearDown()` when you override them.
 - **Placement**: a test with no counterpart in `src/` sits at the root of `tests/phpunit/src/`, as [Unit and kernel tests](#unit-and-kernel-tests) describes. A test that declares `#[CoversNothing]` has none, so it never sits under `Unit/` or `Kernel/`: `BehatDistConfigTest` reads `behat.dist.php`, and the convention tests read the whole source tree.
 - **Fixtures**: a unit test writes a fixture through `writeFixture()`, which creates the parent directories inside that workspace, and reads the workspace path from `static::$tmp`. Nothing calls `file_put_contents()`, `touch()` or `copy()` itself, so no fixture outlives its test or lands in the repository. An empty directory is the one thing `writeFixture()` can't make, and `mkdir()` stays for it.
 - **Reflection**: a class held in a variable, whether a name a test discovered or an object, is reflected through `static::reflect()`, which narrows a string to a class string. A `::class` constant goes to `new \ReflectionClass()`, which keeps the class type PHPStan reads.
@@ -413,7 +413,7 @@ The PHPUnit suite under `tests/phpunit/src/` holds each of these in 1 form. [tes
 
 ## Behat harness conventions
 
-The Behat harness in `tests/behat/bootstrap/` - `FeatureContext`, `FeatureContextTrait` and `BehatCliTrait` - holds these conventions from `src/`:
+The Behat harness in `tests/behat/bootstrap/`, made of `FeatureContext`, `FeatureContextTrait` and `BehatCliTrait`, holds these conventions from `src/`:
 
 - **Tags**: a tag is read through `Tag::has()` or `Tag::values()`, passing the scope and a constant that names the tag, and no hook attribute filters on a tag. A feature hook has no scenario, so it passes the feature.
 - **Numbers**: a numeric step argument is parsed with `stringParseInteger()`, so `sleep for five seconds` fails instead of sleeping for 0 seconds.
@@ -424,43 +424,79 @@ A tag the harness reads to configure a scenario starts with `test-`, as `@test-b
 
 The harness steps keep their own wording, placeholders, patterns and signatures rather than follow [Steps format](#steps-format) and [Step arguments](#step-arguments). They aren't published, and renaming one means editing every `.feature` line that uses it: every `@test-trait` scenario runs `some behat configuration` and `scenario steps:` or `scenario steps tagged with "...":`. `BehatCliContext.php` holds none of these conventions, because it's kept in step with an upstream copy.
 
-`TraitMethodNamingTest`, `MemberOrderTest`, `PublicSurfaceTest` and `TagReadTest` read only `src/`, since each of them also holds a vocabulary rule the harness doesn't follow. The list above is held in review rather than by a test.
+`TraitMethodNamingTest`, `MemberOrderTest`, `PublicSurfaceTest` and `TagReadTest` read only `src/`, since each of them also holds a vocabulary rule the harness doesn't follow. Review holds the harness to the list in this section.
 
 ## Layers
 
-The package ships 3 layers, and the dependency only runs one way: `Steps` on `Extension` on `Backend`. The 3 contexts at the package root - `WebRawContext`, `WebContext` and `DrupalContext` - sit above all 3: they are the 1 place that reaches every layer, so a project extends 1 of them and gets the whole stack.
+The package ships 3 layers, and the dependency only runs one way: `Steps` on `Extension` on `Backend`. The 3 contexts at the package root, `WebRawContext`, `WebContext` and `DrupalContext`, sit above all 3 and are the 1 place that reaches every layer. So a project extends 1 of them and gets the whole stack.
 
-- **`src/Backend`** is the part that talks to the site: it bootstraps a Drupal site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run. Its root holds what any backend may provide - `BackendInterface`, `BlackboxBackend`, `EntityStub`, the creation alias contracts, the exceptions, the random generator and the capabilities any backend may implement - and `Backend\Drupal` holds the Drupal and Drush backends, `Core` with its field handlers and Drupal creation aliases, and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `ConfigEntity`, `Core`, `Draggableviews`, `Drush`, `EntityDefinition`, `File`, `Log`, `MenuLink`, `Module`, `Node`, `PathAlias`, `Queue`, `QueueItem`, `Redirect`, `SearchApi`, `SearchIndex`, `State`, `Term`, `UserActivity` and `Workflow`.
-- **`src/Extension`** is the Behat extension: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, and `ServiceContainer/BackendProviderInterface` is what each backend provider contributes to it, `Registry/` holds the backend, user and scenario tag registries, `Auth/` holds the authenticator and the basic authenticator, `Context/` holds the contracts the context initializer injects through, the initializer itself and the hook attribute reader, `Config/` holds option resolution and `ParametersTrait`, which reads the extension parameters, `Browser/` holds the browser capabilities, their adapters and resolver, the `DocumentElement` installed in place of Mink's own, and `MinkAwareTrait`, `ServiceContainer/Driver/` holds the `browserkit_http` browser driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity and user creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator. `Extension\Drupal` holds what the extension needs for a Drupal site: `ServiceContainer/DrupalBackendProvider`, which adds the `drupal` and `drush` settings, the Drupal login text and selector defaults and the 2 backends' service definitions, and `Hook/`, the node, term and language creation hooks.
-- **`src/Steps`** is the step vocabulary - traits a context mixes in. Placement follows the subject: `Web/` holds the steps that mean something on any site, and `Drupal/` the ones that only mean something on a Drupal site, whether they reach a backend or only drive the page. The directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under, so a project testing a site that isn't Drupal extends `WebContext` and gets no step it can't use. `Helper/` holds the step-free traits a step trait and a context both compose, split the same way into `Web/` (fixture directories, heading lookup, JavaScript error collection, last-step tracking, the request header bag, string shaping, table transposition, token replacement) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, entity lookups). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened. `Exception/AssertionException` is what a trait without a Mink session throws.
+- **`src/Backend`** is the part that talks to the site: it bootstraps a Drupal site in-process or shells out to Drush, creates entities and expands field values into their storage shape. It references neither Behat nor Mink, so it works outside a Behat run. Its root holds what any backend may provide: `BackendInterface`, `BlackboxBackend`, `EntityStub`, the creation alias contracts, the exceptions, the random generator and the capabilities any backend may implement. `Backend\Drupal` holds the Drupal and Drush backends, `Core` with its field handlers and Drupal creation aliases, and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `ConfigEntity`, `Core`, `Draggableviews`, `Drush`, `EntityDefinition`, `FieldHandler`, `File`, `Log`, `MenuLink`, `Module`, `Node`, `PathAlias`, `Queue`, `QueueItem`, `Redirect`, `SearchApi`, `SearchIndex`, `State`, `Term`, `UserActivity` and `Workflow`.
+- **`src/Extension`** is the Behat extension, in these directories:
+  - `ServiceContainer/`: `BehatStepsExtension`, which reads the `behat_steps` configuration and builds the container, and `BackendProviderInterface`, which each backend provider implements to contribute to it. `ServiceContainer/Driver/` holds the `browserkit_http` browser driver factory.
+  - `Registry/`: the backend, user and scenario tag registries.
+  - `Auth/`: the authenticator and the basic authenticator.
+  - `Context/`: the contracts the context initializer injects through, the initializer itself and the hook attribute reader.
+  - `Config/`: option resolution and `ParametersTrait`, which reads the extension parameters.
+  - `Browser/`: the browser capabilities with their adapters and resolver, the `DocumentElement` installed in place of Mink's own and `MinkAwareTrait`.
+  - `Http/`: the factory behind the detached and bare HTTP clients.
+  - `Prerequisite/`: the prerequisite declarations and their reader.
+  - `Hook/`, `Listener/`, `Selector/` and `Generator/`: the entity and user creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
+  - `Drupal/`: what the extension needs for a Drupal site. `ServiceContainer/DrupalBackendProvider` adds the `drupal` and `drush` settings, the Drupal login text and selector defaults and the 2 backends' service definitions, and `Hook/` holds the node and term creation hooks and the language creation scopes.
+- **`src/Steps`** is the step vocabulary: the traits a context mixes in. Placement follows the subject: `Web/` holds the steps that mean something on any site, and `Drupal/` the ones that only mean something on a Drupal site, whether they reach a backend or only drive the page. The directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under, so a project testing a site that isn't Drupal extends `WebContext` and gets no step it can't use. `Helper/` holds the step-free traits a step trait and a context both compose, split the same way into `Web/` (fixture directories, heading lookup, JavaScript error collection, last-step tracking, the request header bag, string shaping, table transposition, token replacement) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, entity lookups). They register no Gherkin, so composing one twice shares its state and registers no step twice. Every member carries its trait's prefix, so no name collides once flattened. `Exception/AssertionException` is what a trait without a Mink session throws.
 
 The contexts are 1 chain. `WebRawContext` carries the plumbing, composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`) and registers no steps; `WebContext` extends it and composes every trait under `Steps/Web`; `DrupalContext` extends that and composes every trait under `Steps/Drupal`. `ContextCompositionTest` holds that directory-to-context coverage in both directions, and holds the chain to 1 composition of each trait, because a subclass re-composing a parent's trait registers its steps twice. `ClassNamingTest` holds the package root to the 3 contexts.
 
-A trait names the host it needs with `@phpstan-require-extends`, and composes the helper traits its own body calls. `ContextCompositionTest` walks every step trait and fails one that reaches a helper member it does not compose, so the plumbing a trait needs travels with it rather than being assumed of the host.
+A trait names the host it needs with `@phpstan-require-extends`, and composes the helper traits its own body calls. `ContextCompositionTest` walks every step trait and fails one that reaches a helper member it doesn't compose, so a trait composes the plumbing it needs and assumes none of the host.
 
 The host is the base class that provides every method the trait calls without declaring it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all the trait touches, and `DrevOps\BehatSteps\WebRawContext` when it reaches a backend or the extension configuration. A trait that calls nothing outside itself names no host. A context that composes `AuthTrait` declares `UserAwareInterface`, so the initializer injects the user registry and the authenticator.
 
-That is what keeps `src/Steps/Helper` a library rather than a catch-all: teardown lives with the concern that creates the thing being torn down. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the 14 traits that compose it still yield 1 registry, 1 hook and 1 deletion pass in reverse creation order.
+So `src/Steps/Helper` stays a library and never a catch-all: teardown lives with the concern that creates what it removes. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the 14 traits that compose it still yield 1 registry, 1 hook and 1 deletion pass in reverse creation order.
 
 A trait's directory is its classification, so nothing has to be declared twice: `src/Steps/Web` and `src/Steps/Drupal` register Gherkin and `src/Steps/Helper` registers none. [scripts/lint-traits.php](scripts/lint-traits.php) fails a step trait composing another step trait, and a helper trait carrying a step or transform attribute. A helper may carry a hook: the trait that owns a teardown carries the hook that runs it. Shared logic goes in a helper trait under `src/Steps/Helper` named for its concern, composed by whoever needs it.
 
-**The neutral root is written for any backend and shaped by Drupal's.** The root of `src/Backend` and the root of `src/Extension` reference no Drupal code, which [scripts/lint-layers.php](scripts/lint-layers.php) holds, and name no CMS in their prose: a contract there speaks of an entity type id, a storage value and the site's mail system, never of a Drupal one. The shapes those contracts carry are the ones the Drupal step vocabulary needs - the message array `mailGet()` returns, the item lists `getEntityValues()` returns, the link relationships `getEntityUrl()` takes, the `=`, `IN`, `CONTAINS` and `LIKE` operators of a lookup, the bins and tags of the cache, and the `uid` and `langcode` keys a user and a language stub carry - and a backend for another system maps its own shapes onto them. A sentence that explains a contract by naming Drupal belongs in `Backend\Drupal` or `Extension\Drupal`, next to the code that is Drupal's.
+**The neutral root is written for any backend and shaped by Drupal's.** The roots of `src/Backend` and `src/Extension` reference no Drupal code apart from the composition root, `ServiceContainer/BehatStepsExtension`, as [scripts/lint-layers.php](scripts/lint-layers.php) holds. They name no CMS in their prose: a contract there speaks of an entity type id, a storage value and the site's mail system, never of a Drupal one. The shapes those contracts carry are the ones the Drupal step vocabulary needs: the message array `mailGet()` returns, the item lists `getEntityValues()` returns, the link relationships `getEntityUrl()` takes, the `=`, `IN`, `CONTAINS` and `LIKE` operators of a lookup, the bins and tags of the cache and the `uid` and `langcode` keys a user and a language stub carry. A backend for another system maps its own shapes onto them. A sentence that explains a contract by naming Drupal belongs in `Backend\Drupal` or `Extension\Drupal`, next to the code that is Drupal's.
 
-**The web half falls back to a framework and never depends on one.** A trait under `src/Steps/Web` finds a page element through generic markup first - a label, a name, a standard attribute - and may fall back to a framework's markup when the generic lookup finds nothing, or take a framework's branch behind a runtime check, as `WaitTrait` waits on `Drupal.ajax` only when `typeof Drupal` says the object exists. A fallback names the framework in a comment and never in step text, and markup a project may need to change is an option whose default is Drupal's, as `add_more_button_selectors` is. `fieldFillMultiValueItems()` and `fieldFillDatetimeInput()` target Drupal's widgets this way, because a multi-value widget and a date widget have no neutral markup to fall back to. The lint holds the code to it: the web half references no `Drupal` class and calls no function PHP doesn't define, so a fallback is markup and JavaScript, never PHP.
+**The web half falls back to a framework and never depends on one.** A trait under `src/Steps/Web` finds a page element through generic markup first, such as a label, a name or a standard attribute. It may fall back to a framework's markup when the generic lookup finds nothing, or take a framework's branch behind a runtime check, as `WaitTrait` waits on `Drupal.ajax` only when `typeof Drupal` says the object exists. A fallback names the framework in a comment and never in step text, and markup a project may need to change is an option whose default is Drupal's, as `add_more_button_selectors` is. `fieldFillMultiValueItems()` and `fieldFillDatetimeInput()` target Drupal's widgets this way, because a multi-value widget and a date widget have no neutral markup to fall back to. `scripts/lint-layers.php` holds the code to it: the web half references no `Drupal` class and calls no function PHP doesn't define, so a fallback is markup and JavaScript, never PHP.
 
-**The in-process backend keeps the working directory on the Drupal root.** `Core::bootstrap()` changes into the root and stays there, because Drupal resolves `file_public_path` and its other relative settings against the working directory, and a file written through `public://` from the Behat process would otherwise land outside the site. A web-half trait that resolves a relative path against the directory the run started from captures that directory at `@BeforeSuite`, as `AccessibilityTrait` does for its report directory. `DiagnosticsTrait` reads the live directory and returns a path outside it unchanged, so its re-run command stays correct after a bootstrap.
+**The in-process backend keeps the working directory on the Drupal root.** `Core::bootstrap()` changes into the root and stays there, because Drupal resolves `file_public_path` and its other relative settings against the working directory. Otherwise a file the Behat process writes through `public://` lands outside the site. A web-half trait that resolves a relative path against the directory the run started from captures that directory at `@BeforeSuite`, as `AccessibilityTrait` does for its report directory. `DiagnosticsTrait` reads the live directory and returns a path outside it unchanged, so its re-run command stays correct after a bootstrap.
 
 ## What a trait needs from the backend
 
 A step is only as portable as the backend behind it, so each trait falls into 1 of 3 bands. Which band a trait is in decides which capability its steps resolve, and therefore which suites can run them.
 
-- **Nothing.** Every trait under `src/Steps/Web` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any backend, against any site, with no Drupal at all. `BatchTrait`, `BigPipeTrait` and `ConfigOverrideTrait` need nothing from a backend either, and sit under `src/Steps/Drupal` because only a Drupal site renders the batch progress bar and the BigPipe placeholders, or reads the config override header `ConfigOverrideTrait` sends. That header also goes to every backend of the scenario providing `RequestEnvironmentCapabilityInterface`, without bootstrapping any, so the site code a backend runs reads it as the browser's requests do.
-- **Extension configuration, but no backend.** `MessageTrait` and `MappingTrait` read the `message.selectors` and `mapping.groups` options, `RegionTrait` reads the `regions` map through the `region` selector `BehatStepsExtension` registers, and `BasicAuthTrait` reads the basic authenticator. They need configuration, not a bootstrapped site.
-- **Named capabilities.** Every other trait resolves the capabilities it works through. `CacheTrait`, `ConfigTrait`, `StateTrait`, `TimeTrait`, `ModuleTrait`, `DrushTrait`, `QueueTrait`, `WatchdogTrait`, `TestmodeTrait`, and the steps that create, change or delete users, roles and content resolve named capabilities (`CacheCapabilityInterface`, `CronCapabilityInterface`, `ConfigCapabilityInterface`, `ConfigEntityCapabilityInterface`, `StateCapabilityInterface`, `ModuleCapabilityInterface`, `DrushCapabilityInterface`, `QueueCapabilityInterface`, `LogCapabilityInterface`, `UserCapabilityInterface`, `RoleCapabilityInterface`, `ContentCapabilityInterface`, `NodeCapabilityInterface`, `TermCapabilityInterface`). They work on any backend implementing them, which for most is the Drush backend as well as the in-process one: a user's roles and password, for one, go through `UserCapabilityInterface`, which Drush serves. A backend declares a capability only when it serves every method of it, so what only the in-process backend can do sits on a capability of its own: `the following item is in the queue :queue:` goes through `QueueItemCapabilityInterface`, indexing 1 entity or running a search module's cron hook through `SearchApiCapabilityInterface`, and the times a user last accessed the site and logged in through `UserActivityCapabilityInterface`, so those steps reach the in-process backend whatever the order lists first. A lookup goes through `QueryTrait`, which resolves `EntityLookupCapabilityInterface`, and a delete hands the id it found to the capability that deletes that entity type, so a find-then-delete step calls nothing of Drupal's itself. An update hands a stub carrying the id to `updateEntity()`, and a read takes a field's values from `getEntityValues()` in their storage shape, a bundle from `getEntityBundle()`, or puts the field into the lookup's conditions, so no step saves or deletes a Drupal object itself. A step visiting an entity's page asks `getEntityUrl()` for it by link relationship, such as `edit-form`, so the site's own route sets the path. A config entity is created, changed and copied through `ConfigEntityCapabilityInterface`, which saves through the entity storage so the save hooks run. The create pipeline parses a table's cells against the field definitions through `EntityDefinitionCapabilityInterface`, which also answers whether a bundle exists and what it is labelled, for `ContentTrait`, `MediaTrait`, `ContentBlockTrait` and `TaxonomyTrait`, and tells `ParagraphsTrait` an entity type's id key and a bundle's fields. `EmailTrait` collects through `MailCapabilityInterface`, `BlockTrait` places, configures, finds and reads blocks and `ContentBlockTrait` creates them through `BlockCapabilityInterface`, `ContentTrait` sets a path alias through `PathAliasCapabilityInterface` and moves a node through its workflow with `WorkflowCapabilityInterface`, `RedirectTrait` creates, finds and deletes redirects through `RedirectCapabilityInterface`, `MenuTrait` names a link's parent through `MenuLinkCapabilityInterface`, `FileTrait` writes through `FileCapabilityInterface`, `SearchApiTrait` indexes through `SearchIndexCapabilityInterface` and `DraggableviewsTrait` orders through `DraggableviewsCapabilityInterface`, which only the in-process backend provides.
+- **Nothing.** Every trait under `src/Steps/Web` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone, and any option it reads has a default its steps run with. They run on any backend, against any site, with no Drupal at all. `BatchTrait`, `BigPipeTrait` and `ConfigOverrideTrait` need nothing from a backend either, and sit under `src/Steps/Drupal` because only a Drupal site renders the batch progress bar and the BigPipe placeholders, or reads the config override header `ConfigOverrideTrait` sends. That header also goes to every backend of the scenario providing `RequestEnvironmentCapabilityInterface`, without bootstrapping any, so the site code a backend runs reads it as the browser's requests do.
+- **Extension configuration, but no backend.** `MessageTrait` and `MappingTrait` read the `message.selectors` and `mapping.groups` options, which default to empty, so a message step or a mapping token fails until a project sets them. `RegionTrait` reads the `regions` map through the `region` selector `BehatStepsExtension` registers, and `BasicAuthTrait` reads the basic authenticator. They need configuration, not a bootstrapped site.
+- **Named capabilities.** Every other trait resolves the capabilities it works through, and runs on any backend implementing them. `CacheTrait`, `ConfigTrait`, `StateTrait`, `TimeTrait`, `ModuleTrait`, `DrushTrait`, `QueueTrait`, `WatchdogTrait`, `TestmodeTrait` and the steps that create, change or delete users, roles and content resolve `CacheCapabilityInterface`, `CronCapabilityInterface`, `ConfigCapabilityInterface`, `ConfigEntityCapabilityInterface`, `StateCapabilityInterface`, `ModuleCapabilityInterface`, `DrushCapabilityInterface`, `QueueCapabilityInterface`, `LogCapabilityInterface`, `UserCapabilityInterface`, `RoleCapabilityInterface`, `ContentCapabilityInterface`, `NodeCapabilityInterface` and `TermCapabilityInterface`. Both the Drush backend and the in-process one serve most of these: a user's roles and password, for one, go through `UserCapabilityInterface`, which Drush serves.
 
-`CoreCapabilityInterface` has no band. It hands out the in-process core through `getCore()`, which stays the Drupal backend's own contract, so no step resolves it and [scripts/lint-layers.php](scripts/lint-layers.php) rejects it under `src/Steps`. A step that has to run in-process resolves a capability only the in-process backend provides, which also names what a backend of your own would implement.
+  A backend declares a capability only when it serves every method of it. So what only the in-process backend can do sits on a capability of its own, and these steps reach the in-process backend whatever the order lists first:
 
-A capability method leaves the site consistent behind it, so a step compensates for nothing a backend does. `moduleInstall()` and `moduleUninstall()` leave the container and the router rebuilt, `deleteUser()` drains the batch that cancelling an account queues, and `draggableviewsSetOrder()` invalidates the caches the order it saved feeds, so `ModuleTrait`, `AuthTrait` and `DraggableviewsTrait` call the method and nothing else. A method that changes the site owns the cache tags, batches and rebuilds that follow from the change, and a step that clears a cache after calling a capability is the sign of a method that doesn't.
+  - `the following item is in the queue :queue:` goes through `QueueItemCapabilityInterface`.
+  - Indexing 1 entity or running a search module's cron hook goes through `SearchApiCapabilityInterface`.
+  - The times a user last accessed the site and logged in go through `UserActivityCapabilityInterface`.
+
+  No step saves or deletes a Drupal object itself:
+
+  - A lookup goes through `QueryTrait`, which resolves `EntityLookupCapabilityInterface`. A delete hands the ID it found to the capability that deletes that entity type, so a find-then-delete step calls nothing of Drupal's.
+  - An update hands a stub carrying the ID to `updateEntity()`.
+  - A read takes a field's values from `getEntityValues()` in their storage shape and a bundle from `getEntityBundle()`, or puts the field into the lookup's conditions.
+  - A step visiting an entity's page asks `getEntityUrl()` for it by link relationship, such as `edit-form`, so the site's own route sets the path.
+  - A config entity is created, changed and copied through `ConfigEntityCapabilityInterface`, which saves through the entity storage so the save hooks run.
+  - The create pipeline parses a table's cells against the field definitions through `EntityDefinitionCapabilityInterface`. That capability also answers whether a bundle exists and what it's labeled, for `ContentTrait`, `MediaTrait`, `ContentBlockTrait` and `TaxonomyTrait`, and tells `ParagraphsTrait` an entity type's ID key and a bundle's fields.
+
+  Other traits work through these capabilities:
+
+  - `EmailTrait` collects through `MailCapabilityInterface`.
+  - `BlockTrait` places, configures, finds and reads blocks through `BlockCapabilityInterface`, and `ContentBlockTrait` creates them through it.
+  - `ContentTrait` sets a path alias through `PathAliasCapabilityInterface` and moves a node through its workflow with `WorkflowCapabilityInterface`.
+  - `RedirectTrait` creates, finds and deletes redirects through `RedirectCapabilityInterface`.
+  - `MenuTrait` names a link's parent through `MenuLinkCapabilityInterface`.
+  - `FileTrait` writes through `FileCapabilityInterface`.
+  - `SearchApiTrait` indexes through `SearchIndexCapabilityInterface`.
+  - `DraggableviewsTrait` orders through `DraggableviewsCapabilityInterface`, which only the in-process backend provides.
+
+`CoreCapabilityInterface` has no band. It hands out the in-process core through `getCore()`, which stays the Drupal backend's own contract, so no step resolves it and [scripts/lint-layers.php](scripts/lint-layers.php) rejects it under `src/Steps/Drupal` and `src/Steps/Helper/Drupal`. A step that has to run in-process resolves a capability only the in-process backend provides, which also names what a backend of your own would implement.
+
+A capability method leaves the site consistent, so a step never finishes a backend's work. `moduleInstall()` and `moduleUninstall()` leave the container and the router rebuilt, `deleteUser()` drains the batch that canceling an account queues, and `draggableviewsSetOrder()` invalidates the caches the order it saved feeds, so `ModuleTrait`, `AuthTrait` and `DraggableviewsTrait` call the method and nothing else. A method that changes the site owns the cache tags, batches and rebuilds that follow from the change, and a step that clears a cache after calling a capability is the sign of a method that doesn't.
 
 A step names a capability and never a backend. `WebRawContext::backendFor()` walks the scenario's backend order, returns the first backend implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedBackendActionException` naming the capability and the order. The order itself comes from the `backends` list under `behat_steps` and the `@backend:NAME` tag, documented in [docs/content/guides/configuration.md](docs/content/guides/configuration.md#backend-resolution).
 
@@ -468,7 +504,7 @@ Every create and delete on a capability interface follows 1 contract, so teardow
 
 ### Which backend serves a capability
 
-A capability sits at the root of `src/Backend` when any backend may provide it, and under `Backend\Drupal` when only a Drupal backend can. Whether the Drush backend declares one is decided per capability by 1 rule: the Drush backend declares a capability when a Drush command serves every method of it in full, and never runs `php:eval` to fill a gap. A capability no second backend serves in full stays with the in-process backend, so the capabilities below marked in-process are exactly what a second backend has to implement itself.
+A capability sits at the root of `src/Backend` when any backend may provide it, and under `Backend\Drupal` when only a Drupal backend can. Whether the Drush backend declares one is decided per capability by 1 rule: the Drush backend declares a capability when a Drush command serves every method of it in full, and never runs `php:eval` to fill a gap. A capability no second backend serves in full stays with the in-process backend, so the capabilities the following table marks in-process are exactly what a second backend has to implement itself.
 
 | Capability | Drush | Why |
 | --- | --- | --- |
@@ -486,11 +522,12 @@ A capability sits at the root of `src/Backend` when any backend may provide it, 
 | `Drush` | yes | The Drush backend's own capability |
 | `EntityDefinition` | in-process | The field definitions a value is parsed against live in the process that saves it |
 | `EntityLookup` | in-process | No command queries entities by field |
+| `FieldHandler` | in-process | `registerFieldHandler()` registers a handler with the process that saves the entity |
 | `File` | in-process | No command writes a file through a stream wrapper |
 | `Language` | in-process | `language:add` and `language:info` exist, and no command deletes a language |
-| `Log` | yes | `watchdog:show` and `watchdog:delete`; no command writes an entry, so the capability has no write |
+| `Log` | yes | `watchdog:show`, `watchdog:show-one` and `watchdog:delete`; no command writes an entry, so the capability has no write |
 | `Mail` | in-process | No command sends a message |
-| `MenuLink` | in-process | No command reads a menu link's plugin id |
+| `MenuLink` | in-process | No command reads a menu link's plugin ID |
 | `Module` | yes | `pm:install`, `pm:uninstall` and `pm:list` |
 | `Node` | in-process | No command creates a node |
 | `PathAlias` | in-process | No command sets an alias |
@@ -503,18 +540,18 @@ A capability sits at the root of `src/Backend` when any backend may provide it, 
 | `SearchIndex` | yes | `search-api:index` |
 | `State` | yes | `state:get`, `state:set` and `state:delete`; no command tells a stored NULL from an absent key, which the Drush backend documents on `stateExists()` |
 | `Term` | in-process | No command creates a term |
-| `User` | yes | `user:create`, `user:cancel`, `user:role:add`, `user:information`, `user:login` and `user:password` |
+| `User` | yes | `user:create`, `user:cancel`, `user:role:add`, `role:list`, `user:information`, `user:login` and `user:password` |
 | `UserActivity` | in-process | No `user:` command sets the access or login time |
 | `Workflow` | in-process | No command reads a workflow or moves an entity through it |
 
 ### What stays the step's vocabulary
 
-Not every Drupal name in a Drupal step trait is a leak. A trait under `src/Steps/Drupal` names the entity types and fields it works with, so these stay as literals in the traits and move to no capability:
+A trait under `src/Steps/Drupal` names the entity types and fields it works with, so these Drupal names stay as literals in the traits and move to no capability:
 
-- The id key of the entity type a trait names: `nid`, `uid`, `mid`, `tid`, `fid`, `rid` and `id`, as `queryGetEntityId()`, `queryEntityStubs()` and `entityLifecycleRegister()` take it. `EntityDefinitionCapabilityInterface::getEntityIdKey()` is for a trait whose entity type is a step argument, as `ParagraphsTrait` has.
+- The ID key of the entity type a trait names: `nid`, `uid`, `mid`, `tid`, `fid`, `rid` and `id`, as `queryGetEntityId()`, `queryEntityStubs()` and `entityLifecycleRegister()` take it. `EntityDefinitionCapabilityInterface::getEntityIdKey()` is for a trait whose entity type is a step argument, as `ParagraphsTrait` has.
 - The base fields a lookup conditions on, such as `status` and `default_langcode` in `userIsActive()` and `contentIsPublished()`, and `menu_name` on a menu link.
 - The `public://`, `private://` and `temporary://` schemes `FileTrait` prepares and `FixtureFileTrait` searches: the step text names them too.
-- The state key and the cache tag `TestmodeTrait` writes, like the `testing.time` key `TimeTrait` writes and the `render` bin `CacheTrait` names. Each is the documented contract of the module or the consumer the trait serves, and the writes go through `StateCapabilityInterface` and `CacheCapabilityInterface`, which both backends serve, so a capability of their own would copy 2 names into 2 backends for no portability.
+- The state key and the cache tag `TestmodeTrait` writes, like the `testing.time` key `TimeTrait` writes and the `render` bin `CacheTrait` names. Each is the documented contract of the module or the consumer the trait serves. The writes go through `StateCapabilityInterface` and `CacheCapabilityInterface`, which both backends serve, so a capability of their own would copy 2 names into 2 backends for no portability.
 
 The library's own harness in `tests/behat/bootstrap` is not a step trait. Its steps that log a watchdog entry or send mail through the fixture module's `hook_mail` call Drupal's API, and resolve `CoreCapabilityInterface`, whose contract is that API. No consumer step follows them, and `LogCapabilityInterface` gains no `logWrite()` for them, because no Drush command writes an entry.
 
@@ -530,40 +567,50 @@ A step that sends its own HTTP request picks 1 of 3 clients on `WebRawContext` b
 
 Never build a client of your own, whether that's cURL, `file_get_contents()` over HTTP or a `new HttpBrowser()`. It wouldn't get the connection settings a project declares on its `browserkit_http` session, so a suite on a staging site with a self-signed certificate would pass on the page and fail on the download. A trait calling any of the 3 carries `@phpstan-require-extends \DrevOps\BehatSteps\WebRawContext`.
 
-The page client exists only under BrowserKit, and throws `UnsupportedDriverActionException` in a JavaScript session, so a step built on it fails there by design. The detached and bare clients work under every browser driver. In a `@javascript` scenario they're a sidecar: the browser holds the page while the step sends its request from PHP, so a download keeps working there. Keep a detached or bare response in the trait's own state, as `FileDownloadTrait` does, or inside the step, as the hreflang check does. Never write it to the session, or the next page assertion reads the wrong content.
+The page client exists only under BrowserKit, and throws `UnsupportedDriverActionException` in a JavaScript session, so a step built on it fails there by design. The detached and bare clients work under every browser driver. In a `@javascript` scenario they run beside the browser: the browser holds the page while the step sends its request from PHP, so a download keeps working there. Keep a detached or bare response in the trait's own state, as `FileDownloadTrait` does, or inside the step, as the hreflang check does. Never write it to the session, or the next page assertion reads the wrong content.
 
 In a unit test, the test implementation overrides `httpDetachedClient()` or `httpBareClient()` to return an `HttpBrowser` over Symfony's `MockHttpClient`, as `FileDownloadTraitTest` and `MetatagTraitTest` do. [docs/content/guides/http-clients.md](docs/content/guides/http-clients.md) covers the settings and the identity the detached client carries, and [docs/content/extending/](docs/content/extending) covers the extension points.
 
-A step never reaches into Drupal itself: no `\Drupal::`, no `Drupal\` class and no Drupal function. What it needs from the site goes on a capability, adding a method or a capability when none covers it. A step resolves the capability it works through as its first statement, so a suite without that capability fails naming it before the step changes anything. A step whose trait declares prerequisites calls `$this->assertPrerequisites(__TRAIT__)` next, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes.
+A step never reaches into Drupal itself: no `\Drupal::`, no `Drupal\` class and no Drupal function. What it needs from the site goes on a capability, adding a method or a capability when none covers it. A step resolves the capability it works through as its first statement, so a suite without that capability fails naming it before the step changes anything. A step that needs its trait's prerequisites calls `$this->assertPrerequisites(__TRAIT__)` next, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes.
 
-[scripts/lint-layers.php](scripts/lint-layers.php) holds the boundaries. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations, and class names reached through a string. `src/Backend` excludes `Behat`, `Mink`, `Extension`, `Steps` and the 3 contexts. `src/Extension` excludes `Steps` and the 3 contexts, apart from `Generator/ClassGenerator`, which writes `extends WebRawContext` into the starter class it generates. The root of each of those 2 layers, outside its `Drupal` sub-namespace, excludes `Drupal` and both `Drupal` sub-namespaces, apart from `ServiceContainer/BehatStepsExtension`, the composition root that lists the shipped backend providers. `src/Steps/Web`, `src/Steps/Exception`, `WebRawContext`, `WebContext` and every web helper trait under `src/Steps/Helper/Web` exclude `Drupal`. `src/Steps/Drupal`, `src/Steps/Helper/Drupal` and `DrupalContext` exclude `Drupal` too, and every class under `DrevOps\BehatSteps\Backend\Drupal` but the capabilities, so a Drupal step trait reaches the site through a capability and nothing else. The longest prefix that matches a name decides, so `CoreCapabilityInterface`, which declares `getCore()`, stays excluded although it sits among the capabilities. `LintLayersTest` fails a file under `src/` that no layer reads. A class isn't the only way in, so the check reads calls as well: a Drupal step trait never calls `getCore()`, which hands out the in-process core, and a step trait on either side calls no function PHP doesn't define, which keeps out Drupal's procedural API. That rule also rejects a call whose target only runtime knows, such as `$function()` or `$object->$method()`, unless the variable holds a closure the file assigns it, and a call through `call_user_func()` and its relatives, which name their target in a value the check can't read. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
+[scripts/lint-layers.php](scripts/lint-layers.php) holds the boundaries, and `ahoy lint` runs it. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations and class names reached through a string. Each layer excludes these:
+
+- `src/Backend` excludes `Behat`, `Mink`, `Extension`, `Steps` and the 3 contexts.
+- `src/Extension` excludes `Steps` and the 3 contexts, apart from `Generator/ClassGenerator`, which writes `extends WebRawContext` into the starter class it generates.
+- The root of each of those 2 layers, outside its `Drupal` sub-namespace, excludes `Drupal` and both `Drupal` sub-namespaces. The exception is `ServiceContainer/BehatStepsExtension`, the composition root that lists the shipped backend providers.
+- `src/Steps/Web`, `src/Steps/Exception`, `WebRawContext`, `WebContext` and every web helper trait under `src/Steps/Helper/Web` exclude `Drupal`.
+- `src/Steps/Drupal`, `src/Steps/Helper/Drupal` and `DrupalContext` exclude `Drupal` and every class under `DrevOps\BehatSteps\Backend\Drupal` but the capabilities, so a Drupal step trait reaches the site through a capability and nothing else.
+
+The longest prefix that matches a name decides, so `CoreCapabilityInterface`, which declares `getCore()`, stays excluded although it sits among the capabilities. `LintLayersTest` fails a file under `src/` that no layer reads.
+
+A class isn't the only way in, so the check reads calls as well. A Drupal step trait never calls `getCore()`, which hands out the in-process core. A step trait on either side calls no function PHP doesn't define, which keeps out Drupal's procedural API. That rule also rejects a call whose target only runtime knows, such as `$function()` or `$object->$method()`, unless the variable holds a closure the file assigns it. It rejects a call through `call_user_func()` and its relatives too, since they name their target in a value the check can't read. A prose mention in a comment passes, because the check reads only code references.
 
 ## Behat 4 readiness
 
-`composer.json` declares `behat/behat: ^3.33.0 || ^4.0` and `friends-of-behat/mink-extension: ^2.7.5 || ^3.0@alpha`, so the library installs on either Behat major. Behat 4 needs Mink extension 3, which has only an alpha release so far, and Composer applies an inline stability flag only to the root package's own requirements. So the `@alpha` lets this repository resolve Behat 4 and does nothing for a consumer:
+`composer.json` declares `behat/behat: ^3.33.0 || ^4.0` and `friends-of-behat/mink-extension: ^2.7.5 || ^3.0@alpha`, so the library installs on either Behat major. Behat 4 needs Mink extension 3, which has only an alpha release. Composer applies an inline stability flag only to the root package's own requirements, so the `@alpha` lets this repository resolve Behat 4 and does nothing for a consumer:
 
 - A project on the default `stable` minimum stability resolves Behat 3 with Mink extension 2.7. It gets Behat 4 only by requiring `behat/behat:^4` and `friends-of-behat/mink-extension:^3.0@alpha` itself.
-- A project whose minimum stability admits alpha releases can resolve Behat 4 with the Mink extension alpha, as a project requiring only this library does under `prefer-stable`. Nothing pins the major, though, so the project's other requirements can still settle it on Behat 3. Requiring `behat/behat:^4` is what guarantees Behat 4.
+- A project whose minimum stability admits alpha releases can resolve Behat 4 with the Mink extension alpha, as a project requiring only this library does under `prefer-stable`. Nothing pins the major, so the project's other requirements can still settle it on Behat 3, and only requiring `behat/behat:^4` guarantees Behat 4.
 
 Working on this repository makes it the root package, so its own flag applies: a plain `composer install` here resolves Behat 4.0 with Mink extension 3.0.0-ALPHA.1, and provisioning narrows the fixture to the major each leg runs.
 
 `src/Extension` plugs into 5 Behat extension points, and each one is written to satisfy Behat 3.33 and Behat 4 at the same time. Keep it that way when touching them.
 
 - **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.33 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.33 interface is not narrowed.
-- **The `browserkit_http` factory is registered from `BehatStepsExtension::initialize()`.** The factory extends Mink's own, records each session's `http_client_parameters` through `buildDriver()` for the transport the library's own requests share, and builds the session exactly as Mink does. Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so it can't be subclassed, and a wrapper would take the `mink` key away from any other Mink extension a project registers. `initialize()` runs once every extension is activated and before any configuration tree is built, so it hands the factory to `registerDriverFactory()` on Mink's own `MinkExtension` when it holds the key - the hook every browser driver extension uses - and leaves any other extension under that key alone. That works on both majors.
+- **The `browserkit_http` factory is registered from `BehatStepsExtension::initialize()`.** The factory extends Mink's own, records each session's `http_client_parameters` through `buildDriver()` for the transport the library's own requests share, and builds the session exactly as Mink does. A wrapper around Mink's own `MinkExtension` would take the `mink` key away from any other Mink extension a project registers. `initialize()` runs after every extension is activated and before any configuration tree is built. When Mink's own `MinkExtension` holds the key, `initialize()` hands it the factory through `registerDriverFactory()`, the hook every browser driver extension uses, and leaves any other extension under that key alone. That works on both majors.
 - **`BackendListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
 - **`EntityHook` resolves the hook callable for the installed major.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` isn't callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `EntityHook::resolveCallable()` uses it only when the class exists and passes the pair `HookAttributeReader` builds through unchanged otherwise. It returns `mixed`, because the 2 majors type that parameter differently and PHPStan only analyzes against the installed one. Behat's own parameter type checks the value at runtime.
-- **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
+- **The `context.class_generator.simple` override survives by service ID.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that ID swaps the class in both versions.
 
-The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook - in `src/` and in `tests/behat/bootstrap/` - is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the browser driver name shorthand, because Mink 3.0.0-ALPHA.1 reads the shorthand with an `Undefined array key "sessions"` warning.
+The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook in `src/` and in `tests/behat/bootstrap/` is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the browser driver name shorthand.
 
-[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, which is what keeps it complete as the extension grows. The same test holds the reference suite to the project's own `FeatureContext` and Mink's `MinkContext`, so a project copying the file never registers a shipped context beside the context that extends it. Behat never loads it here, because `behat.php` takes precedence.
+[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, so the file stays complete as the extension grows. The same test holds the reference suite to the project's own `FeatureContext` and Mink's `MinkContext`, so a project copying the file never registers a shipped context beside the context that extends it. Behat never loads it here, because `behat.php` takes precedence.
 
 ## Reading tags
 
-Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, while `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison that matches on one major silently fails on the other.
+Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, while `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison that matches on 1 major silently fails on the other.
 
-Read tags through [`Tag`](src/Extension/Tag.php), never through `hasTag()` or `getTags()` directly. A hook passes its scope to one of 3 readers, which read the scenario's tags together with its feature's, so a tag on the `Feature:` line applies to every scenario below it:
+Read tags through [`Tag`](src/Extension/Tag.php), never through `hasTag()` or `getTags()` directly. A hook passes its scope to 1 of 3 readers, which read the scenario's tags together with its feature's, so a tag on the `Feature:` line applies to every scenario below it:
 
 ```php
 // A flag: '@testmode' on the scenario or on its feature.
@@ -583,11 +630,11 @@ $modules = Tag::valueStates($scope, self::MODULE_TAG);
 
 Every tag has the same syntax: a flag stands alone, a parametrized tag takes its value after `Tag::SEPARATOR` (`:`), and `Tag::NEGATION` (`!`) before a value switches it off. A tag with nothing after the separator names no value.
 
-A trait names each tag it reads in a constant carrying its prefix, such as `TestmodeTrait::TESTMODE_TAG`, and documents the tag in `tag_registry()` in [docs.php](docs.php). `Tag::JAVASCRIPT` names the tag Mink reads to run a scenario in its JavaScript session. `TagReadTest` fails on a trait that passes a reader a string literal or a single node, or calls `Tag::all()`, `Tag::on()` or `Tag::normalize()`, and `DocsTest` fails on a tag constant the registry does not list.
+A trait names each tag it reads in a constant carrying its prefix, such as `TestmodeTrait::TESTMODE_TAG`, and documents the tag in `tag_registry()` in [docs.php](docs.php). `Tag::JAVASCRIPT` names the tag Mink reads to run a scenario in its JavaScript session. `TagReadTest` fails on a trait that passes a reader a string literal or a `getFeature()` or `getScenario()` call, or calls `Tag::all()`, `Tag::on()` or `Tag::normalize()`, and `DocsTest` fails on a tag constant the registry does not list.
 
 A filter in a hook attribute, as in `#[AfterScenario('@acme')]`, reads its tag outside the readers, so neither test sees it. A scenario or feature hook filters on `@javascript` alone, the tag Mink reads itself, and reads any other tag in its body through a reader. `TagReadTest` fails on a hook attribute that filters on anything else.
 
-A reader also takes a single node, for a hook that ranks the 2 lines itself: `ResponsiveTrait` validates the `@breakpoint:` tag of the scenario and of its feature separately. `Tag::all()`, `Tag::on()` and `Tag::normalize()` return raw lists for code outside the traits, such as a listener. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
+A reader also takes a single node, for a hook that ranks the scenario's tags and the feature's itself: `ResponsiveTrait` validates the `@breakpoint:` tag of the scenario and of its feature separately. `Tag::all()`, `Tag::on()` and `Tag::normalize()` return raw lists for code outside the traits, such as a listener. Nothing outside `Tag` calls a node's `getTags()` or `hasTag()`, so `grep` finds any new one.
 
 ## Skipping a trait's hooks
 
@@ -623,14 +670,14 @@ The hook assigns the answer rather than returning, so a property that defaults t
 
 2 other kinds of scenario hook carry no guard, because they have nothing to switch off:
 
-- A hook that only resets in-memory state - its trait's own properties, or a static cache in this process - holds nothing a scenario would want to keep.
+- A hook that only resets in-memory state, such as its trait's own properties or a static cache in this process, holds nothing a scenario would want to keep.
 - A hook that acts only on its trait's own activation tag, such as `@breakpoint:`, is switched off by removing the tag.
 
 `tests/phpunit/src/SkipGuardTest.php` holds all of this. It fails a scenario hook that asks the guard in neither shape and isn't listed in its `UNGUARDED_HOOKS` with a reason, a `skipTag()` call naming anything but `__TRAIT__`, and a trait that reads a skip tag directly.
 
 ## Deciding whether a trait acts
 
-A trait's hooks and steps answer 3 separate questions, and each has 1 mechanism. Keeping them apart is what lets a trait stay quiet where it should and fail where it should.
+A trait's hooks and steps answer 3 separate questions, and each has 1 mechanism. Kept apart, they let a trait return quietly when it has nothing to do and fail when the scenario can't be trusted.
 
 | Question | Mechanism | When the answer is no |
 | --- | --- | --- |
@@ -638,7 +685,7 @@ A trait's hooks and steps answer 3 separate questions, and each has 1 mechanism.
 | Activation: does this scenario ask for it? | The trait's own tag check, such as `Tag::has($scope, self::TESTMODE_TAG)` | The hook returns quietly |
 | Prerequisites: does the site provide what it needs? | The trait's `<prefix>Prerequisites()`, checked by `assertPrerequisites(__TRAIT__)` | The scenario fails, naming what's missing |
 
-Don't merge them into 1 boolean. Opted out means the trait does nothing, while opted in without its prerequisites means the scenario can't be trusted, so the first returns and the second throws.
+Don't merge them into 1 boolean. Opted out means the trait does nothing, so the hook returns. Opted in without its prerequisites means the scenario can't be trusted, so the hook throws.
 
 A setup hook applies them in that order:
 
@@ -676,7 +723,7 @@ protected function acmePrerequisites(): array {
 - `Prerequisite::check()` takes a static closure whose only parameter is typed to a capability interface. The checker hands it a backend providing that capability, and the closure returns whether the prerequisite holds. The closure gets nothing else: a condition that depends on an option, a tag or a step argument is opt-in, activation or input validation, not a prerequisite.
 - A description is a clause completing "requires that", in lower case with no closing period. It appears both in the failure message and in the Prerequisites table `docs.php` renders into [STEPS.md](STEPS.md).
 
-A module the trait needs is declared. A core module counts the same as a contrib one, since a site can uninstall it: `FileTrait` declares `file`, `MediaTrait` `media` and `TaxonomyTrait` `taxonomy`, as `WebformTrait` declares `webform`. A module it only adapts to, such as `search_api_solr`, is asked with `$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`, which reuses a backend the scenario already reached, so the question never starts a second backend the way `backendFor()` would under `@backend:drush`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
+A module the trait needs is declared. A core module counts the same as a contrib one, since a site can uninstall it: `FileTrait` declares `file`, `MediaTrait` `media` and `TaxonomyTrait` `taxonomy`, as `WebformTrait` declares `webform`. A module it only adapts to, such as `search_api_solr`, is asked with `$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`. That call reuses a backend the scenario already reached, so the question never starts a second backend the way `backendFor()` would under `@backend:drush`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
 
 ### Where a trait checks them
 
@@ -686,15 +733,15 @@ A module the trait needs is declared. A core module counts the same as a contrib
 - **A check at step scope** that reads what a prerequisite provides checks again first, in case the scenario removed it.
 - **A teardown** never throws for an unmet prerequisite. It asks `$this->prerequisitesMet(__TRAIT__)`, or reads a flag its setup set, and undoes only what the setup did, so it can't replace a failure the scenario already recorded.
 
-The checker reads each trait's declarations once per context class and run, since a context can redeclare the declaring method, and evaluates them in order. For each capability it goes through `anyBackendFor()`, which reuses a backend the scenario already reached when that backend provides the capability, before trying the first one listed, so checking starts a backend only when none the scenario reached provides the capability. A capability with no check still reaches its backend, so declaring a capability only the in-process backend provides first is what keeps the rest in-process: once it has resolved `drupal`, a module check runs there even under `@backend:drush`. That capability is the one the trait's checking steps work through, such as `BlockCapabilityInterface` for `BlockTrait` or `ContentCapabilityInterface` for `MediaTrait`, so the Prerequisites table in [STEPS.md](STEPS.md) names what a backend has to implement. Answers aren't cached, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
+The checker reads each trait's declarations once per context class and run, since a context can redeclare the declaring method, and evaluates them in order. For each capability it goes through `anyBackendFor()`, which reuses a backend the scenario already reached when that backend provides the capability, before trying the first one listed, so checking starts a backend only when none the scenario reached provides the capability. A capability with no check still reaches its backend, so declaring a capability only the in-process backend provides first is what keeps the rest in-process: after it has resolved `drupal`, a module check runs there even under `@backend:drush`. That capability is the one the trait's checking steps work through, such as `BlockCapabilityInterface` for `BlockTrait` or `ContentCapabilityInterface` for `MediaTrait`, so the Prerequisites table in [STEPS.md](STEPS.md) names what a backend has to implement. Answers aren't cached, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
 
 `tests/phpunit/src/PrerequisiteDeclarationsTest.php` holds all of this. It fails a malformed declaration, a trait that declares prerequisites but never checks them or checks prerequisites it never declares, a check naming anything but `__TRAIT__`, and a `moduleExists()` call anywhere under `src/Steps` or `src/Steps/Helper`.
 
 ## Dependency policy
 
-Keep the `require` section of `composer.json` minimal - it should contain only what **every** consumer needs regardless of which traits they use.
+Keep the `require` section of `composer.json` minimal: it holds only what **every** consumer needs, whichever traits they use.
 
-- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the backend and Behat layers need at runtime. Both ship in `src/`, so every consumer loads them: `symfony/process` for the Drush backend, `symfony/var-exporter` for the lazy backends' class names, and `friends-of-behat/mink-extension`, `symfony/config`, `symfony/dependency-injection`, `symfony/event-dispatcher` for the extension, its config schema and `WebRawContext`'s Mink ancestor; `behat/mink-browserkit-driver`, `symfony/browser-kit`, `symfony/http-client` and `symfony/mime` for the HTTP clients; and `symfony/yaml` for the extension's service definitions.
+- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the backend and Behat layers need at runtime. Both ship in `src/`, so every consumer loads them: `symfony/process` for the Drush backend, `symfony/var-exporter` for the lazy backends' class names, and `friends-of-behat/mink-extension`, `symfony/config`, `symfony/dependency-injection` and `symfony/event-dispatcher` for the extension, its config schema and `WebRawContext`'s Mink ancestor; `behat/mink-browserkit-driver`, `symfony/browser-kit`, `symfony/http-client` and `symfony/mime` for the HTTP clients; and `symfony/yaml` for the extension's service definitions.
 - **`require-dev` + `suggest`**: any package used by only a subset of traits. List it in `require-dev` so this library's own test suite still exercises it, **and** in `suggest` with a message naming the exact trait(s) or step(s) that need it (as `justinrainbow/json-schema` does for `JsonTrait`).
 
 A package that code under `src/` calls is declared in its own right, even when a `require` dependency already installs it. That arrival is the other package's implementation detail, which it can drop in any release. `symfony/filesystem` is the case in point: `symfony/config` requires it, yet it sits in `require` itself, because `FileDownloadTrait`, which `WebContext` composes, builds a `Filesystem` for its download directory.
@@ -705,28 +752,31 @@ When a new trait needs a package, decide up front: trait-specific packages go in
 
 A patch against this repository's own vendor directory lives at `patches/<vendor>/<package>/<name>.patch`, so the package it applies to is its own directory and the file name becomes its description. `composer.json` declares none. These are separate from the fixture site's patches, which the Drupal 12 fixture declares itself - see [Patched contrib](#patched-contrib).
 
-[scripts/provision.php](scripts/provision.php) writes the `extra.patches` map over this package's own `composer.json`, applies it with `composer patches-relock` and `composer patches-repatch`, and restores the file afterwards. The declaration is not committed because Composer Patches registers a `Dependencies` resolver that reads `extra.patches` from every installed dependency and resolves relative paths against the consuming project's root - a project requiring this package would look for the patch inside its own tree and fail.
+[scripts/provision.php](scripts/provision.php) writes the `extra.patches` map over this package's own `composer.json`, applies it with `composer patches-relock` and `composer patches-repatch`, and restores the file afterward. The declaration stays uncommitted because Composer Patches registers a `Dependencies` resolver that reads `extra.patches` from every installed dependency and resolves relative paths against the consuming project's root. A project requiring this package would look for the patch inside its own tree and fail.
 
 ## Local environment setup
 
-Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy) and shut down local web services (Apache/Nginx, MAMP etc.).
+To build the fixture site the tests run against:
 
-- Check out the project repository in one of the [supported Docker directories](https://docs.docker.com/desktop/settings-and-maintenance/settings/#file-sharing).
-- `pygmy up`
-- `ahoy build`
-- Access the built site at `http://<directory>.docker.amazee.io/`, where `<directory>` is the name of your checkout directory. `ahoy info` prints the exact URL. Each checkout gets its own hostname, so several clones can run side by side.
+1. Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy) and [Ahoy](https://github.com/ahoy-cli/ahoy), and stop local web services such as Apache, Nginx or MAMP.
+2. Check out the project repository in 1 of the [supported Docker directories](https://docs.docker.com/desktop/settings-and-maintenance/settings/#file-sharing).
+3. Start Pygmy with `pygmy up`.
+4. Build the site with `ahoy build`.
+5. Open the built site at `http://<directory>.docker.amazee.io/`, where `<directory>` is the name of your checkout directory. `ahoy info` prints the exact URL. Each checkout gets its own hostname, so several clones can run side by side.
 
-Use `ahoy --help` to see the list of available commands.
+`ahoy --help` lists the available commands.
 
 ## Running tests
 
-There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests. The documentation site in [docs/](docs) has its own unit and accessibility tests, which [docs/README.md](docs/README.md#working-locally) covers.
+The repository has 3 test suites: unit, kernel and Behat. The documentation site in [docs/](docs) has its own unit and accessibility tests, which [docs/README.md](docs/README.md#working-locally) covers.
 
 ### Unit and kernel tests
 
-Both suites are declared in [phpunit.xml](phpunit.xml) and run against the fixture site, because the backend layer and the tests around it resolve Drupal classes from there. Run `ahoy build` first.
+Both suites are declared in [phpunit.xml](phpunit.xml) and run against the fixture site, because the backend layer and the tests around it resolve Drupal classes from there. Run `ahoy build` before the first run.
 
-Tests live under `tests/phpunit/src/` in a directory named after their suite: `Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite. Inside a suite directory the path mirrors `src/`, so `src/Steps/Helper/Web/StringTrait.php` is tested by `tests/phpunit/src/Unit/Steps/Helper/Web/StringTraitTest.php`. Tests with no counterpart in `src/` - the docs generator, the layer and trait linters, the provisioning script and the convention tests - sit at the root of `tests/phpunit/src/`.
+Tests live under `tests/phpunit/src/` in a directory named after their suite: `Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite. Inside a suite directory the path mirrors `src/`, so `src/Steps/Helper/Web/StringTrait.php` is tested by `tests/phpunit/src/Unit/Steps/Helper/Web/StringTraitTest.php`. Tests with no counterpart in `src/` sit at the root of `tests/phpunit/src/`, such as the tests of the docs generator, the layer and trait linters, the provisioning script and the conventions.
+
+Run the suites with these commands:
 
 ```bash
 ahoy test-unit      # Run the unit suite
@@ -742,9 +792,9 @@ Coverage is collected across both suites in a single run, so the report covers e
 
 ### Behat tests
 
-Behat tests are used as functional/integration tests to validate the functionality of the traits. These Behat tests run in the same way they would be run in your project: one context, [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php), extends `DrupalContext` and carries the test-only overrides, and is then run on the pre-configured [fixture Drupal site](tests/behat/fixtures_drupal/d11) using [test features](tests/behat/features).
+The Behat tests are the functional and integration tests of the traits, and they run the way they would in your project. [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php) extends `DrupalContext` and carries the test-only overrides, and the suite runs it on the pre-configured [fixture Drupal site](tests/behat/fixtures_drupal/d11) with the [test features](tests/behat/features). [behat.php](behat.php) registers `BehatCliContext`, `MinkContext`, `ScreenshotContext` and `PhpServerContext` beside it.
 
-Run `ahoy build` to setup a fixture Drupal site in the `build` directory.
+Run `ahoy build` to set up a fixture Drupal site in the `build` directory, then run the tests with these commands:
 
 ```bash
 ahoy test-bdd                # Run all Behat tests
@@ -762,9 +812,9 @@ The nested runs find the repository through `BehatCliTrait::behatCliGetRootPath(
 
 ### Static fixtures
 
-Static fixture files - HTML pages, XML, JSON, images, archives - live in [tests/behat/fixtures](tests/behat/fixtures).
+Static fixture files, such as HTML pages, XML, JSON, images and archives, live in [tests/behat/fixtures](tests/behat/fixtures).
 
-Traits with no Drupal dependency are tested against those files served by a PHP built-in server instead of the fixture Drupal site. Tag the scenario `@phpserver` and address the file directly:
+Traits with no Drupal dependency are tested against those files, served by a PHP built-in server. Tag the scenario `@phpserver` and address the file directly:
 
 ```gherkin
 @phpserver
@@ -781,26 +831,28 @@ Drupal traits are tested through the fixture site, which receives a copy of the 
 
 `@codeCoverageIgnoreStart` and `@codeCoverageIgnoreEnd` suppress **genuinely unreachable** defensive code. They are not a way to hide an untested branch.
 
-The distinction matters because PHPUnit drops ignored lines from the report entirely. Ignoring a line that a test would have covered lowers the reported rate, which is merely wasteful. Ignoring a line that no test covers *raises* it, which reports progress that does not exist. `codecov/patch` and `codecov/project` are required checks, so that second case shifts the baseline every later pull request is measured against.
+PHPUnit drops ignored lines from the report entirely. Ignoring a line that a test would have covered lowers the reported rate, which is merely wasteful. Ignoring a line that no test covers *raises* it, which reports progress that does not exist.
 
 Mark a block only when a test cannot reach it in this environment:
 
-- An I/O failure that cannot be provoked - `file_get_contents()` returning `FALSE` on a file just written, `tempnam()` failing.
-- A type guard that the preceding call makes impossible - `!$node instanceof NodeInterface` directly after a successful load.
+- An I/O failure that can't be provoked, such as `file_get_contents()` returning `FALSE` on a file just written, or `tempnam()` failing.
+- A type guard that the preceding call makes impossible, such as `!$node instanceof NodeInterface` directly after a successful load.
 - A capability branch for a backend the suite does not run.
 
-Do not mark a branch that a scenario could reach. In particular:
+Don't mark a branch that a scenario could reach, such as these:
 
-- **Skip-tag guards** (`@behat-steps-skip:<TraitName>`) are reachable by definition - add a scenario carrying the tag.
+- **Skip-tag guards** (`@behat-steps-skip:<TraitName>`) are reachable by definition, so add a scenario carrying the tag.
 - **Argument validation** driven by a step parameter is reachable by passing an invalid value.
 
 If a reachable branch has no test, the fix is the test, not the marker.
 
 ### Debugging tests
 
-- `ahoy debug`
-- Set breakpoint
-- Run tests with `ahoy test-bdd` - your IDE will pick up an incoming debug connection
+To step through a Behat run in your IDE:
+
+1. Turn on debugging with `ahoy debug`.
+2. Set a breakpoint.
+3. Run the tests with `ahoy test-bdd`. Your IDE picks up the incoming debug connection.
 
 ## Continuous integration
 
@@ -808,71 +860,69 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 ### Lint
 
-1 job, on PHP 8.4. It checks that `composer.json` is normalized, then `ahoy lint` runs `composer validate`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint`, [scripts/lint-layers.php](scripts/lint-layers.php) and [scripts/lint-traits.php](scripts/lint-traits.php), and `ahoy lint-docs` checks every region [docs.php](docs.php) generates for drift. Both are the commands you run locally, and the job is green only when both are.
+1 job, on PHP 8.4. It checks that `composer.json` is normalized, then `ahoy lint` runs `composer validate`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint`, [scripts/lint-layers.php](scripts/lint-layers.php) and [scripts/lint-traits.php](scripts/lint-traits.php), and `ahoy lint-docs` checks every page and region [docs.php](docs.php) generates for drift. Both are the commands you run locally, and the job passes only when both pass.
 
-The job provisions before it lints, and PHPStan needs it to. `ahoy lint` points the analyzer at the fixture with `DRUPAL_ROOT` and `DRUPAL_VENDOR_ROOT`, which `mglaman/phpstan-drupal` reads only with the patch [scripts/provision.php](scripts/provision.php) applies to it. Run `ahoy build` before `ahoy lint` on a fresh checkout, or PHPStan aborts before it analyzes anything.
+The job provisions before it lints, because PHPStan needs the fixture. `ahoy lint` points the analyzer at the fixture with `DRUPAL_ROOT` and `DRUPAL_VENDOR_ROOT`, which `mglaman/phpstan-drupal` reads only with the patch [scripts/provision.php](scripts/provision.php) applies to it. Run `ahoy build` before `ahoy lint` on a fresh checkout, or PHPStan aborts before it analyzes anything.
 
 ### Test matrix
 
+The matrix runs these legs:
+
 | Legs | What they prove |
 |---|---|
-| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
-| `chrome_headless` x Drupal 11 x `normal`: PHP 8.3 and 8.5 on Behat 3, PHP 8.4 on Behat 4 | The steps drive a browser without Selenium, over the Chrome DevTools Protocol, on both Behat majors. That browser driver is Drupal-version independent, so the 3 legs take their breadth from the PHP axis, 1 version each. All 3 stay on `normal` deps: `dmore/behat-chrome-extension` hands the browser driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
+| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs hold the Behat 3.33 floor. |
+| `chrome_headless` x Drupal 11 x `normal`: PHP 8.3 and 8.5 on Behat 3, PHP 8.4 on Behat 4 | The steps drive a browser without Selenium, over the Chrome DevTools Protocol, on both Behat majors. That browser driver is Drupal-version independent, so the 3 legs take their breadth from the PHP axis, 1 version each. All 3 run on `normal` deps. |
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 4 | The same unit, kernel and Behat suites pass on Behat 4. See [Behat 4 legs](#behat-4-legs). |
 | PHP 8.5 x Drupal 12 x `normal` / `lowest` x Behat 4 | The next core major, on a patched contrib set. See [Drupal versions](#drupal-versions). |
 
 The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
 
-Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Behat 3, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
+Coverage comes from 1 Selenium leg and 1 `chrome_headless` leg, both on Behat 3, and Codecov merges them into a single report. A failed upload fails the leg. Without the `CODECOV_TOKEN` secret, as on a pull request from a fork, the upload step is skipped. Test artifacts (`.logs`) are uploaded from every leg.
 
 ### Behat 4 legs
 
-Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.php](scripts/provision.php) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`. `dmore/behat-chrome-extension` accepts Behat 4 from 1.5.0, the floor `composer.json` sets, so it stays in the build and the PHP 8.4 leg runs the suite under `chrome_headless`.
+Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.php](scripts/provision.php) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`. The PHP 8.4 leg runs the suite under `chrome_headless`.
 
-On Drupal 11 it removes `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while Drupal 11's `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, does install 5.5 - only the Drupal 11 fixture is held back. [behat.php](behat.php) registers the coverage extension only when it is installed.
+On Drupal 11 the script removes `dvdoug/behat-code-coverage` from a Behat 4 build. [behat.php](behat.php) registers the coverage extension only when it is installed.
 
-Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The `main` branch ruleset requires checks by name, so renaming a leg means updating its required checks to match.
+Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup.
 
-`BEHAT` reaches the container through `ahoy`, so provisioning the fixture for Behat 4 locally is a matter of setting it. Run `ahoy provision` to switch back to Behat 3:
+`BEHAT` reaches the container through `ahoy`, so set it to provision the fixture for Behat 4 locally, then run the suite:
 
 ```bash
 BEHAT=4 ahoy provision
 ahoy test-bdd
 ```
 
+Run `ahoy provision` to switch back to Behat 3.
+
 ### Drupal versions
 
-Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change rather than an automatic one.
+Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change.
 
 Code that differs between Drupal majors goes in a version core, `DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core`. It extends the newest version core below `N`, or the base `Core` when there is none, and overrides only what major `N` changed. `DrupalBackend` builds the newest version core at or below the major it detects, and rejects a Core whose nearest Core of the package is the one for another major. `DrupalBackendCoreSelectionTest` covers both with the `Core99\Core` fixture, which stands in for a version core no Drupal release has.
 
-Drupal 12 is pinned to `~12.0.0-beta1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
+Drupal 12 runs 2 legs of its own, on PHP 8.5 and Behat 4 with `normal` and `lowest` deps, so the `normal` / `lowest` pair covers both Drupal majors. Its fixture installs a patched contrib set, as [Patched contrib](#patched-contrib) describes. [docker-compose.yml](docker-compose.yml) runs 1 database image, `uselagoon/mariadb-10.11-drupal`, for both majors.
 
-Drupal 12 constrains its own grid hard:
-
-- Drupal 12 requires PHP 8.5, so PHP 8.3 and PHP 8.4 are out.
-- Drupal 12 requires Symfony 8, and the newest Behat 3 release still requires `symfony/yaml ^5.4 || ^6.4 || ^7.0`, so Behat 3 is out. `behat/behat` 4.0 accepts Symfony 8.
-- Drupal 12 raises the database floor to MariaDB 10.11, which is why [docker-compose.yml](docker-compose.yml) runs `uselagoon/mariadb-10.11-drupal`. Drupal 11 asks for 10.6 or newer, so one image serves both majors.
-
-The grid has no `chrome_headless` leg. The Chrome browser driver doesn't depend on the core major, so the Behat 4 Chrome leg on Drupal 11 covers it, and the Drupal 12 legs still run every `@javascript` scenario through Selenium.
+The Drupal 12 grid has no `chrome_headless` leg. The Chrome browser driver doesn't depend on the core major, so the Behat 4 Chrome leg on Drupal 11 covers it, and the Drupal 12 legs still run every `@javascript` scenario through Selenium.
 
 Building the Drupal 12 fixture takes 3 requirements the Drupal 11 fixture does not share:
 
-- `mglaman/composer-drupal-lenient`, with an `extra.drupal-lenient.allowed-list` naming every contrib module whose `drupal/core` requirement excludes Drupal 12. Most of the modules the fixture installs have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. A module comes off the list once the release at its floor declares `^12`. The hosted lenient endpoint on drupal.org is not used - it currently redirects to a page that does not exist. A Composer plugin only shapes a solve it is already installed for, and the fixture has no solution until this one runs, so [scripts/provision.php](scripts/provision.php) installs it globally before the build update; Composer loads global plugins for local projects.
-- `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
-- `drupal/scheduled_transitions ^2.9.0-beta4`, the first release declaring Drupal 12.
+- `mglaman/composer-drupal-lenient`, with an `extra.drupal-lenient.allowed-list` naming every contrib module whose `drupal/core` requirement excludes Drupal 12. The plugin strips that core constraint, so the module installs. A module comes off the list after the release at its floor declares `^12`. A Composer plugin only shapes a solve it's already installed for, and the fixture has no solution until this one runs. So [scripts/provision.php](scripts/provision.php) installs it globally before the build update, and Composer loads global plugins for local projects.
+- `drush/drush ^14@dev`, with `minimum-stability` set to `dev` and `prefer-stable`.
+- `drupal/scheduled_transitions ^2.9.0-beta4`.
 
-The Drush backend supports Drush 13, the first release that runs Drupal 11, and newer: the Drupal 11 fixture installs 13.x and the Drupal 12 fixture `14.x-dev`. It runs each command by its canonical colon-separated name, such as `pm:install` or `core:cron`, which every supported release registers, and never by a legacy alias such as `pm-enable` or `cron`. `DrushBackendMethodsTest` fails a command issued in any other form, and the `@backend:drush` scenarios run the cache, cron and user commands against the Drush each fixture installs.
+The Drush backend supports Drush 13 and newer. It runs each command by its canonical colon-separated name, such as `pm:install` or `core:cron`, which every supported release registers, and never by a legacy alias such as `pm-enable` or `cron`. `DrushBackendMethodsTest` fails a command issued in any other form, and the `@backend:drush` scenarios run the cache, cron and user commands against the Drush each fixture installs.
 
-The fixture also takes `drupal/core` from source rather than dist. From 12.0.0-beta1 the release package no longer carries core's test files, which the PHPUnit bootstrap and the Kernel suite need, and [scripts/provision.php](scripts/provision.php) passes no `--prefer-dist` so the per-package setting holds.
+The fixture also takes `drupal/core` from source rather than dist, for the core test files the PHPUnit bootstrap and the Kernel suite need. [scripts/provision.php](scripts/provision.php) passes no `--prefer-dist`, so the per-package setting holds.
 
-Every contrib module carries a floor in `d12/composer.json` at the oldest release known to work on Drupal 12. An older release predates the major and fails on it whatever the patches do - `drupal/token` at its lowest resolvable release declares no return type on `getSubscribedEvents()` - and a patch written against one release does not apply to another. Without the floors the `lowest` leg fails before a single scenario runs.
+Every contrib module carries a floor in `d12/composer.json` at the oldest release known to work on Drupal 12. An older release fails on Drupal 12 whatever the patches do. A patch written against 1 release also doesn't apply to another. Without the floors the `lowest` leg fails before a single scenario runs.
 
 The floors cover contrib only. `lowest` still resolves the oldest usable version of the library's own dependencies, which is what those legs are for.
 
-Relaxing the Composer solve is only half of it. Drupal reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major, so after the update [scripts/provision.php](scripts/provision.php) appends `|| ^12` to that key across the installed contrib modules. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
+Drupal also reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major. So after the update, [scripts/provision.php](scripts/provision.php) appends `|| ^12` to that key across the installed contrib modules. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
 
-Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship. 12.0.0-beta1 goes further: it moves Olivero, Claro and Search out of core, which the fixture installs from contrib under the same machine names, and removes Toolbar and the Syndicate block, which the fixture drops.
+`d12/config/sync` leaves out the `contact`, `history` and `shortcut` modules, the config that depends on them, Toolbar and the Syndicate block. The fixture installs Olivero, Claro and Search from contrib, under their core machine names. The `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
 
 To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
 
@@ -884,29 +934,19 @@ The suites then run against it with `DRUPAL_VERSION=12 BEHAT=4` in front of `aho
 
 ### Patched contrib
 
-Getting contrib installed is not the same as getting it to run. Drupal 12 and Symfony 8 between them broke 14 of the modules the fixture installs, so `d12/composer.json` carries a patch for each under `extra.patches`, applied by `cweagans/composer-patches`. The patches live in `d12/patches/` and fall into 5 groups:
-
-| What changed | Modules |
-| --- | --- |
-| Drupal 12 removed the magic `original` property | `redirect`, `webform` |
-| Symfony 8 removed `Request::get()` | `webform` |
-| Drupal 12 removed annotation-only plugin discovery | `ctools`, `webform` |
-| Drupal 12 and Symfony 8 tightened method signatures | `commerce`, `date_recur`, `dynamic_entity_reference`, `eck`, `entity_reference_revisions`, `paragraphs`, `pathauto`, `profile`, `redirect`, `scheduled_transitions`, `state_machine`, `time_field`, `webform` |
-| Drupal 12 stopped discovering `template_preprocess_HOOK()` | `eck` |
-
-Drupal 12 also deleted the Archiver plugin system, which `webform` injected but never used, and moved the `text_with_summary` field type out of `text` into a module of its own, which the fixture now requires and enables.
+`d12/composer.json` carries a patch under `extra.patches` for each contrib module that fails on Drupal 12, applied by `cweagans/composer-patches`. The patches live in `d12/patches/`.
 
 Every patch is generated against the released source rather than against the `build/` tree, which carries whatever the last provisioning applied. A patch generated from `build/` silently loses any hunk the tree already has.
 
-A patch stops being needed the day its module ships a Drupal 12 release, at which point both the patch and the module's floor come out.
+When a module ships a Drupal 12 release, remove its patch and its floor.
 
 ### Verifying the import landed
 
-`drush cim` can enable the modules, abort on a fatal raised while it creates config entities, and still exit 0. The site then comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.php](scripts/provision.php) therefore reads a config entity only the fixture defines and fails when the import did not land, on every major - without that check a Drupal 12 build reports success on an empty site.
+`drush cim` can enable the modules, abort on a fatal raised while it creates config entities, and still exit 0. The site then comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.php](scripts/provision.php) therefore reads a config entity only the fixture defines and fails when the import didn't land, on every major.
 
 ### Coverage
 
-Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is a pre-release.
+Coverage is not collected on the Drupal 12 legs.
 
 ### Docs
 
@@ -916,13 +956,15 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 
 ## Updating fixture site
 
-- Build the fixture site and make the required changes
-- `ahoy drush cex -y`
-- `ahoy update-fixtures` to copy configuration changes from build directory to the fixtures directory
+To change the fixture site's configuration:
+
+1. Build the fixture site and make the required changes.
+2. Export the configuration with `ahoy drush cex -y`.
+3. Copy the configuration changes from the build directory to the fixtures directory with `ahoy update-fixtures`.
 
 ## Validating and updating documentation
 
-[docs.php](docs.php) is the only generator of reference documentation. One run writes every generated page and region:
+[docs.php](docs.php) is the only generator of reference documentation. 1 run writes every generated page and region:
 
 | Target | Holds |
 | --- | --- |
@@ -933,15 +975,23 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 
 A step trait names its page with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the page of `Drupal\BatchTrait`. The title names what the trait works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order. A helper trait has no page, so it carries no title.
 
-The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every step trait carries a title, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
+The same run validates these:
 
-```
+- The [steps format](#steps-format).
+- Every documented step matches exactly 1 definition.
+- Every step trait carries a title, and every published helper carries a summary.
+- Every registered tag in a docblock, an example or a feature file takes its value after `:`.
+- Every environment variable the source reads is documented.
+
+Regenerate and check the documentation with these commands:
+
+```bash
 ahoy update-docs  # Update documentation
 
 ahoy lint-docs    # Check documentation for errors
 ```
 
-An extension option and a tag are both generated from their definition in the source, so neither can be added without appearing in the reference. Write the option's `->info()` in [BehatStepsExtension](src/Extension/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.
+`docs.php` writes each extension option and each tag into the reference from its definition in the source. Write the option's `->info()` in [BehatStepsExtension](src/Extension/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.
 
 `STEPS.md` and `HELPERS.md` ship in the Composer package, where a consuming project's AI agent reads them, and the rest are pages of the documentation site in [docs/](docs). [docs/README.md](docs/README.md) covers the site: working on it locally, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com). [Documentation](docs/content/contributing/documentation.md) covers the writing conventions. Both references open with a link to the skill in `STEP_SKILL_FILE`, as [Shipped skills](#shipped-skills) describes.
 
@@ -955,7 +1005,7 @@ A shipped skill runs against the release it ships with, so it reads the facts it
 
 3 tests hold a shipped skill to its release:
 
-- [tests/phpunit/src/SkillFormatTest.php](tests/phpunit/src/SkillFormatTest.php) fails a skill whose frontmatter strays from the specification, or that names a method neither `DrupalContext` nor the skill's own code declares.
+- [tests/phpunit/src/SkillFormatTest.php](tests/phpunit/src/SkillFormatTest.php) fails a skill whose frontmatter strays from the specification, or that names a method that is neither a PHP function nor declared by `DrupalContext` or the skill's own code.
 - [tests/phpunit/src/CreateBehatStepSkillTest.php](tests/phpunit/src/CreateBehatStepSkillTest.php) composes the example trait of `create-behat-step` onto a `DrupalContext` subclass. It fails when the skill's code calls a method that `HELPERS.md` doesn't publish and Mink's `RawMinkContext` doesn't declare public, and when the skill names a method that is none of those, no method of its example and none of the protected and step methods it warns against. Its `PROTECTED_METHODS` and `STEP_METHODS` list those, and it fails when 1 of them stops being protected or a step.
 - `docs/tests/unit/distributionArchive.test.js` fails when a skill, or a package file a skill reads, stays out of the archive.
 

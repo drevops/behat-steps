@@ -8,9 +8,9 @@ description: Move your project from Behat Steps 3.14 to 4.0 with the migration g
 
 If your project runs Behat Steps 3.x, use this page to move it to 4.x: with an AI coding agent that applies the migration guide for you, or by hand. Both ways end with the same checks, which confirm that the migration is complete.
 
-[MIGRATION.md](../../MIGRATION.md) lists the changes from 3.14 to 4.0 in the order you make them: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it, whether the name came from this package or from the Drupal Extension (`drupal/drupal-extension`) and Drupal Driver (`drupal/drupal-driver`) that its Drupal traits built on. If the tables don't list a step, its text didn't change.
+[MIGRATION.md](../../MIGRATION.md) lists the changes from 3.14 to 4.0 in the order you make them: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it. That covers names from this package and the 2 packages its 3.x Drupal traits built on, the Drupal Extension (`drupal/drupal-extension`) and the Drupal Driver (`drupal/drupal-driver`). A step the tables don't list keeps its text.
 
-The 4.x releases after 4.0 make no breaking change to the public API, as [Public API and versioning](architecture/versioning.md) explains, so the same changes apply to any 4.x release. The update itself is `composer require --dev drevops/behat-steps:^4`, which installs the latest 4.x release.
+The 4.x releases after 4.0 keep the public API compatible, as [Public API and versioning](architecture/versioning.md) explains, so the same changes apply to any 4.x release. The update itself is `composer require --dev drevops/behat-steps:^4`, which installs the latest 4.x release.
 
 Read the guide through the link on this page rather than from your project: until Composer installs 4.0, the copy in your project's `vendor/drevops/behat-steps/` is the 3.x guide.
 
@@ -32,7 +32,7 @@ Then commit the update and check that your suite passes on 3.14.
 
 ## Migrate with an AI coding agent
 
-An AI coding agent can apply the guide for you with the [`migrate-behat-steps`](../../.claude/skills/migrate-behat-steps/SKILL.md) skill. It plans every change the guide calls for, shows you a summary of the plan and changes none of your code, configuration or feature files until you approve it. Until then, it writes only the following:
+An AI coding agent can apply the guide for you with the [`migrate-behat-steps`](../../.claude/skills/migrate-behat-steps/SKILL.md) skill. The agent plans every change the guide calls for and shows you a summary of the plan. It changes your code, configuration and feature files only after you approve the plan. Until then, it writes only the following:
 
 - Its working files, under `.artifacts/behat-steps-migration/`.
 - A line in `.git/info/exclude` that keeps those files out of version control, when your `.gitignore` doesn't already cover them.
@@ -40,7 +40,7 @@ An AI coding agent can apply the guide for you with the [`migrate-behat-steps`](
 
 It stops if your project is on a release older than 3.14.
 
-Your agent needs to fetch a URL and run commands in your project. It runs Composer and Behat through your project's own commands when it has them, such as an Ahoy or Make target. Composer installs this package without the repository's `.claude/` directory, so the skill isn't in `vendor/`, and your agent fetches it instead.
+Your agent needs to fetch a URL and run commands in your project. It runs Composer and Behat through your project's own commands when it has them, such as an Ahoy or Make target. The package ships without the repository's `.claude/` directory, so your agent fetches the skill from GitHub.
 
 To migrate with your agent:
 
@@ -80,4 +80,9 @@ Confirm that the migration is complete with the same checks the agent runs, whic
 
 ## Update your AI agent's reference
 
-If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, as the 3.x README suggested, that path still works in 4.0. 4.0 adds `vendor/drevops/behat-steps/HELPERS.md`, the helpers your own step definitions can call, and the `create-behat-step` skill at `vendor/drevops/behat-steps/skills/create-behat-step/SKILL.md`, which writes a step of your own on them, so point the agent at both: add a line for each, or replace your snippet with the full one in [Writing tests with AI assistants](guides/ai-assistants.md). The migration guide doesn't cover these files, so update them yourself.
+If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, that path still works in 4.0. 4.0 adds 2 files the agent can use:
+
+- `vendor/drevops/behat-steps/HELPERS.md` lists the helpers your own step definitions can call.
+- `vendor/drevops/behat-steps/skills/create-behat-step/SKILL.md` is the `create-behat-step` skill, which writes a step of your own on those helpers.
+
+The migration guide doesn't cover these files, so point the agent at them yourself. Add a line for each, or replace your snippet with the full one in [Writing tests with AI assistants](guides/ai-assistants.md).

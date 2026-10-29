@@ -19,7 +19,7 @@ The container sits outside the 5 surfaces semantic versioning covers, so check [
 
 ## From a Behat extension of your own
 
-Each container change on this page runs in the `process()` method of a Behat extension of your own. Behat calls the `load()` method of every extension before it calls any `process()`, and Behat Steps defines its services in `load()`. So the changes on this page hold whichever order the profile lists the extensions in, and they all go in an extension class such as this:
+Each container change on this page runs in the `process()` method of a Behat extension of your own. Behat calls the `load()` method of every extension before it calls any `process()`, and Behat Steps defines its services in `load()`. So the changes on this page hold whichever order the profile lists the extensions in. Put them in an extension class such as this:
 
 ```php
 <?php
@@ -60,9 +60,9 @@ $profile->withExtension(new Extension(AcmeExtension::class));
 
 ## The HTTP client factory and browser adapters
 
-[A context override](steps.md#a-context-override-a-flaky-staging-server) decorates the transport for 1 context. 2 heavier extension points are meant for package authors rather than projects.
+[A context override](steps.md#a-context-override-a-flaky-staging-server) decorates the transport for 1 context. The 2 extension points in this section are meant for package authors.
 
-Replace `behat_steps.http_client_factory` from a Behat extension to change every context at once, for example with a tracing client for debugging or a mock client for offline tests. The service takes the shared transport and the base URL, so extending `HttpClientFactory` keeps the rules [HTTP clients](../guides/http-clients.md#the-rules-the-clients-follow) describes:
+Replace `behat_steps.http_client_factory` from a Behat extension to change every context at once, for example with a tracing client for debugging or a mock client for offline tests. Your class implements `HttpClientFactoryInterface`, and the container builds it with the shared transport and the base URL. Extend `HttpClientFactory` to keep the rules [HTTP clients](../guides/http-clients.md#the-rules-the-clients-follow) describes:
 
 ```php
 public function process(ContainerBuilder $container): void {
@@ -71,7 +71,7 @@ public function process(ContainerBuilder $container): void {
 }
 ```
 
-Register a browser adapter that implements `HttpClientCapabilityInterface` to give another browser driver a page client:
+To give another browser driver a page client, register an adapter that implements `HttpClientCapabilityInterface` from your context, such as in its constructor. Each context keeps its own resolver, which tries your adapter ahead of the shipped ones:
 
 ```php
 $this->getBrowserCapabilityResolver()
@@ -82,7 +82,7 @@ $this->getBrowserCapabilityResolver()
 
 ## Swap a registry or an authenticator
 
-The extension builds its 3 registries and 2 authenticators from the classes that `*.class` container parameters name, and a Behat extension of your own can put a class of its own in place of each. The shipped classes are final, so yours implements the interface instead. The registry interfaces sit in `DrevOps\BehatSteps\Extension\Registry`, and the authenticator ones in `DrevOps\BehatSteps\Extension\Auth`:
+The extension builds its 3 registries and 2 authenticators from the classes that `*.class` container parameters name. A Behat extension of your own sets a parameter to put a class of its own in place of each. The shipped classes are final, so yours implements the interface instead. The registry interfaces sit in `DrevOps\BehatSteps\Extension\Registry`, and the authenticator ones in `DrevOps\BehatSteps\Extension\Auth`:
 
 | Parameter | Shipped class | Your class implements | The container passes |
 | --- | --- | --- | --- |
@@ -102,11 +102,11 @@ public function process(ContainerBuilder $container): void {
 
 Only the class changes: the container builds yours with the arguments in the table, in that order. Everything that receives 1 of these services takes it by its interface, the contexts included, so nothing else needs replacing.
 
-`FastLogoutInterface` changes how `AuthTrait` logs out in the teardown after each scenario. With it, `AuthTrait` calls `fastLogout()`, which resets the session without reaching a backend, so the site runs no logout hook. Without it, `AuthTrait` calls `logout()`, and only while a user is still logged in.
+`FastLogoutInterface` changes how `AuthTrait` logs out in the teardown after each scenario. With it, `AuthTrait` calls `fastLogout()`. The shipped `Authenticator::fastLogout()` resets the browser session and logs out of any backend the scenario already reached, so the site runs no logout hook. Without it, `AuthTrait` calls `logout()`, and only while a user is still logged in.
 
 ## Replace option resolution
 
-[Trait options](../guides/configuration.md#trait-options) lists the layers a trait option resolves through. Resolution itself is the `behat_steps.config.resolver_factory` service, so if you need resolution of your own, register another `TraitOptionResolverFactoryInterface` under that ID:
+[Trait options](../guides/configuration.md#trait-options) lists the layers a trait option resolves through. The `behat_steps.config.resolver_factory` service builds the resolver every option read goes through. To resolve options your own way, register a `TraitOptionResolverFactoryInterface` of your own under that ID:
 
 ```php
 public function process(ContainerBuilder $container): void {
@@ -115,7 +115,7 @@ public function process(ContainerBuilder $container): void {
 }
 ```
 
-The factory's `create()` takes the context class, the context's `config` argument and the extension's `steps` section, and returns the `TraitOptionResolverInterface` that `getOption()`, `getOptionBool()` and the other typed readers go through. The shipped `TraitOptionResolverFactory` is final, so a factory of your own implements the interface.
+The factory's `create()` takes the context class, the context's `config` argument and the extension's `steps` section. It returns the `TraitOptionResolverInterface` that `getOption()`, `getOptionBool()` and the other typed readers go through. The shipped `TraitOptionResolverFactory` is final, so a factory of your own implements the interface. To keep the container's arguments, set the `behat_steps.config.resolver_factory.class` parameter instead of calling `setDefinition()`. The container then passes `@behat_steps.config.schema_reader`, `@behat_steps.scenario_tag_registry` and `@behat_steps.config.tag_override_resolver`.
 
 Behat builds a context before the initializer injects the service, so the context's constructor still checks its `config` argument through the shipped factory. A `config` value the shipped resolution rejects fails there, whatever factory the service holds.
 

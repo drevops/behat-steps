@@ -8,13 +8,13 @@ custom_edit_url: null
 
 # Drupal steps
 
-Drupal steps only mean something on a Drupal site. They create content, users, terms and media, clear caches and run cron and queues. They also check the emails the site sends and the errors it logs. `DrupalContext` brings every one of them, on top of the [web steps](../web-steps/README.md) it inherits from `WebContext`. So on a Drupal site, your `FeatureContext` extends `DrupalContext` and has both, as [Contexts](../guides/contexts.md) explains.
+Drupal steps only mean something on a Drupal site. They create content, users, terms and media, clear caches and run cron and queues. They also check the emails the site sends and the errors it logs. `DrupalContext` includes every one of them, on top of the [web steps](../web-steps/README.md) it inherits from `WebContext`. So on a Drupal site, your `FeatureContext` extends `DrupalContext` and has both, as [Contexts](../guides/contexts.md) explains.
 
-The steps come grouped into traits, 1 per job, such as content, users or the State API. The table at the end of this page lists every trait and what it covers, and each name opens the trait's page.
+The steps come grouped into traits, 1 per job: content, users or the State API, for example. The table at the end of this page lists every trait and what it covers, and each name opens the trait's page.
 
 ## What they need from your site
 
-Most Drupal steps work on the site directly instead of through its pages: creating a user, for instance, doesn't fill in the registration form. They reach the site through a backend, either Drupal itself, loaded into the test run, or Drush. The `drupal_root` setting from the [quick start](../quick-start.md) is all most sites need, and [Key concepts](../concepts.md#backends-reaching-the-site-without-the-browser) explains backends.
+Most Drupal steps work on the site directly instead of through its pages: creating a user, for instance, doesn't fill in the registration form. They reach the site through a backend: Drupal itself, loaded into the test run, or Drush. The `drupal_root` setting from the [quick start](../quick-start.md) is all most sites need, and [Key concepts](../concepts.md#backends-reaching-the-site-without-the-browser) explains backends.
 
 Traits for contrib modules, such as Webform, Search API or Redirect, cost nothing on a site without the module. A trait like that looks for its module only when one of its steps runs, and that step fails with a message naming the module.
 

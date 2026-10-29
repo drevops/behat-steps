@@ -20,7 +20,7 @@ You'll need it when a flow deserves a step in your project's own words, or a tra
 
 A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [HELPERS.md](../../../HELPERS.md) lists every one of them, and the [quick start](../quick-start.md#7-add-a-step-of-your-own) shows where the class lives and how Behat finds it. [Contexts](../guides/contexts.md#your-own-steps-in-traits-of-your-own) shows how to group your steps into traits of your own, and [Anatomy of a trait](../architecture/anatomy-of-a-trait.md) walks through a trait with options and hooks.
 
-An AI coding agent can write the step for you: the `create-behat-step` skill, which ships with the package, writes it on the public helpers, in a trait your `FeatureContext` uses. [Writing tests with AI assistants](../guides/ai-assistants.md#write-a-step-of-your-own) shows how to run it.
+An AI coding agent can write the step for you with the `create-behat-step` skill, which ships with the package. The skill writes the step on the public helpers, in a trait your `FeatureContext` uses. [Writing tests with AI assistants](../guides/ai-assistants.md#write-a-step-of-your-own) shows how to run it.
 
 If you write your own Drupal steps, compose the helper trait for the concern they touch. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
 
@@ -46,13 +46,11 @@ class SpecContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` also composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`), so your own step definitions reach them on `$this`. Composing 1 of those helper traits in a step trait as well shares the same state rather than duplicating it.
+`WebRawContext` also composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`), so your own step definitions reach them on `$this`. A step trait that composes 1 of those helper traits as well shares its state with the context.
 
 ### Register what it creates
 
-The `entityLifecycleCreate*()` helpers register each entity they create, so the end-of-scenario pass in [Automatic cleanup](../guides/usage.md#automatic-cleanup) deletes it. An entity created through a capability directly isn't registered until the step does it.
-
-A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under, `mid` for a media item:
+The `entityLifecycleCreate*()` helpers register each entity they create, so the end-of-scenario pass in [Automatic cleanup](../guides/usage.md#automatic-cleanup) deletes it. A step that creates an entity through a capability directly registers the entity itself. It passes `entityLifecycleRegister()` the stub the capability returned and the key its entity type stores the ID under, such as `mid` for a media item:
 
 ```php
 $stub = new EntityStub('media', 'document', ['name' => 'Annual report']);
@@ -65,7 +63,7 @@ $this->entityLifecycleRegister($created, 'mid');
 
 [HTTP clients](../guides/http-clients.md) covers the 3 clients a step sends its own requests through.
 
-A domain step that needs a response without disturbing the page uses the detached client, exactly as the shipped traits do. The browser starts with no history, so it takes an absolute URL:
+A domain step that needs a response without disturbing the page uses the detached client, as the shipped traits do. The detached client starts with no history, so pass it an absolute URL:
 
 ```php
 #[Then('the sitemap should list the path :path')]
@@ -81,7 +79,7 @@ public function sitemapAssertListsPath(string $path): void {
 }
 ```
 
-The page stays where the scenario left it, and the sitemap is fetched as the scenario's visitor, so it works behind basic auth or a login.
+The page stays where the scenario left it. The detached client fetches the sitemap as the scenario's visitor, so the step works behind basic auth or a login.
 
 ## Go further than the options
 
@@ -139,7 +137,7 @@ class FeatureContext extends DrupalContext {
 
 That covers downloads, the hreflang check and the engine fetch for every trait in that context. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
 
-`RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit only for an idempotent method such as `GET`, but it retries a 429 or 503 response whatever the method, so a `POST` a step sends can reach the server twice. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` that limits 429 and 503 to `GenericRetryStrategy::IDEMPOTENT_METHODS`.
+`RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit only for an idempotent method such as `GET`. It retries a 423, 425, 429, 502 or 503 response whatever the method, so a `POST` a step sends can reach the server twice. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` that limits those status codes to `GenericRetryStrategy::IDEMPOTENT_METHODS`.
 
 ## Declare options for a trait of your own
 
@@ -163,7 +161,7 @@ protected function acmeConfigSchema(): array {
 }
 ```
 
-The declared default carries the option's type, and your trait reads it at that type with `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` or `getOptionArray()`. A default of `NULL` names no type, and `getOption()` reads it.
+The declared default carries the option's type, and your trait reads it at that type with `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` or `getOptionArray()`. A default of `NULL` names no type, and `getOption()` reads it. `tags` maps a tag, without its `@`, to the value it sets, so `@slow` on a scenario or its feature sets `wait_timeout` to 30000.
 
 Behat Steps finds the method by its name, so the trait needs no registration. The group is the method's prefix in snake case: `acmeConfigSchema()` declares the `acme` group, and its options resolve through the layers [Trait options](../guides/configuration.md#trait-options) lists, from `steps` and the context's `config` to the tags.
 

@@ -8,9 +8,9 @@ custom_edit_url: null
 
 # Web steps
 
-Web steps work on any website, whatever it's built with. They visit pages, fill in and submit forms, follow links and read cookies and response headers. They also check JSON, XML and tables, all through the browser Mink drives. `WebContext` brings every one of them, and `DrupalContext` extends `WebContext`, so a `FeatureContext` built on either already has them all. [Contexts](../guides/contexts.md) explains which one to extend.
+Web steps work on any website, whatever it's built with. They visit pages, fill in and submit forms, follow links and read cookies and response headers. They also check JSON, XML and tables, all through the browser Mink drives. `WebContext` includes every one of them. `DrupalContext` extends `WebContext`, so a `FeatureContext` built on either already has them all. [Contexts](../guides/contexts.md) explains which one to extend.
 
-The steps come grouped into traits, 1 per job, such as cookies, form fields or JSON responses. The table at the end of this page lists every trait and what it covers, and each name opens the trait's page.
+The steps come grouped into traits, 1 per job: cookies, form fields or JSON responses, for example. The table at the end of this page lists every trait and what it covers, and each name opens the trait's page.
 
 ## How a trait's page reads
 

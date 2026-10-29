@@ -9,13 +9,13 @@ description: Add or replace the field handlers and creation aliases the Drupal b
 
 The backend layer is `src/Backend`, the part that talks to the site. You extend it with classes of your own, which the `drupal` and `drush` backends take through options under the `behat_steps` key.
 
-A field handler covers a field type the package ships no handler for, or replaces a shipped one. A creation alias lets your scenarios fill in a column the way a person would, and a Core of your own serves a site whose modules change what an operation has to do. When none of the shipped backends reaches the site the way your suite needs, a backend of your own can, registered from a Behat extension of yours.
+A field handler covers a field type the package ships no handler for, or replaces a shipped one. A creation alias lets your scenarios fill in a column the way a person would. A Core of your own serves a site whose modules change what an operation has to do. When none of the shipped backends reaches the site the way your suite needs, register a backend of your own from a Behat extension of yours.
 
 [Configuration reference](../guides/configuration-reference.md#extension-options) lists the 4 options, `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases` and `drupal.core`, with every other option of the extension.
 
 ## Field handlers
 
-A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler, which turns the value a scenario writes into the value Drupal stores: a date in the site's timezone into UTC, a term name into its ID or a file path into a managed file. The package ships a handler for each field type it supports, and `DefaultHandler` relays any other plain-scalar value as written.
+A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler. The handler turns the value a scenario writes into the value Drupal stores: a date in the site's timezone into UTC, a term name into its ID or a file path into a managed file. The package ships a handler for each field type it supports, and `DefaultHandler` relays any other plain-scalar value as written. When a field whose type has no handler holds an entity reference or a complex value, the step fails until you register a handler for that type.
 
 `drupal.field_handlers` maps a field type to a handler class of your own. An entry for a field type the package ships no handler for adds one, and an entry for a shipped type replaces the shipped handler:
 
@@ -61,17 +61,17 @@ final class RatingHandler implements FieldHandlerInterface {
 
 Put the class where your suite loads classes from: an `autoload-dev` entry in Composer, or a path in Behat's `autoload` setting such as `tests/behat/bootstrap`. The package builds the `drupal` backend the first time a scenario uses it, after Behat has added those paths. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails each scenario that uses the backend, with a `\RuntimeException` naming it.
 
-The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration lasts for the rest of the run, because the backend does:
+The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way. The registration lasts for the rest of the run, because the backend does:
 
 ```php
 $this->backendFor(FieldHandlerCapabilityInterface::class)->registerFieldHandler('rating', RatingHandler::class);
 ```
 
-The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
+The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs. The shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
 
 ## Creation aliases
 
-A creation step can take a column that isn't a field of the entity, such as `author` on a node, and a creation alias resolves it while the entity is created: `author` names a user, and the alias sets the node's `uid` to that user's ID. Your scenarios name things the way a person would, and the backend works out the IDs.
+A creation step can take a column that isn't a field of the entity, such as `author` on a node. A creation alias resolves that column while the entity is created: `author` names a user, and the alias sets the node's `uid` to that user's ID. Your scenarios name things the way a person would, and the backend works out the IDs.
 
 The package ships 4, each registered on the backends that run it:
 
@@ -95,7 +95,10 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-An alias implements `PreCreateAliasInterface`, which changes the stub's values before the entity is saved, or `PostCreateAliasInterface`, which acts on the entity after it's saved. It runs only when the step gives its column.
+An alias implements 1 of 2 interfaces, and it runs only when the step gives its column:
+
+- `PreCreateAliasInterface`, whose `applyToStub()` changes the stub's values before the entity is saved.
+- `PostCreateAliasInterface`, whose `applyAfterCreate()` receives the stub and the saved entity.
 
 `getName()` returns the column, `getEntityType()` the entity type it applies to and `getDescription()` a sentence for anyone listing a backend's aliases through `CreationAliasCapabilityInterface::getCreationAliases()`. A pre-create alias removes its own column after it has resolved it, so Drupal's entity storage sees fields only:
 
@@ -157,7 +160,7 @@ The options register each class through `CreationAliasCapabilityInterface`, whic
 $this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlias(new OrganizationAlias($lookup));
 ```
 
-`backendFor()` returns the first backend in the scenario's order that provides the capability, so with `drupal` listed first, that's where the alias lands. `$this->getBackend('drush')` reaches the Drush backend by name instead.
+`backendFor()` returns the first backend in the scenario's order that provides the capability, so with `drupal` first in the `backends` list, that's where the alias lands. `$this->getBackend('drush')` reaches the Drush backend by name instead.
 
 Where an alias runs depends on the backend:
 
@@ -168,7 +171,7 @@ The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreC
 
 ## Core
 
-The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every supported Drupal major that has no version core of its own. A major that changes something the base relies on gets a version core of its own, such as `DrevOps\BehatSteps\Backend\Drupal\Core13\Core`. The backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
+The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every supported Drupal major that has no version core of its own. A major that changes something the base relies on gets a version core of its own, named in the form `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core`. The backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
 
 `drupal.core` names a class of your own instead, for a site whose modules change what an operation has to do:
 
@@ -208,7 +211,7 @@ The option is covered by semantic versioning. `CoreInterface` and the Core class
 
 ## A backend of your own
 
-A backend of your own reaches the site in a way none of the shipped ones does, such as over the site's own API. A step names the capability it needs and never a backend, so a shipped step runs on your backend when it implements that capability and comes first among the backends in the scenario's order that do. [Backend resolution](../guides/configuration.md#backend-resolution) describes that order.
+A backend of your own reaches the site in a way none of the shipped ones does, such as over the site's own API. A step names the capability it needs and never a backend. A shipped step runs on your backend when your backend implements that capability and comes first among the backends in the scenario's order that do. [Backend resolution](../guides/configuration.md#backend-resolution) describes that order.
 
 Every backend implements `BackendInterface`, which declares 3 methods. `getRandom()` returns the `RandomGeneratorInterface` that a context's `getRandom()` hands out when your backend comes first in the order. `bootstrap()` bootstraps the backend, and `isBootstrapped()` reports whether that has happened. The registry calls `bootstrap()` the first time a scenario resolves the backend, unless `isBootstrapped()` already returns `TRUE`, and it bootstraps only the backend it resolves.
 
@@ -288,7 +291,7 @@ A bare entry names a backend by its alias, so that alias holds only letters, dig
 
 [Service container](../../../MIGRATION.md#service-container) maps the 3.x service names and the `drupal.driver` tag to their 4.0 names.
 
-Semantic versioning covers the `backends` option, and the `backendFor()` and `getBackend()` helpers that reach a backend. It doesn't cover the `behat_steps.backend` tag. Only 3 capability interfaces appear in a helper's signature: `UserCapabilityInterface`, `EntityDefinitionCapabilityInterface` and `DrushCapabilityInterface`. The rest sit on none of the 5 surfaces [Public API and versioning](../architecture/versioning.md) lists, so a minor release can add a method to 1 of them that your backend then has to implement.
+Semantic versioning covers the `backends` option, and the `backendFor()` and `getBackend()` helpers that reach a backend. It doesn't cover the `behat_steps.backend` tag. Only 3 capability interfaces appear in a helper's signature: `UserCapabilityInterface`, `EntityDefinitionCapabilityInterface` and `DrushCapabilityInterface`. Every other capability interface, apart from the field handler and creation alias capabilities the earlier sections cover, sits on none of the 5 surfaces [Public API and versioning](../architecture/versioning.md) lists, so a minor release can add a method to 1 of them that your backend then has to implement.
 
 ## Where to next
 
