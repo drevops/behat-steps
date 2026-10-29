@@ -18,7 +18,7 @@ BrowserKit isn't a browser at all. It sends HTTP requests from PHP and reads the
 
 The Selenium2 browser driver comes from `lullabot/mink-selenium2-driver`. It controls a real browser, such as Chrome or Firefox, through a Selenium server. The page runs as it would for a visitor, JavaScript included. So you need a Selenium server and a browser for it to drive, usually as Docker containers.
 
-That package is a fork of `behat/mink-selenium2-driver` that speaks the W3C WebDriver protocol. Selenium 4 accepts only that protocol. The original package can't open a session on a Selenium 4 server in any release up to 1.7.0, as [Installation](../installation.md#run-javascript-scenarios-through-selenium) explains.
+That package is a fork of `behat/mink-selenium2-driver` that speaks the W3C WebDriver protocol, and [Installation](../installation.md#run-javascript-scenarios-through-selenium) shows how to switch to it.
 
 ## Chrome
 

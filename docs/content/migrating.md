@@ -80,7 +80,7 @@ Confirm that the migration is complete with the same checks the agent runs, whic
 
 ## Update your AI agent's reference
 
-If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, as the 3.x README suggested, that path still works in 4.0. 4.0 adds 2 files the agent can use:
+If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, that path still works in 4.0. 4.0 adds 2 files the agent can use:
 
 - `vendor/drevops/behat-steps/HELPERS.md` lists the helpers your own step definitions can call.
 - `vendor/drevops/behat-steps/skills/create-behat-step/SKILL.md` is the `create-behat-step` skill, which writes a step of your own on those helpers.

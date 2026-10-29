@@ -73,7 +73,7 @@ This library's own CI tests against both. [Browsers](guides/browsers.md) compare
 
 You change the `behat.php` the [Quick start](quick-start.md) creates, so if your project has none yet, start there and come back. To run `@javascript` scenarios in headless Chrome, with no Selenium server, follow these steps:
 
-1. Add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`. Its releases from 1.5.0 accept Behat 4 as well as Behat 3, and this library's own CI runs it on both:
+1. Add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`. This library's own CI runs it on both Behat majors:
 
    ```bash
    composer require --dev dmore/behat-chrome-extension
@@ -123,7 +123,7 @@ Confirm that Behat reaches Chrome the first time you run a scenario tagged `@jav
 
 When Behat runs on your machine, you can watch the browser in a headed Chrome, one with a window. These steps build on the `chrome` session, the `ChromeExtension` registration and the `use` lines from [Run JavaScript scenarios in headless Chrome](#run-javascript-scenarios-in-headless-chrome). To watch the browser in a headed Chrome:
 
-1. Start Chrome on your machine with `--remote-debugging-port=9222` and a `--user-data-dir` of its own, since Chrome 136 and newer ignore `--remote-debugging-port` on your default profile.
+1. Start Chrome on your machine with `--remote-debugging-port=9222` and a `--user-data-dir` of its own.
 2. In `behat.php`, add a profile that points `api_url` at that Chrome, and replace the file's `return` line with the snippet's, which registers both profiles:
 
    ```php
@@ -194,9 +194,7 @@ To run `@javascript` scenarios through a Selenium server instead, follow these s
 
    `ports` publishes the page that shows the browser, on port 7900, to a free port of your machine. `docker compose port selenium 7900` prints that port. Leave it out when you don't watch the browser. This repository runs the same image as its `chrome` service in [docker-compose.yml](../../docker-compose.yml), and its own tests reach that Selenium server at `http://chrome:4444/wd/hub`.
 
-`lullabot/mink-selenium2-driver` is a fork of `behat/mink-selenium2-driver` that works with Selenium 4. Every release of the original up to and including 1.7.0 opens a session through the JSON Wire Protocol, which Selenium 4 dropped. A Selenium 4 server refuses that session with `Could not start a new session. No nodes support the capabilities in the request`. The fork speaks the W3C WebDriver protocol Selenium 4 expects.
-
-The fork provides the same `Selenium2Driver` class and declares that it replaces the original, so Composer installs only 1 of them. A Drupal project that requires `drupal/core-dev` already has the fork, because `core-dev` requires it. `composer show lullabot/mink-selenium2-driver` prints the fork's details when your project has it, and `Package "lullabot/mink-selenium2-driver" not found` when it doesn't.
+`lullabot/mink-selenium2-driver` is a fork of `behat/mink-selenium2-driver` that speaks the W3C WebDriver protocol. The fork provides the same `Selenium2Driver` class and declares that it replaces the original, so Composer installs only 1 of them. `composer show lullabot/mink-selenium2-driver` prints the fork's details when your project has it, and `Package "lullabot/mink-selenium2-driver" not found` when it doesn't.
 
 ## Where to next
 

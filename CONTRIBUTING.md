@@ -371,13 +371,13 @@ Reordering an existing trait into this layout leaves [STEPS.md](STEPS.md) untouc
 
 ## Unsettled style questions
 
-These 5 style questions have no dominant form in this codebase. Every form listed is correct and behavior-identical where it appears, and converging any of them would churn 25 to 400 sites for no functional gain. Match the surrounding file, and don't convert existing code from one form to the other as a drive-by change.
+These 5 style questions have no dominant form in this codebase. Every form listed is correct and behavior-identical where it appears, and converging any of them would churn many sites for no functional gain. Match the surrounding file, and don't convert existing code from one form to the other as a drive-by change.
 
-- **Nullable-object absence**: `if (!$element)` (~40 sites) and `=== NULL` (~35 sites) are both accepted. `is_null()` isn't, and no code uses it.
-- **Array emptiness**: `empty($array)` (~30 sites) and `$array === []` (~25 sites) are both accepted. Newer code leans strict, as a weak preference and not a rule.
+- **Nullable-object absence**: `if (!$element)` and `=== NULL` are both accepted. `is_null()` isn't, and no code uses it.
+- **Array emptiness**: `empty($array)` and `$array === []` are both accepted.
 - **Docblock tag order and `@code` indentation**: `@param` before `@code` and the reverse both appear, as do flush and indented example bodies. `docs.php` renders `@code` bodies into [STEPS.md](STEPS.md), so changing indentation reflows the generated documentation.
-- **Test method names**: `test<Scenario>` (~410 methods, as in `testAnUnsetParameterIsNull()`), `test<Method><Scenario>` (~290, as in `testApplyAfterCreateIgnoresNonArrayValues()`) and `test<Method>` (~85, as in `testNormalize()`) are all accepted. A third of the test classes mix shapes, so name a new test like the existing tests of the same method, or like the rest of its class when there are none.
-- **Data provider form**: a generator declared as `\Iterator` (~150 providers) and a plain array declared as `array` (~165) are both accepted. `iterable` isn't, so the return type always tells the 2 apart.
+- **Test method names**: `test<Scenario>`, as in `testAnUnsetParameterIsNull()`, `test<Method><Scenario>`, as in `testApplyAfterCreateIgnoresNonArrayValues()`, and `test<Method>`, as in `testNormalize()`, are all accepted. Name a new test like the existing tests of the same method, or like the rest of its class when there are none.
+- **Data provider form**: a generator declared as `\Iterator` and a plain array declared as `array` are both accepted. `iterable` isn't, so the return type always tells the 2 apart.
 
 ## Settled style questions
 
@@ -597,12 +597,12 @@ Working on this repository makes it the root package, so its own flag applies: a
 `src/Extension` plugs into 5 Behat extension points, and each one is written to satisfy Behat 3.33 and Behat 4 at the same time. Keep it that way when touching them.
 
 - **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.33 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.33 interface is not narrowed.
-- **The `browserkit_http` factory is registered from `BehatStepsExtension::initialize()`.** The factory extends Mink's own, records each session's `http_client_parameters` through `buildDriver()` for the transport the library's own requests share, and builds the session exactly as Mink does. Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so it can't be subclassed. A wrapper would take the `mink` key away from any other Mink extension a project registers. `initialize()` runs after every extension is activated and before any configuration tree is built. When Mink's own `MinkExtension` holds the key, `initialize()` hands it the factory through `registerDriverFactory()`, the hook every browser driver extension uses, and leaves any other extension under that key alone. That works on both majors.
+- **The `browserkit_http` factory is registered from `BehatStepsExtension::initialize()`.** The factory extends Mink's own, records each session's `http_client_parameters` through `buildDriver()` for the transport the library's own requests share, and builds the session exactly as Mink does. A wrapper around Mink's own `MinkExtension` would take the `mink` key away from any other Mink extension a project registers. `initialize()` runs after every extension is activated and before any configuration tree is built. When Mink's own `MinkExtension` holds the key, `initialize()` hands it the factory through `registerDriverFactory()`, the hook every browser driver extension uses, and leaves any other extension under that key alone. That works on both majors.
 - **`BackendListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
 - **`EntityHook` resolves the hook callable for the installed major.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` isn't callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `EntityHook::resolveCallable()` uses it only when the class exists and passes the pair `HookAttributeReader` builds through unchanged otherwise. It returns `mixed`, because the 2 majors type that parameter differently and PHPStan only analyzes against the installed one. Behat's own parameter type checks the value at runtime.
 - **The `context.class_generator.simple` override survives by service ID.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that ID swaps the class in both versions.
 
-The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook in `src/` and in `tests/behat/bootstrap/` is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the browser driver name shorthand, because Mink 3.0.0-ALPHA.1 reads the shorthand with an `Undefined array key "sessions"` warning.
+The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook in `src/` and in `tests/behat/bootstrap/` is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the browser driver name shorthand.
 
 [behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, so the file stays complete as the extension grows. The same test holds the reference suite to the project's own `FeatureContext` and Mink's `MinkContext`, so a project copying the file never registers a shipped context beside the context that extends it. Behat never loads it here, because `behat.php` takes precedence.
 
@@ -831,7 +831,7 @@ Drupal traits are tested through the fixture site, which receives a copy of the 
 
 `@codeCoverageIgnoreStart` and `@codeCoverageIgnoreEnd` suppress **genuinely unreachable** defensive code. They are not a way to hide an untested branch.
 
-PHPUnit drops ignored lines from the report entirely. Ignoring a line that a test would have covered lowers the reported rate, which is merely wasteful. Ignoring a line that no test covers *raises* it, which reports progress that does not exist. `codecov/patch` and `codecov/project` are required checks, so that second case shifts the baseline every later pull request is measured against.
+PHPUnit drops ignored lines from the report entirely. Ignoring a line that a test would have covered lowers the reported rate, which is merely wasteful. Ignoring a line that no test covers *raises* it, which reports progress that does not exist.
 
 Mark a block only when a test cannot reach it in this environment:
 
@@ -871,7 +871,7 @@ The matrix runs these legs:
 | Legs | What they prove |
 |---|---|
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs hold the Behat 3.33 floor. |
-| `chrome_headless` x Drupal 11 x `normal`: PHP 8.3 and 8.5 on Behat 3, PHP 8.4 on Behat 4 | The steps drive a browser without Selenium, over the Chrome DevTools Protocol, on both Behat majors. That browser driver is Drupal-version independent, so the 3 legs take their breadth from the PHP axis, 1 version each. All 3 stay on `normal` deps: `dmore/behat-chrome-extension` hands the browser driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts doesn't define, so a `lowest` resolution can't boot Chrome. |
+| `chrome_headless` x Drupal 11 x `normal`: PHP 8.3 and 8.5 on Behat 3, PHP 8.4 on Behat 4 | The steps drive a browser without Selenium, over the Chrome DevTools Protocol, on both Behat majors. That browser driver is Drupal-version independent, so the 3 legs take their breadth from the PHP axis, 1 version each. All 3 run on `normal` deps. |
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 4 | The same unit, kernel and Behat suites pass on Behat 4. See [Behat 4 legs](#behat-4-legs). |
 | PHP 8.5 x Drupal 12 x `normal` / `lowest` x Behat 4 | The next core major, on a patched contrib set. See [Drupal versions](#drupal-versions). |
 
@@ -881,11 +881,11 @@ Coverage comes from 1 Selenium leg and 1 `chrome_headless` leg, both on Behat 3,
 
 ### Behat 4 legs
 
-Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.php](scripts/provision.php) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`. `dmore/behat-chrome-extension` accepts Behat 4 from 1.5.0, the floor `composer.json` sets, so it stays in the build and the PHP 8.4 leg runs the suite under `chrome_headless`.
+Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.php](scripts/provision.php) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`. The PHP 8.4 leg runs the suite under `chrome_headless`.
 
-On Drupal 11 the script removes `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while Drupal 11's `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, installs 5.5, and only the Drupal 11 fixture is held back. [behat.php](behat.php) registers the coverage extension only when it is installed.
+On Drupal 11 the script removes `dvdoug/behat-code-coverage` from a Behat 4 build. [behat.php](behat.php) registers the coverage extension only when it is installed.
 
-Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The `main` branch ruleset requires checks by name, so renaming a leg means updating its required checks to match.
+Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup.
 
 `BEHAT` reaches the container through `ahoy`, so set it to provision the fixture for Behat 4 locally, then run the suite:
 
@@ -902,33 +902,27 @@ Each major has its own fixture directory under [tests/behat/fixtures_drupal](tes
 
 Code that differs between Drupal majors goes in a version core, `DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core`. It extends the newest version core below `N`, or the base `Core` when there is none, and overrides only what major `N` changed. `DrupalBackend` builds the newest version core at or below the major it detects, and rejects a Core whose nearest Core of the package is the one for another major. `DrupalBackendCoreSelectionTest` covers both with the `Core99\Core` fixture, which stands in for a version core no Drupal release has.
 
-Drupal 12 is pinned to `~12.0.0-beta2` and runs 2 legs of its own, on PHP 8.5 and Behat 4 with `normal` and `lowest` deps, so the `normal` / `lowest` pair covers both Drupal majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
+Drupal 12 runs 2 legs of its own, on PHP 8.5 and Behat 4 with `normal` and `lowest` deps, so the `normal` / `lowest` pair covers both Drupal majors. Its fixture installs a patched contrib set, as [Patched contrib](#patched-contrib) describes. [docker-compose.yml](docker-compose.yml) runs 1 database image, `uselagoon/mariadb-10.11-drupal`, for both majors.
 
-Drupal 12 constrains its own grid hard:
-
-- Drupal 12 requires PHP 8.5, so PHP 8.3 and PHP 8.4 are out.
-- Drupal 12 requires Symfony 8, and the newest Behat 3 release still requires `symfony/yaml ^5.4 || ^6.4 || ^7.0`, so Behat 3 is out. `behat/behat` 4.0 accepts Symfony 8.
-- Drupal 12 raises the database floor to MariaDB 10.11, which is why [docker-compose.yml](docker-compose.yml) runs `uselagoon/mariadb-10.11-drupal`. Drupal 11 asks for 10.6 or newer, so 1 image serves both majors.
-
-The grid has no `chrome_headless` leg. The Chrome browser driver doesn't depend on the core major, so the Behat 4 Chrome leg on Drupal 11 covers it, and the Drupal 12 legs still run every `@javascript` scenario through Selenium.
+The Drupal 12 grid has no `chrome_headless` leg. The Chrome browser driver doesn't depend on the core major, so the Behat 4 Chrome leg on Drupal 11 covers it, and the Drupal 12 legs still run every `@javascript` scenario through Selenium.
 
 Building the Drupal 12 fixture takes 3 requirements the Drupal 11 fixture does not share:
 
-- `mglaman/composer-drupal-lenient`, with an `extra.drupal-lenient.allowed-list` naming every contrib module whose `drupal/core` requirement excludes Drupal 12. Most of the modules the fixture installs have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. A module comes off the list after the release at its floor declares `^12`. The fixture doesn't use the hosted lenient endpoint on drupal.org, which redirects to a page that doesn't exist. A Composer plugin only shapes a solve it's already installed for, and the fixture has no solution until this one runs. So [scripts/provision.php](scripts/provision.php) installs it globally before the build update, and Composer loads global plugins for local projects.
-- `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8, so the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
-- `drupal/scheduled_transitions ^2.9.0-beta4`, the first release declaring Drupal 12.
+- `mglaman/composer-drupal-lenient`, with an `extra.drupal-lenient.allowed-list` naming every contrib module whose `drupal/core` requirement excludes Drupal 12. The plugin strips that core constraint, so the module installs. A module comes off the list after the release at its floor declares `^12`. A Composer plugin only shapes a solve it's already installed for, and the fixture has no solution until this one runs. So [scripts/provision.php](scripts/provision.php) installs it globally before the build update, and Composer loads global plugins for local projects.
+- `drush/drush ^14@dev`, with `minimum-stability` set to `dev` and `prefer-stable`.
+- `drupal/scheduled_transitions ^2.9.0-beta4`.
 
-The Drush backend supports Drush 13, the first release that runs Drupal 11, and newer: the Drupal 11 fixture installs 13.x and the Drupal 12 fixture `14.x-dev`. It runs each command by its canonical colon-separated name, such as `pm:install` or `core:cron`, which every supported release registers, and never by a legacy alias such as `pm-enable` or `cron`. `DrushBackendMethodsTest` fails a command issued in any other form, and the `@backend:drush` scenarios run the cache, cron and user commands against the Drush each fixture installs.
+The Drush backend supports Drush 13 and newer. It runs each command by its canonical colon-separated name, such as `pm:install` or `core:cron`, which every supported release registers, and never by a legacy alias such as `pm-enable` or `cron`. `DrushBackendMethodsTest` fails a command issued in any other form, and the `@backend:drush` scenarios run the cache, cron and user commands against the Drush each fixture installs.
 
-The fixture also takes `drupal/core` from source rather than dist. From 12.0.0-beta1 on, the release package leaves out core's test files, which the PHPUnit bootstrap and the Kernel suite need. [scripts/provision.php](scripts/provision.php) passes no `--prefer-dist`, so the per-package setting holds.
+The fixture also takes `drupal/core` from source rather than dist, for the core test files the PHPUnit bootstrap and the Kernel suite need. [scripts/provision.php](scripts/provision.php) passes no `--prefer-dist`, so the per-package setting holds.
 
-Every contrib module carries a floor in `d12/composer.json` at the oldest release known to work on Drupal 12. An older release predates the major and fails on it whatever the patches do: `drupal/token` at its lowest resolvable release declares no return type on `getSubscribedEvents()`. A patch written against 1 release also doesn't apply to another. Without the floors the `lowest` leg fails before a single scenario runs.
+Every contrib module carries a floor in `d12/composer.json` at the oldest release known to work on Drupal 12. An older release fails on Drupal 12 whatever the patches do. A patch written against 1 release also doesn't apply to another. Without the floors the `lowest` leg fails before a single scenario runs.
 
 The floors cover contrib only. `lowest` still resolves the oldest usable version of the library's own dependencies, which is what those legs are for.
 
 Drupal also reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major. So after the update, [scripts/provision.php](scripts/provision.php) appends `|| ^12` to that key across the installed contrib modules. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
 
-Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them. The `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship. 12.0.0-beta1 goes further: it moves Olivero, Claro and Search out of core, which the fixture installs from contrib under the same machine names, and removes Toolbar and the Syndicate block, which the fixture drops.
+`d12/config/sync` leaves out the `contact`, `history` and `shortcut` modules, the config that depends on them, Toolbar and the Syndicate block. The fixture installs Olivero, Claro and Search from contrib, under their core machine names. The `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
 
 To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
 
@@ -940,17 +934,7 @@ The suites then run against it with `DRUPAL_VERSION=12 BEHAT=4` in front of `aho
 
 ### Patched contrib
 
-Drupal 12 and Symfony 8 between them broke 14 of the modules the fixture installs, so `d12/composer.json` carries a patch for each under `extra.patches`, applied by `cweagans/composer-patches`. The patches live in `d12/patches/` and fall into 5 groups:
-
-| What changed | Modules |
-| --- | --- |
-| Drupal 12 removed the magic `original` property | `redirect`, `webform` |
-| Symfony 8 removed `Request::get()` | `webform` |
-| Drupal 12 removed annotation-only plugin discovery | `ctools`, `webform` |
-| Drupal 12 and Symfony 8 tightened method signatures | `commerce`, `date_recur`, `dynamic_entity_reference`, `eck`, `entity_reference_revisions`, `paragraphs`, `pathauto`, `profile`, `redirect`, `scheduled_transitions`, `state_machine`, `time_field`, `webform` |
-| Drupal 12 stopped discovering `template_preprocess_HOOK()` | `eck` |
-
-Drupal 12 also deleted the Archiver plugin system, which `webform` injected but never used, and moved the `text_with_summary` field type out of `text` into a module of its own, which the fixture requires and enables.
+`d12/composer.json` carries a patch under `extra.patches` for each contrib module that fails on Drupal 12, applied by `cweagans/composer-patches`. The patches live in `d12/patches/`.
 
 Every patch is generated against the released source rather than against the `build/` tree, which carries whatever the last provisioning applied. A patch generated from `build/` silently loses any hunk the tree already has.
 
@@ -958,11 +942,11 @@ When a module ships a Drupal 12 release, remove its patch and its floor.
 
 ### Verifying the import landed
 
-`drush cim` can enable the modules, abort on a fatal raised while it creates config entities, and still exit 0. The site then comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.php](scripts/provision.php) therefore reads a config entity only the fixture defines and fails when the import didn't land, on every major. Without that check, a Drupal 12 build reports success on an empty site.
+`drush cim` can enable the modules, abort on a fatal raised while it creates config entities, and still exit 0. The site then comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.php](scripts/provision.php) therefore reads a config entity only the fixture defines and fails when the import didn't land, on every major.
 
 ### Coverage
 
-Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 installs there and Behat 4 coverage is possible. The coverage report stays on the Drupal 11 legs while core 12 is a pre-release.
+Coverage is not collected on the Drupal 12 legs.
 
 ### Docs
 

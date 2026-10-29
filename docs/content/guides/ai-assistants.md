@@ -63,13 +63,7 @@ mkdir -p .claude/skills
 ln -s ../../vendor/drevops/behat-steps/skills/create-behat-step .claude/skills/create-behat-step
 ```
 
-Many other agents, such as Codex, Cursor, GitHub Copilot and Gemini CLI, read `.agents/skills/` instead, so link the skill there the same way. Commit the link: it points into `vendor/`, so after every `composer update` it resolves to the skill of the release you installed. On a system without symbolic links, copy the directory instead, and copy it again after you update the package.
-
-The [skills](https://github.com/vercel-labs/skills) command-line tool installs it for each agent you pick, from your installed copy:
-
-```bash
-npx skills add ./vendor/drevops/behat-steps --skill create-behat-step
-```
+For another agent, link the skill into the skills directory that agent reads, the same way. Commit the link: it points into `vendor/`, so after every `composer update` it resolves to the skill of the release you installed. On a system without symbolic links, copy the directory instead, and copy it again after you update the package.
 
 Then ask your agent for a step in your own words, or run the skill with a description. In Claude Code:
 
