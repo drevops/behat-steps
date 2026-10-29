@@ -3563,8 +3563,11 @@ When I set the viewport to "375" by "667"
 >  Test REST APIs with lightweight steps.
 >  - Set HTTP headers for subsequent requests.
 >  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
+>  - Send requests without the browser session's cookies.
 >  - Assert response status codes and body content.
 >  
+>  Send requests without cookies with tag: `@rest-no-cookies`.
+>  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:RestTrait`.
 
 
@@ -3573,6 +3576,7 @@ When I set the viewport to "375" by "667"
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
 | `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the context's request headers before each scenario. If `FALSE`, they aren't cleared, which changes nothing, because Behat builds a new context for each scenario and its headers start empty. |
+| `rest.send_cookies` | boolean | `TRUE` | `@rest-no-cookies` | If `TRUE`, each REST request carries the browser session's cookies and keeps the cookies its response sets, so a logged-in session authenticates it. If `FALSE`, each REST request carries no cookies and its response's cookies are discarded, while the browser session keeps its own. |
 
 <details>
   <summary><code>@Given the REST header :name has the value :value</code></summary>
@@ -3614,6 +3618,19 @@ When I send a REST "POST" request to "/api/resource" with the body:
   """
   {"name": "example"}
   """
+```
+
+</details>
+
+<details>
+  <summary><code>@When I print the last REST response</code></summary>
+
+<br/>
+Print the last REST response
+<br/><br/>
+
+```gherkin
+When I print the last REST response
 ```
 
 </details>

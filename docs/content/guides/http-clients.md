@@ -13,7 +13,7 @@ Most steps read the page the Mink session holds. A few send HTTP requests of the
 - `FileDownloadTrait` downloads a file.
 - `MetatagTrait` fetches the hreflang alternates of a page.
 - `AccessibilityTrait` fetches its engine script.
-- `RestTrait` sends a request whose response becomes the page.
+- `RestTrait` sends a request whose response becomes the page. The `rest.send_cookies` option and the `@rest-no-cookies` tag decide whether that request carries the session's cookies.
 
 Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from and how to change them.
 

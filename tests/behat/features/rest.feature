@@ -33,11 +33,66 @@ Feature: Check that RestTrait works
     Then the REST response status code should be 200
     And the REST response should contain "The Great Adventure"
 
+  Scenario: Assert "When I send a REST :method request to :url" sends the session cookies by default
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    And I am logged in as a user with the role "administrator"
+    And the REST header "Authorization" has the value "Basic YWRtaW4tdGVzdDphZG1pbi10ZXN0"
+    When I send a REST "POST" request to "/mysite_core/test-csrf-header"
+    Then the REST response status code should be 403
+
+  @rest-no-cookies
+  Scenario: Assert "When I send a REST :method request to :url" sends no session cookies with the "@rest-no-cookies" tag
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    And I am logged in as a user with the role "administrator"
+    And the REST header "Authorization" has the value "Basic YWRtaW4tdGVzdDphZG1pbi10ZXN0"
+    When I send a REST "POST" request to "/mysite_core/test-csrf-header"
+    Then the REST response status code should be 200
+    And the REST response should contain "admin-test"
+    When I go to "/admin"
+    Then the response status code should be 200
+
+  @rest-no-cookies
+  Scenario: Assert "When I send a REST :method request to :url with the body:" sends no session cookies with the "@rest-no-cookies" tag
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    And I am logged in as a user with the role "administrator"
+    And the REST header "Authorization" has the value "Basic YWRtaW4tdGVzdDphZG1pbi10ZXN0"
+    And the REST header "Content-Type" has the value "application/json"
+    When I send a REST "POST" request to "/mysite_core/test-csrf-header" with the body:
+      """
+      {"name": "example"}
+      """
+    Then the REST response status code should be 200
+    And the REST response should contain "admin-test"
+
   @behat-steps-skip:RestTrait
   Scenario: Assert that a scenario with the skip tag still sends REST requests
     Given the REST header "Accept" has the value "text/html"
     When I send a REST "GET" request to "/"
     Then the REST response status code should be 200
+
+  @test-trait:RestTrait
+  Scenario: Assert "When I print the last REST response" prints the response body
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      And I print the last REST response
+      """
+    When I run "behat --no-colors"
+    Then it should pass with:
+      """
+      1 scenario (1 passed)
+      """
+    And the output should contain:
+      """
+      <h1>Robots header test</h1>
+      """
 
   @test-trait:RestTrait
   Scenario: Assert that negative assertion for "Then the REST response status code should be :code" fails with an error

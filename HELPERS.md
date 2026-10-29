@@ -27,7 +27,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [RandomTrait](#randomtrait) | 10 | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](#regiontrait) | 4 | Interact with and assert against named page regions. |
 | [ResponsiveTrait](#responsivetrait) | 7 | Test responsive layouts with viewport control. |
-| [RestTrait](#resttrait) | 2 | Test REST APIs with lightweight steps. |
+| [RestTrait](#resttrait) | 4 | Test REST APIs with lightweight steps. |
 | [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 9 | Assert XML responses with element and attribute checks. |
@@ -1466,10 +1466,28 @@ Get the page client REST requests are sent through
 </details>
 
 <details>
+  <summary><code>public function restGetSendCookies(): bool</code></summary>
+
+<br/>
+Whether REST requests carry the browser session's cookies
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function restResolveUrl(string $url): string</code></summary>
 
 <br/>
 Resolve a relative URL against the Mink base URL
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function restSend(string $method, string $url, ?string $body = NULL): void</code></summary>
+
+<br/>
+Send a REST request with the stored headers
 <br/><br/>
 
 </details>
