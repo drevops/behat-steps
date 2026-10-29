@@ -62,7 +62,7 @@ composer require --dev softcreatr/jsonpath justinrainbow/json-schema
 
 Mink, the library Behat uses to drive a browser, talks to the browser through a browser driver. The BrowserKit driver that comes with Behat Steps loads pages through HTTP requests from PHP. It's fast, but it never runs the page's JavaScript. When a scenario needs JavaScript, tag it `@javascript`, and Mink runs it in a real browser through a second driver.
 
-Behat Steps ships adapters, the classes that declare what a driver can do, for 2 real-browser drivers. The steps that need a real browser work with both:
+Behat Steps ships adapters, the classes that declare what a driver can do, for 2 real-browser drivers. Both run JavaScript, and [What each one can do](guides/browsers.md#what-each-one-can-do) lists the capabilities only 1 of them provides:
 
 - The Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`
 - `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol, with no Selenium server
