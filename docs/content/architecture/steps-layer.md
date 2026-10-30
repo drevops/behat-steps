@@ -45,13 +45,13 @@ A step reaches out in 1 of 3 ways, through methods of `WebRawContext` or Mink:
 - The site itself, through `backendFor()` and a capability, as [Backend layer](backend-layer.md) describes.
 - A request of its own, through 1 of the 4 [HTTP clients](../guides/http-clients.md).
 
-The traits fall into 3 groups by what they need from a backend:
+The step traits fall into 3 groups by what they need to run:
 
-- `MessageTrait`, `MappingTrait`, `RegionTrait` and `BasicAuthTrait` need the extension's configuration but no backend.
-- Every other web trait needs no backend, and neither do `BatchTrait`, `BigPipeTrait` and `ConfigOverrideTrait` under `Steps/Drupal`. `ConfigOverrideTrait` passes its signal to the scenario's backends that accept it, and works when there are none.
-- Every other trait names the capabilities it works through, so it runs on any backend that provides them.
+- `MessageTrait`, `MappingTrait`, `RegionTrait` and `BasicAuthTrait` under `Steps/Web` need the extension's configuration but no backend.
+- Every other trait under `Steps/Web` needs no configuration and no backend. The same is true of `BatchTrait`, `BigPipeTrait` and `ConfigOverrideTrait` under `Steps/Drupal`. `ConfigOverrideTrait` sets its `X-Config-No-Override` header on HTTP requests and passes it to every backend of the scenario that provides `RequestEnvironmentCapabilityInterface`. The trait still runs when the scenario has no such backend.
+- Every other trait under `Steps/Drupal` resolves the capabilities it works through, so it runs on any backend that provides them.
 
-[What a trait needs from the backend](../../../CONTRIBUTING.md#what-a-trait-needs-from-the-backend) lists which trait uses which.
+[What a trait needs from the backend](../../../CONTRIBUTING.md#what-a-trait-needs-from-the-backend) lists which trait uses which capability.
 
 ## The rules every trait follows
 

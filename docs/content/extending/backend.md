@@ -78,7 +78,7 @@ To add the `RatingHandler` class for a `rating` field type:
 
 A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails each scenario that uses the backend. The `\RuntimeException` names the class.
 
-The package registers each class the option names through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. To register a handler from a context of your own, call the same interface:
+The package registers each class named in the option through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. To register a handler from a context of your own, call `registerFieldHandler()` on the same interface:
 
 ```php
 $this->backendFor(FieldHandlerCapabilityInterface::class)
@@ -187,7 +187,7 @@ To add the `OrganizationAlias` class, which resolves an `organization` column on
 
 The package builds each class with no constructor arguments when it builds the backend, so the class can sit in the same places as a [field handler](#field-handlers). A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException`. The message names the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
 
-The package registers each class the options name through `CreationAliasCapabilityInterface`, which both Drupal backends provide. To register an alias whose constructor takes arguments, build it in a context of your own and register it through the same interface. Here, `OrganizationLookupAlias` is a class of your own whose constructor takes a lookup service:
+The package registers each class on the backend whose option names it. It does so through `CreationAliasCapabilityInterface`, which the `drupal` and `drush` backends provide. To register an alias whose constructor requires arguments, build it in a context of your own and register it through the same interface. To register `OrganizationLookupAlias`, a class of your own whose constructor requires a lookup service:
 
 ```php
 $this->backendFor(CreationAliasCapabilityInterface::class)
@@ -236,7 +236,7 @@ To use a Core of your own, `AcmeCore`:
    $profile->withExtension(new Extension(BehatStepsExtension::class, [
      'drupal' => [
        'drupal_root' => 'web',
-       'core' => AcmeCore::class,
+       'core' => \Acme\Behat\AcmeCore::class,
      ],
    ]));
    ```
@@ -321,7 +321,7 @@ To add the `AcmeJsonApiBackend` class, which runs cron through an API client of 
    }
    ```
 
-2. Register the backend from the `load()` method of a Behat extension of your own. Tag its service `behat_steps.backend`, with the name it answers to as the `alias`:
+2. Register the backend from the `load()` method of a Behat extension of your own, and import `Symfony\Component\DependencyInjection\Definition` there. Tag its service `behat_steps.backend`, with the name it answers to as the `alias`:
 
    ```php
    public function load(ContainerBuilder $container, array $config): void {

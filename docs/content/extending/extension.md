@@ -56,7 +56,7 @@ To add the extension:
    }
    ```
 
-2. Register it on the profile beside `BehatStepsExtension`:
+2. In `behat.php`, pass `AcmeExtension` to a `Behat\Config\Extension` and register that on the profile beside `BehatStepsExtension`:
 
    ```php
    $profile->withExtension(new Extension(\Acme\Behat\AcmeExtension::class));
@@ -116,7 +116,7 @@ Only the class changes. The container builds yours with the arguments and calls 
 
 ## Replace option resolution
 
-The `behat_steps.config.resolver_factory` service builds the resolver that every option read goes through. [Trait options](../guides/configuration.md#trait-options) lists the layers a trait option resolves through. To resolve options your own way, register a `TraitOptionResolverFactoryInterface` implementation under that ID:
+The `behat_steps.config.resolver_factory` service builds the resolver that every option read goes through. [Trait options](../guides/configuration.md#trait-options) lists the layers a trait option resolves through. To resolve options your own way, import `Symfony\Component\DependencyInjection\Definition` in your extension and register a `TraitOptionResolverFactoryInterface` implementation under that ID:
 
 ```php
 public function process(ContainerBuilder $container): void {
