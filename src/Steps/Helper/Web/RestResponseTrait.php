@@ -53,6 +53,27 @@ trait RestResponseTrait {
   }
 
   /**
+   * Find a header of the last REST response.
+   *
+   * @param string $name
+   *   The header name, in any case.
+   *
+   * @return string|null
+   *   The header's first value, or NULL when the response has no such header.
+   *
+   * @throws \RuntimeException
+   *   When no REST request has been sent in the scenario.
+   */
+  public function restResponseFindHeader(string $name): ?string {
+    try {
+      return $this->httpRestSession()->getResponseHeader($name);
+    }
+    catch (DriverException $exception) {
+      throw $this->restResponseCreateMissingException($exception);
+    }
+  }
+
+  /**
    * Create the exception for a read before any REST request.
    *
    * @param \Behat\Mink\Exception\DriverException $previous

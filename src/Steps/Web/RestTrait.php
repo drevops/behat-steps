@@ -24,7 +24,7 @@ use Symfony\Component\BrowserKit\AbstractBrowser;
  *
  * - Set HTTP headers for subsequent requests.
  * - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
- * - Assert response status codes and body content.
+ * - Assert response status codes, headers and body content.
  *
  * Requests go through the `rest` Mink session, apart from the browser's: they
  * carry no browser cookies, and the browser keeps its page. The JSON and XML
@@ -158,6 +158,86 @@ trait RestTrait {
 
     if (!str_contains($content, $value)) {
       throw new ExpectationException(sprintf('The REST response does not contain "%s".', $value), $this->httpRestSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert the REST response contains a header.
+   *
+   * @code
+   * Then the REST response should contain the header "Content-Type"
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Then('the REST response should contain the header :name')]
+  public function restAssertResponseHeaderExists(string $name): void {
+    if ($this->restResponseFindHeader($name) === NULL) {
+      throw new ExpectationException(sprintf('The REST response does not contain the header "%s".', $name), $this->httpRestSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert the REST response does not contain a header.
+   *
+   * @code
+   * Then the REST response should not contain the header "Set-Cookie"
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Then('the REST response should not contain the header :name')]
+  public function restAssertResponseHeaderNotExists(string $name): void {
+    if ($this->restResponseFindHeader($name) !== NULL) {
+      throw new ExpectationException(sprintf('The REST response contains the header "%s", but it should not.', $name), $this->httpRestSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert a header of the REST response contains a value.
+   *
+   * The comparison ignores case.
+   *
+   * @code
+   * Then the REST response header "Content-Type" should contain "application/json"
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Then('the REST response header :name should contain :value')]
+  public function restAssertResponseHeaderContains(string $name, string $value): void {
+    $actual = $this->restResponseFindHeader($name);
+
+    if ($actual === NULL) {
+      throw new ExpectationException(sprintf('The REST response does not contain the header "%s".', $name), $this->httpRestSession()->getDriver());
+    }
+
+    if (!str_contains(strtolower($actual), strtolower($value))) {
+      throw new ExpectationException(sprintf('The REST response header "%s" is "%s" and does not contain "%s".', $name, $actual, $value), $this->httpRestSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert a header of the REST response does not contain a value.
+   *
+   * The comparison ignores case.
+   *
+   * @code
+   * Then the REST response header "Cache-Control" should not contain "public"
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Then('the REST response header :name should not contain :value')]
+  public function restAssertResponseHeaderNotContains(string $name, string $value): void {
+    $actual = $this->restResponseFindHeader($name);
+
+    if ($actual === NULL) {
+      throw new ExpectationException(sprintf('The REST response does not contain the header "%s".', $name), $this->httpRestSession()->getDriver());
+    }
+
+    if (str_contains(strtolower($actual), strtolower($value))) {
+      throw new ExpectationException(sprintf('The REST response header "%s" is "%s" and contains "%s", but it should not.', $name, $actual, $value), $this->httpRestSession()->getDriver());
     }
   }
 

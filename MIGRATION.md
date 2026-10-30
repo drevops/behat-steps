@@ -1220,7 +1220,7 @@ The REST steps send through a Mink session of their own, named `rest`, and the J
 
 - A REST request carries none of the browser's cookies, and the browser keeps its page and its login. A REST step that relied on the browser's login now runs anonymously, so give it the credentials the API expects with `the REST header "Authorization" has the value "..."`.
 - The JSON and XML steps fail on a page the browser loaded, with `No REST request has been sent in this scenario.` Send the request with `When I send a REST "GET" request to "..."` instead of `When I go to "..."`.
-- A page step after a REST request reads the browser's page, not the REST response. Check the response with `the REST response should contain :value` or the JSON and XML steps.
+- A page step after a REST request reads the browser's page, not the REST response. Check the response with `the REST response should contain :value`, the `the REST response header ...` steps, or the JSON and XML steps. The `the response header ...` steps of `ResponseTrait` read the browser's page too.
 - The REST steps work in a `@javascript` scenario.
 - The headers from `the REST header :name has the value :value` go with REST requests only, and a file download no longer carries them.
 

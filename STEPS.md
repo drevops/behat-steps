@@ -3566,7 +3566,7 @@ When I set the viewport to "375" by "667"
 >  Test REST APIs with lightweight steps.
 >  - Set HTTP headers for subsequent requests.
 >  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
->  - Assert response status codes and body content.
+>  - Assert response status codes, headers and body content.
 >  
 >  Requests go through the `rest` Mink session, apart from the browser's: they
 >  carry no browser cookies, and the browser keeps its page. The JSON and XML
@@ -3661,6 +3661,58 @@ Assert the REST response contains text
 
 ```gherkin
 Then the REST response should contain "success"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response should contain the header :name</code></summary>
+
+<br/>
+Assert the REST response contains a header
+<br/><br/>
+
+```gherkin
+Then the REST response should contain the header "Content-Type"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response should not contain the header :name</code></summary>
+
+<br/>
+Assert the REST response does not contain a header
+<br/><br/>
+
+```gherkin
+Then the REST response should not contain the header "Set-Cookie"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response header :name should contain :value</code></summary>
+
+<br/>
+Assert a header of the REST response contains a value
+<br/><br/>
+
+```gherkin
+Then the REST response header "Content-Type" should contain "application/json"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response header :name should not contain :value</code></summary>
+
+<br/>
+Assert a header of the REST response does not contain a value
+<br/><br/>
+
+```gherkin
+Then the REST response header "Cache-Control" should not contain "public"
 ```
 
 </details>

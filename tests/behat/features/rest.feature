@@ -91,6 +91,19 @@ Feature: Check that RestTrait works
     Then the REST response status code should be 200
     And the REST response should contain "editor-test"
 
+  Scenario: Assert the REST response header steps work
+    When I send a REST "GET" request to "/mysite_core/test-robots-header?value=noindex"
+    Then the REST response should contain the header "X-Robots-Tag"
+    And the REST response should not contain the header "X-Nonexistent-Header"
+    And the REST response header "X-Robots-Tag" should contain "NOINDEX"
+    And the REST response header "X-Robots-Tag" should not contain "nofollow"
+
+  Scenario: Assert the REST response header steps read the REST response, not the page
+    Given I go to "/mysite_core/test-robots-header?value=nofollow"
+    When I send a REST "GET" request to "/mysite_core/test-robots-header?value=noindex"
+    Then the REST response header "X-Robots-Tag" should contain "noindex"
+    And the response header "X-Robots-Tag" should contain "nofollow"
+
   @javascript
   Scenario: Assert a REST request runs beside a JavaScript browser session
     Given I go to "/user/login"
@@ -135,6 +148,90 @@ Feature: Check that RestTrait works
     Then it should fail with an exception:
       """
       No REST request has been sent in this scenario. The REST, JSON and XML steps read the response of "When I send a REST :method request to :url", not the page the browser loaded.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response should contain the header :name" fails with an error for a missing header
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Then the REST response should contain the header "X-Nonexistent-Header"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response does not contain the header "X-Nonexistent-Header".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response should not contain the header :name" fails with an error for a present header
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Then the REST response should not contain the header "X-Robots-Tag"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response contains the header "X-Robots-Tag", but it should not.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response header :name should contain :value" fails with an error for a missing header
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Then the REST response header "X-Nonexistent-Header" should contain "noindex"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response does not contain the header "X-Nonexistent-Header".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response header :name should contain :value" fails with an error for another value
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header?value=noindex"
+      Then the REST response header "X-Robots-Tag" should contain "nofollow"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response header "X-Robots-Tag" is "noindex" and does not contain "nofollow".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response header :name should not contain :value" fails with an error for a missing header
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Then the REST response header "X-Nonexistent-Header" should not contain "noindex"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response does not contain the header "X-Nonexistent-Header".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response header :name should not contain :value" fails with an error for a contained value
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header?value=noindex"
+      Then the REST response header "X-Robots-Tag" should not contain "noindex"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response header "X-Robots-Tag" is "noindex" and contains "noindex", but it should not.
       """
 
   @test-trait:RestTrait

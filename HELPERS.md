@@ -34,7 +34,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [FixtureDirectoryTrait](#fixturedirectorytrait) | 5 | Resolves fixture files in the directory Mink's `files_path` parameter names. |
 | [HeadingTrait](#headingtrait) | 1 | Finds a heading by its text within the page or an element of it. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
-| [RestResponseTrait](#restresponsetrait) | 2 | Reads the last response of the REST session. |
+| [RestResponseTrait](#restresponsetrait) | 3 | Reads the last response of the REST session. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
 
 ## Index of Drupal helpers
@@ -1781,6 +1781,15 @@ $this->requestHeadersSet('X-Acme-Token', 'secret');
 [Source](src/Steps/Helper/Web/RestResponseTrait.php)
 
 > Reads the last response of the REST session.
+
+<details>
+  <summary><code>public function restResponseFindHeader(string $name): ?string</code></summary>
+
+<br/>
+Find a header of the last REST response
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function restResponseGetContent(): string</code></summary>

@@ -77,22 +77,33 @@ class RestTraitTest extends UnitTestCase {
    *
    * @param string $method
    *   The helper to call.
+   * @param array<int, string> $arguments
+   *   The arguments to call it with.
    */
   #[DataProvider('dataProviderResponseRequiresRequest')]
-  public function testResponseRequiresRequest(string $method): void {
+  public function testResponseRequiresRequest(string $method, array $arguments): void {
     $object = new RestTraitTestImplementation();
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('No REST request has been sent in this scenario. The REST, JSON and XML steps read the response of "When I send a REST :method request to :url", not the page the browser loaded.');
 
-    $object->{$method}();
+    $object->{$method}(...$arguments);
   }
 
   public static function dataProviderResponseRequiresRequest(): array {
     return [
-      'content' => ['restResponseGetContent'],
-      'status code' => ['restResponseGetStatusCode'],
+      'content' => ['restResponseGetContent', []],
+      'status code' => ['restResponseGetStatusCode', []],
+      'header' => ['restResponseFindHeader', ['Content-Type']],
     ];
+  }
+
+  public function testResponseFindsHeader(): void {
+    $object = new RestTraitTestImplementation();
+    $object->restSend('GET', 'http://example.com/api');
+
+    $this->assertSame('application/json', $object->restResponseFindHeader('content-type'));
+    $this->assertNull($object->restResponseFindHeader('X-Nonexistent-Header'));
   }
 
   public function testGetBrowserRequiresBrowserKitSession(): void {
@@ -144,7 +155,7 @@ class RestTraitTestImplementation extends WebRawContext {
         'headers' => $headers,
       ];
 
-      return new MockResponse('{"status": "ok"}');
+      return new MockResponse('{"status": "ok"}', ['response_headers' => ['Content-Type: application/json']]);
     }))));
 
     return $this->session;
