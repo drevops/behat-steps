@@ -143,6 +143,21 @@ class BehatStepsExtensionTest extends UnitTestCase {
       ],
       ['timeout' => 30],
     ];
+    yield 'a REST session with its own options' => [
+      [
+        'default' => ['browserkit_http' => ['http_client_parameters' => ['timeout' => 30]]],
+        'rest' => ['browserkit_http' => ['http_client_parameters' => ['timeout' => 60, 'verify_peer' => FALSE]]],
+      ],
+      ['timeout' => 30],
+    ];
+    yield 'a REST session named in another case' => [
+      [
+        'default' => ['browserkit_http' => ['http_client_parameters' => ['timeout' => 30]]],
+        'REST' => ['browserkit_http' => ['http_client_parameters' => ['timeout' => 60]]],
+      ],
+      ['timeout' => 30],
+    ];
+    yield 'only a REST session' => [['rest' => ['browserkit_http' => ['http_client_parameters' => ['timeout' => 60]]]], []];
   }
 
   public function testProcessRejectsSessionsWithDifferentOptions(): void {

@@ -44,6 +44,14 @@ final class BehatStepsExtension implements ExtensionInterface {
   public const string TRANSPORT_SERVICE = 'behat_steps.http_client';
 
   /**
+   * Name of the Mink session the REST, JSON and XML steps send through.
+   *
+   * A session the Mink configuration declares under this name keeps its own
+   * connection options, apart from the shared transport's.
+   */
+  public const string REST_SESSION = 'rest';
+
+  /**
    * The factory registered with Mink, NULL when the suite registers no Mink.
    */
   protected ?BrowserKitFactory $browserKitFactory = NULL;
@@ -457,19 +465,50 @@ final class BehatStepsExtension implements ExtensionInterface {
    * Defines the transport the detached and bare browsers send through.
    *
    * Mink passes the 'browserkit_http' factory each session's options while the
-   * extensions load, so they are read here, in the process pass after it.
+   * extensions load, so they are read here, in the process pass after it. The
+   * REST session's options are its own, so they are left out.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
    *   When 2 'browserkit_http' sessions declare different options.
    */
   protected function processHttpClient(ContainerBuilder $container): void {
-    $options = $this->browserKitFactory?->getClientOptions() ?? [];
+    $options = $this->browserKitFactory?->getClientOptions($this->findSessionDriver($container, self::REST_SESSION)) ?? [];
     $base_url = $container->hasParameter('mink.base_url') ? $container->getParameter('mink.base_url') : NULL;
 
     $definition = new Definition(HttpClientInterface::class, [$options, is_string($base_url) ? $base_url : NULL]);
     $definition->setFactory([HttpClientFactory::class, 'createTransport']);
 
     $container->setDefinition(self::TRANSPORT_SERVICE, $definition);
+  }
+
+  /**
+   * Returns the browser driver definition of a session Mink registers.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   *   The container holding Mink's service.
+   * @param string $name
+   *   The session name, in any case, as Mink matches it.
+   *
+   * @return \Symfony\Component\DependencyInjection\Definition|null
+   *   The definition, or NULL when Mink registers no session by that name.
+   */
+  protected function findSessionDriver(ContainerBuilder $container, string $name): ?Definition {
+    if (!$container->hasDefinition(MinkExtension::MINK_ID)) {
+      return NULL;
+    }
+
+    foreach ($container->getDefinition(MinkExtension::MINK_ID)->getMethodCalls() as [$method, $arguments]) {
+      if ($method !== 'registerSession' || !is_string($arguments[0] ?? NULL) || strtolower($arguments[0]) !== strtolower($name)) {
+        continue;
+      }
+
+      $session = $arguments[1] ?? NULL;
+      $driver = $session instanceof Definition ? $session->getArgument(0) : NULL;
+
+      return $driver instanceof Definition ? $driver : NULL;
+    }
+
+    return NULL;
   }
 
   /**

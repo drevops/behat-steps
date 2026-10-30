@@ -20,9 +20,9 @@ use Symfony\Component\DependencyInjection\Definition;
 final class BrowserKitFactory extends UpstreamBrowserKitFactory {
 
   /**
-   * The 'http_client_parameters' of each session built, in build order.
+   * The driver and 'http_client_parameters' of each session, in build order.
    *
-   * @var array<int, array<array-key, mixed>>
+   * @var array<int, array{driver: \Symfony\Component\DependencyInjection\Definition, options: array<array-key, mixed>}>
    */
   protected array $sessionOptions = [];
 
@@ -34,26 +34,32 @@ final class BrowserKitFactory extends UpstreamBrowserKitFactory {
    */
   public function buildDriver(array $config): Definition {
     $options = $config['http_client_parameters'] ?? [];
-    $this->sessionOptions[] = is_array($options) ? $options : [];
+    $driver = parent::buildDriver($config);
 
-    return parent::buildDriver($config);
+    $this->sessionOptions[] = ['driver' => $driver, 'options' => is_array($options) ? $options : []];
+
+    return $driver;
   }
 
   /**
    * Returns the connection options the 'browserkit_http' sessions declare.
    *
+   * @param \Symfony\Component\DependencyInjection\Definition|null $excluded
+   *   The driver definition of a session whose options are its own, or NULL.
+   *
    * @return array<array-key, mixed>
-   *   The options, or an empty array when no session was built.
+   *   The options, or an empty array when no other session was built.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
    *   When 2 sessions declare different options.
    */
-  public function getClientOptions(): array {
-    $options = self::normalizeOptions($this->sessionOptions[0] ?? []);
+  public function getClientOptions(?Definition $excluded = NULL): array {
+    $sessions = array_values(array_filter($this->sessionOptions, static fn(array $session): bool => $session['driver'] !== $excluded));
+    $options = self::normalizeOptions($sessions[0]['options'] ?? []);
 
-    foreach ($this->sessionOptions as $session_options) {
-      if (self::normalizeOptions($session_options) !== $options) {
-        throw new InvalidConfigurationException(sprintf('The %d "browserkit_http" sessions declare different "http_client_parameters". Behat Steps sends its own requests with 1 set of connection options, so give every "browserkit_http" session the same options.', count($this->sessionOptions)));
+    foreach ($sessions as $session) {
+      if (self::normalizeOptions($session['options']) !== $options) {
+        throw new InvalidConfigurationException(sprintf('The %d "browserkit_http" sessions declare different "http_client_parameters". Behat Steps sends its own requests with 1 set of connection options, so give every "browserkit_http" session the same options, apart from a session named "rest".', count($sessions)));
       }
     }
 

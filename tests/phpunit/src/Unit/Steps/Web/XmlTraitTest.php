@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
-use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Steps\Web\XmlTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 
 /**
@@ -43,7 +43,7 @@ class XmlTraitTest extends UnitTestCase {
 /**
  * Test implementation of XmlTrait.
  */
-class XmlTraitTestImplementation extends RawMinkContext {
+class XmlTraitTestImplementation extends WebRawContext {
 
   use XmlTrait;
 

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\ScenarioScope;
+use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\DriverException;
+use Behat\Mink\Session;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\Scope\HookScope;
@@ -29,6 +31,7 @@ use DrevOps\BehatSteps\Extension\Http\HttpIdentity;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Extension\Prerequisite\PrerequisiteReader;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 use DrevOps\BehatSteps\Extension\Tag;
 use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
@@ -244,6 +247,32 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    */
   public function httpBareClient(array $options = []): AbstractBrowser {
     return $this->getHttpClientFactory()->createBare($options);
+  }
+
+  /**
+   * Returns the Mink session the REST, JSON and XML steps read.
+   *
+   * A session named 'rest' in the suite's Mink configuration is used as it is
+   * declared. Otherwise the first call registers 1 with Mink: a BrowserKit
+   * browser on the shared transport, carrying the site's basic-auth
+   * credentials and no cookies. Mink resets it before each scenario, like
+   * every other session.
+   *
+   * It runs beside the browser, so the browser keeps its page and its cookies
+   * under every browser driver, JavaScript ones included.
+   */
+  public function httpRestSession(): Session {
+    $mink = $this->getMink();
+
+    if (!$mink->hasSession(BehatStepsExtension::REST_SESSION)) {
+      /** @var \Symfony\Component\BrowserKit\AbstractBrowser<object, object> $browser */
+      $browser = $this->getHttpClientFactory()->createDetached(new HttpIdentity([], NULL, [], $this->basicAuthenticator?->findCredentials()));
+      $base_url = $this->getMinkParameter('base_url');
+
+      $mink->registerSession(BehatStepsExtension::REST_SESSION, new Session(new BrowserKitDriver($browser, is_string($base_url) ? $base_url : NULL)));
+    }
+
+    return $mink->getSession(BehatStepsExtension::REST_SESSION);
   }
 
   /**

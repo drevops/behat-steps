@@ -61,7 +61,7 @@ $this->entityLifecycleRegister($created, 'mid');
 
 ### A step that sends its own request
 
-[HTTP clients](../guides/http-clients.md) covers the 3 clients a step sends its own requests through.
+[HTTP clients](../guides/http-clients.md) covers the 4 clients a step sends its own requests through.
 
 A domain step that needs a response without disturbing the page uses the detached client, as the shipped traits do. The detached client starts with no history, so pass it an absolute URL:
 

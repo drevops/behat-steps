@@ -2616,10 +2616,6 @@ function tag_registry(): array {
       'form' => 'flag',
       'description' => 'Lets a `@javascript` scenario pass with JavaScript errors, which otherwise fail it. The errors are still collected. Sets the `javascript.fail_on_errors` option to `FALSE`.',
     ],
-    'rest-no-cookies' => [
-      'form' => 'flag',
-      'description' => "Sends the scenario's REST requests without the browser session's cookies, so a site authenticates them by their own headers, such as `Authorization`, and a logged-in session isn't asked for a CSRF token. Cookies a REST response sets are discarded, and the browser session keeps its own. Sets the `rest.send_cookies` option to `FALSE`.",
-    ],
     'download' => [
       'form' => 'flag',
       'description' => 'Empties and creates the directory the `file_download.temp_dir` option names before the scenario, and deletes it afterwards, so the download steps write into an empty directory. Anything already in that directory is deleted.',

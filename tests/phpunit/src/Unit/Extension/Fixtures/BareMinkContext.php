@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures;
 
 use Behat\MinkExtension\Context\RawMinkContext;
-use DrevOps\BehatSteps\Steps\Web\JsonTrait;
 use DrevOps\BehatSteps\Steps\Web\LinkTrait;
 use DrevOps\BehatSteps\Steps\Web\PathTrait;
 use DrevOps\BehatSteps\Steps\Web\RegionTrait;
 use DrevOps\BehatSteps\Steps\Web\ResponseTrait;
 use DrevOps\BehatSteps\Steps\Web\ResponsiveTrait;
-use DrevOps\BehatSteps\Steps\Web\XmlTrait;
 
 /**
  * Composes every trait that runs on Mink's own base context.
@@ -21,12 +19,10 @@ use DrevOps\BehatSteps\Steps\Web\XmlTrait;
  */
 class BareMinkContext extends RawMinkContext {
 
-  use JsonTrait;
   use LinkTrait;
   use PathTrait;
   use RegionTrait;
   use ResponseTrait;
   use ResponsiveTrait;
-  use XmlTrait;
 
 }

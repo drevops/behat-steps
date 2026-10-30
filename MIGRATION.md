@@ -410,7 +410,7 @@ class UiContext extends WebRawContext {
 }
 ```
 
-Of the web traits 3.14 shipped, `JsonTrait`, `LinkTrait`, `PathTrait`, `ResponseTrait`, `ResponsiveTrait` and `XmlTrait` still compose onto Mink's `RawMinkContext`. Every other trait needs a context that extends `WebRawContext`, because it reads a trait option, a backend, a browser capability, an HTTP client or a skip tag through members only `WebRawContext` declares. A context that composes one onto `RawMinkContext` or the Drupal Extension's `RawDrupalContext` fails at run time once the trait calls such a member, such as the `skipTag()` its hooks open with. Each trait names the class it needs in a `@phpstan-require-extends` annotation, so PHPStan reports the mismatch before the run does.
+Of the web traits 3.14 shipped, `LinkTrait`, `PathTrait`, `ResponseTrait` and `ResponsiveTrait` still compose onto Mink's `RawMinkContext`. Every other trait needs a context that extends `WebRawContext`, because it reads a trait option, a backend, a browser capability, an HTTP client or a skip tag through members only `WebRawContext` declares. A context that composes one onto `RawMinkContext` or the Drupal Extension's `RawDrupalContext` fails at run time once the trait calls such a member, such as the `skipTag()` its hooks open with. Each trait names the class it needs in a `@phpstan-require-extends` annotation, so PHPStan reports the mismatch before the run does.
 
 ### Constructor
 
@@ -1214,6 +1214,28 @@ The count must be 0 or greater, but "-1" was given.
 
 PHP's coercion was looser than the `int` type suggested: `1e3` read as 1000, and `3.5` read as 3 with a deprecation notice, which only failed the step where PHP reports deprecations. Both now fail with `\RuntimeException`. A value below what a step accepts fails the same way: a count below 0, a link index below 1, a viewport width or height below 1, a wait below 0 seconds and a command duration below 0.
 
+### REST, JSON and XML responses
+
+The REST steps send through a Mink session of their own, named `rest`, and the JSON and XML steps read its last response. Every other step reads the browser's page. So:
+
+- A REST request carries none of the browser's cookies, and the browser keeps its page and its login. A REST step that relied on the browser's login now runs anonymously, so give it the credentials the API expects with `the REST header "Authorization" has the value "..."`.
+- The JSON and XML steps fail on a page the browser loaded, with `No REST request has been sent in this scenario.` Send the request with `When I send a REST "GET" request to "..."` instead of `When I go to "..."`.
+- A page step after a REST request reads the browser's page, not the REST response. Check the response with `the REST response should contain :value` or the JSON and XML steps.
+- The REST steps work in a `@javascript` scenario.
+- The headers from `the REST header :name has the value :value` go with REST requests only, and a file download no longer carries them.
+
+```gherkin
+# Before.
+When I go to "/api/articles.json"
+Then the JSON path "$.data[0].title" should have the value "Hello"
+
+# After.
+When I send a REST "GET" request to "/api/articles.json"
+Then the JSON path "$.data[0].title" should have the value "Hello"
+```
+
+A Mink session named `rest` in the Behat configuration is used as declared, with its own `http_client_parameters`. [HTTP clients](docs/content/guides/http-clients.md#what-the-rest-session-carries) covers what the session carries.
+
 ### A value of `0`
 
 A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other:
@@ -1629,6 +1651,7 @@ Rename every call and every override. An override left under a 3.14 name is a me
 | `ResponseTrait::responseAssertNotContainsHeader()` | `ResponseTrait::responseAssertHeaderNotExists()` | `$header_name` is `$name` |
 | `ResponsiveTrait::responsiveSetBreakpointsFromTable()` | `ResponsiveTrait::responsiveSetBreakpointMultiple()` | |
 | `RestTrait::restAssertResponseStatusCode()` | `RestTrait::restAssertResponseStatusCodeEquals()` | `int $code` is `string $code` |
+| `RestTrait::restGetClient()` | `RestTrait::restGetBrowser()` | Returns the browser of the REST session, `WebRawContext::httpRestSession()`, instead of the page's |
 | `TableTrait::tableAssertMultipleTextsInRow()` | `TableTrait::tableAssertRowContainsMultiple()` | `$row_text` is `$partial_text` |
 | `TableTrait::tableFind()` | `TableTrait::tableGet()` | Throws `ElementNotFoundException` when nothing matches, where it threw `ExpectationException`; now `public` |
 | `WaitTrait::waitForAjaxToFinish()` | `WaitTrait::waitForAjax()` | `string\|int $seconds` is `string $seconds`. PHP holding an `int` calls `waitForAjaxWithin(int $seconds)` instead |
@@ -2115,7 +2138,7 @@ Change the keyword on the override and leave its body as it is. [HELPERS.md](HEL
 | `PathTrait` | `pathGetCurrentUrlQuery()` |
 | `QueueTrait` | `queueGetLeaseTime()`, `queueGetProcessLimit()` |
 | `ResponsiveTrait` | `responsiveGetAllBreakpoints()`, `responsiveGetBreakpoint()`, `responsiveGetCurrentDimensions()`, `responsiveResize()`, `responsiveResizeToBreakpoint()` |
-| `RestTrait` | `restGetClient()`, `restResolveUrl()` |
+| `RestTrait` | `restResolveUrl()` |
 | `TableTrait` | `tableFindRowByText()`, `tableGetBodyRowSelector()`, `tableGetColumnIndex()`, `tableGetHeaderSelector()`, `tableGetHeaders()`, `tableGetRows()` |
 | `TaxonomyTrait` | `taxonomyLoadMultiple()`, `taxonomyVisitActionPageWithName()` |
 | `TestmodeTrait` | `testmodeDisableTestMode()`, `testmodeEnableTestMode()` |
@@ -2556,7 +2579,7 @@ An adapter extends `BrowserAdapterBase`, implements the capability interfaces it
 
 ## HTTP clients
 
-Every request a step sends from PHP goes through 1 of 3 clients on `WebRawContext`. `httpPageClient()` sends a request whose response becomes the page, `httpDetachedClient()` sends one as the scenario's visitor, with its cookies, headers and credentials, and leaves the page alone, and `httpBareClient()` sends one that carries nothing of the scenario. All 3 return BrowserKit's `AbstractBrowser`, and [HTTP clients](docs/content/guides/http-clients.md) covers them in full.
+Every request a step sends from PHP goes through 1 of 4 clients on `WebRawContext`. `httpRestSession()` returns the Mink session the REST, JSON and XML steps read. `httpPageClient()` sends a request whose response becomes the page, `httpDetachedClient()` sends one as the scenario's visitor, with its cookies, headers and credentials, and leaves the page alone, and `httpBareClient()` sends one that carries nothing of the scenario. The last 3 return BrowserKit's `AbstractBrowser`, and [HTTP clients](docs/content/guides/http-clients.md) covers all 4 in full.
 
 `FileDownloadTrait` downloads through the detached client instead of cURL, so `fileDownloadProcess()` takes Symfony HttpClient options in place of `CURLOPT_*` constants:
 

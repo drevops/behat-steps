@@ -13,10 +13,11 @@ custom_edit_url: null
 >  Test REST APIs with lightweight steps.
 >  - Set HTTP headers for subsequent requests.
 >  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
->  - Send requests without the browser session's cookies.
 >  - Assert response status codes and body content.
 >  
->  Send requests without cookies with tag: `@rest-no-cookies`.
+>  Requests go through the `rest` Mink session, apart from the browser's: they
+>  carry no browser cookies, and the browser keeps its page. The JSON and XML
+>  steps read the same session.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:RestTrait`.
 
@@ -24,8 +25,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the context's request headers before each scenario. If `FALSE`, they aren't cleared, which changes nothing, because Behat builds a new context for each scenario and its headers start empty. |
-| `rest.send_cookies` | boolean | `TRUE` | `@rest-no-cookies` | If `TRUE`, each REST request carries the browser session's cookies and keeps the cookies its response sets, so a logged-in session authenticates it. If `FALSE`, each REST request carries no cookies and its response's cookies are discarded, while the browser session keeps its own. |
+| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the REST headers before each scenario. If `FALSE`, they aren't cleared, which changes nothing, because Behat builds a new context for each scenario and its headers start empty. |
 
 ## Steps
 

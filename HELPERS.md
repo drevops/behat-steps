@@ -27,13 +27,14 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [RandomTrait](#randomtrait) | 10 | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](#regiontrait) | 4 | Interact with and assert against named page regions. |
 | [ResponsiveTrait](#responsivetrait) | 7 | Test responsive layouts with viewport control. |
-| [RestTrait](#resttrait) | 4 | Test REST APIs with lightweight steps. |
+| [RestTrait](#resttrait) | 3 | Test REST APIs with lightweight steps. |
 | [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 9 | Assert XML responses with element and attribute checks. |
 | [FixtureDirectoryTrait](#fixturedirectorytrait) | 5 | Resolves fixture files in the directory Mink's `files_path` parameter names. |
 | [HeadingTrait](#headingtrait) | 1 | Finds a heading by its text within the page or an element of it. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
+| [RestResponseTrait](#restresponsetrait) | 2 | Reads the last response of the REST session. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
 
 ## Index of Drupal helpers
@@ -73,7 +74,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [WebRawContext](#webrawcontext) | 21 | Root context carrying the plumbing every suite needs. |
+| [WebRawContext](#webrawcontext) | 22 | Root context carrying the plumbing every suite needs. |
 
 ---
 
@@ -1457,19 +1458,10 @@ Set custom breakpoints
 > Test REST APIs with lightweight steps.
 
 <details>
-  <summary><code>public function restGetClient(): mixed</code></summary>
+  <summary><code>public function restGetBrowser(): AbstractBrowser</code></summary>
 
 <br/>
-Get the page client REST requests are sent through
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function restGetSendCookies(): bool</code></summary>
-
-<br/>
-Whether REST requests carry the browser session's cookies
+Get the BrowserKit browser the REST session drives
 <br/><br/>
 
 </details>
@@ -1487,7 +1479,7 @@ Resolve a relative URL against the Mink base URL
   <summary><code>public function restSend(string $method, string $url, ?string $body = NULL): void</code></summary>
 
 <br/>
-Send a REST request with the stored headers
+Send a REST request through the REST session
 <br/><br/>
 
 </details>
@@ -1781,6 +1773,30 @@ Set a request header for subsequent requests
 ```
 $this->requestHeadersSet('X-Acme-Token', 'secret');
 ```
+
+</details>
+
+## RestResponseTrait
+
+[Source](src/Steps/Helper/Web/RestResponseTrait.php)
+
+> Reads the last response of the REST session.
+
+<details>
+  <summary><code>public function restResponseGetContent(): string</code></summary>
+
+<br/>
+Get the content of the last REST response
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function restResponseGetStatusCode(): int</code></summary>
+
+<br/>
+Get the status code of the last REST response
+<br/><br/>
 
 </details>
 
@@ -3391,6 +3407,15 @@ Returns a one-off browser that acts as the scenario's visitor
 
 <br/>
 Returns the browser the Mink session drives
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function httpRestSession(): Session</code></summary>
+
+<br/>
+Returns the Mink session the REST, JSON and XML steps read
 <br/><br/>
 
 </details>

@@ -16,6 +16,9 @@ custom_edit_url: null
 >  - Assert JSONPath existence, type, and element counts.
 >  - Validate the response against a JSON Schema.
 >  
+>  The steps read the response of the last REST request, so send one with
+>  `When I send a REST :method request to :url` first.
+>  <br/><br/>
 >  JSONPath expressions use the standard `$.path.to[0].value` syntax.
 >  <br/><br/>
 >  The JSON path steps require the optional `softcreatr/jsonpath` package:

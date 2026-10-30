@@ -14,6 +14,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\RestResponseTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use Flow\JSONPath\JSONPath;
 use JsonSchema\Validator;
@@ -26,6 +27,9 @@ use JsonSchema\Validator;
  * - Assert JSONPath existence, type, and element counts.
  * - Validate the response against a JSON Schema.
  *
+ * The steps read the response of the last REST request, so send one with
+ * `When I send a REST :method request to :url` first.
+ *
  * JSONPath expressions use the standard `$.path.to[0].value` syntax.
  *
  * The JSON path steps require the optional `softcreatr/jsonpath` package:
@@ -36,11 +40,12 @@ use JsonSchema\Validator;
  *
  * @title JSON responses
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait JsonTrait {
 
   use FixtureDirectoryTrait;
+  use RestResponseTrait;
   use StringTrait;
 
   /**
@@ -158,10 +163,10 @@ trait JsonTrait {
   public function jsonAssertResponseNotJson(): void {
     $content = $this->jsonGetContent();
 
-    json_decode((string) $content);
+    json_decode($content);
 
     if (json_last_error() === JSON_ERROR_NONE) {
-      throw new ExpectationException('The response is valid JSON, but it should not be.', $this->getSession()->getDriver());
+      throw new ExpectationException('The response is valid JSON, but it should not be.', $this->httpRestSession()->getDriver());
     }
   }
 
@@ -180,7 +185,7 @@ trait JsonTrait {
     $matches = $this->jsonQuery($path);
 
     if (count($matches) === 0) {
-      throw new ExpectationException(sprintf('The JSON path "%s" was not found.', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" was not found.', $path), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -198,7 +203,7 @@ trait JsonTrait {
     $matches = $this->jsonQuery($path);
 
     if (count($matches) > 0) {
-      throw new ExpectationException(sprintf('The JSON path "%s" was found, but it should not exist.', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" was found, but it should not exist.', $path), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -217,7 +222,7 @@ trait JsonTrait {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     if ($actual !== $value) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected "%s".', $path, $actual, $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected "%s".', $path, $actual, $value), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -235,7 +240,7 @@ trait JsonTrait {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     if ($actual === $value) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but it should not be.', $path, $actual), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but it should not be.', $path, $actual), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -253,7 +258,7 @@ trait JsonTrait {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     if (!str_contains((string) $actual, $value)) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and does not contain "%s".', $path, $actual, $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and does not contain "%s".', $path, $actual, $value), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -271,7 +276,7 @@ trait JsonTrait {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     if (str_contains((string) $actual, $value)) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and contains "%s", but it should not.', $path, $actual, $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and contains "%s", but it should not.', $path, $actual, $value), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -295,7 +300,7 @@ trait JsonTrait {
     }
 
     if ($result === 0) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and does not match the pattern "%s".', $path, $actual, $pattern), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and does not match the pattern "%s".', $path, $actual, $pattern), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -319,7 +324,7 @@ trait JsonTrait {
     }
 
     if ($result === 1) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and matches the pattern "%s", but it should not.', $path, $actual, $pattern), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and matches the pattern "%s", but it should not.', $path, $actual, $pattern), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -337,7 +342,7 @@ trait JsonTrait {
     $value = $this->jsonGetValue($path);
 
     if ($value !== NULL) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected null.', $path, $this->jsonScalarToString($value)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected null.', $path, $this->jsonScalarToString($value)), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -355,7 +360,7 @@ trait JsonTrait {
     $value = $this->jsonGetValue($path);
 
     if ($value !== TRUE) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is not true.', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is not true.', $path), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -373,7 +378,7 @@ trait JsonTrait {
     $value = $this->jsonGetValue($path);
 
     if ($value !== FALSE) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is not false.', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is not false.', $path), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -397,13 +402,13 @@ trait JsonTrait {
     $value = $this->jsonGetValue($path);
 
     if (!is_array($value)) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is not an array or object.', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is not an array or object.', $path), $this->httpRestSession()->getDriver());
     }
 
     $actual = count($value);
 
     if ($actual !== $count) {
-      throw new ExpectationException(sprintf('The JSON path "%s" has %d element(s), but expected %d.', $path, $actual, $count), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" has %d element(s), but expected %d.', $path, $actual, $count), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -451,16 +456,16 @@ trait JsonTrait {
    * Get the response content, or the content a fixture step set in its place.
    *
    * @return string
-   *   The content set by a fixture step, or the live page content.
+   *   The content set by a fixture step, or the last REST response.
    */
   public function jsonGetContent(): string {
-    return $this->jsonTestContent ?? (string) $this->getSession()->getPage()->getContent();
+    return $this->jsonTestContent ?? $this->restResponseGetContent();
   }
 
   /**
    * Ensure the JSON response is decoded and cached.
    *
-   * Re-decodes the document if the page content has changed since last decode.
+   * Re-decodes the document if the REST response has changed since last decode.
    */
   protected function jsonEnsureData(): void {
     if ($this->jsonTestContent !== NULL) {
@@ -468,7 +473,7 @@ trait JsonTrait {
       return;
     }
 
-    $content = (string) $this->getSession()->getPage()->getContent();
+    $content = $this->restResponseGetContent();
     $content_hash = md5($content);
 
     if ($this->jsonData === NULL || $this->jsonContentHash !== $content_hash) {
@@ -516,7 +521,7 @@ trait JsonTrait {
     $data = json_decode($content);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new ExpectationException(sprintf('The response is not valid JSON: %s.', json_last_error_msg()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The response is not valid JSON: %s.', json_last_error_msg()), $this->httpRestSession()->getDriver());
     }
 
     return $data;
@@ -565,11 +570,11 @@ trait JsonTrait {
     $matches = $this->jsonQuery($path);
 
     if (count($matches) === 0) {
-      throw new ExpectationException(sprintf('The JSON path "%s" was not found.', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" was not found.', $path), $this->httpRestSession()->getDriver());
     }
 
     if (count($matches) > 1) {
-      throw new ExpectationException(sprintf('The JSON path "%s" matched %d values, but a single value is required for this assertion.', $path, count($matches)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" matched %d values, but a single value is required for this assertion.', $path, count($matches)), $this->httpRestSession()->getDriver());
     }
 
     return $matches[0];
@@ -591,7 +596,7 @@ trait JsonTrait {
     $value = $this->jsonGetValue($path);
 
     if (is_array($value)) {
-      throw new ExpectationException(sprintf('The JSON path "%s" resolves to an array or object, but a scalar value is required for this assertion.', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" resolves to an array or object, but a scalar value is required for this assertion.', $path), $this->httpRestSession()->getDriver());
     }
 
     return $value;
@@ -649,7 +654,7 @@ trait JsonTrait {
         $messages[] = sprintf('[%s] %s', $error['property'], $error['message']);
       }
 
-      throw new ExpectationException(sprintf('The response does not match the JSON schema: %s.', implode('; ', $messages)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The response does not match the JSON schema: %s.', implode('; ', $messages)), $this->httpRestSession()->getDriver());
     }
   }
 
