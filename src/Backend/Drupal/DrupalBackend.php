@@ -911,8 +911,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    * Gets the Core class this package ships for the detected major.
    *
    * Takes the version core of the newest major at or below the detected one,
-   * or the base 'Core' when there is none. Drupal 14 gets 'Core13\Core' while
-   * no 'Core14\Core' exists.
+   * or the base 'Core' when there is none. Drupal 14 gets 'Core13\Core' when
+   * that class exists and 'Core14\Core' does not.
    *
    * @return class-string
    *   The Core class.

@@ -7,62 +7,66 @@ description: Replace the HTTP client factory, a registry, an authenticator or op
 
 # Extending the extension layer
 
-The extension layer is `src/Extension`: `BehatStepsExtension` and the services it builds into Behat's container, which the context initializer injects into the contexts. You extend it from a Behat extension of your own, for a change that has to reach every context at once. This page covers 3 changes to the container:
+Follow this page when a change has to reach every context at once. The extension layer is `src/Extension`. It holds `BehatStepsExtension` and the services that extension builds into Behat's container, and the context initializer injects those services into the contexts. You change them from a Behat extension of your own, in 3 ways:
 
-- Replacing the HTTP client factory.
-- Swapping a registry or an authenticator through its `*.class` parameter.
-- Replacing option resolution.
+- Replace the HTTP client factory.
+- Swap a registry or an authenticator through its `*.class` parameter.
+- Replace option resolution.
 
-It also covers registering a browser adapter, which a context does.
+This page also covers registering a browser adapter from a context.
 
-The container sits outside the 5 surfaces semantic versioning covers, so check [what it does cover](README.md#what-semantic-versioning-covers) before you build on any of these.
+The container sits outside the 5 surfaces semantic versioning covers, so check [What semantic versioning covers](README.md#what-semantic-versioning-covers) before you build on these changes.
 
 ## From a Behat extension of your own
 
-Each container change on this page runs in the `process()` method of a Behat extension of your own. Behat calls the `load()` method of every extension before it calls any `process()`, and Behat Steps defines its services in `load()`. So the changes on this page hold whichever order the profile lists the extensions in. Put them in an extension class such as this:
+Make each container change on this page in the `process()` method of a Behat extension of your own. Behat calls the `load()` method of every extension before it calls any `process()`. Behat Steps defines its services in `load()`, so they exist when your `process()` runs, whatever order the profile lists the extensions in.
 
-```php
-<?php
+To add the extension:
 
-declare(strict_types=1);
+1. Write an extension class such as this:
 
-namespace Acme\Behat;
+   ```php
+   <?php
 
-use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
-use Behat\Testwork\ServiceContainer\ExtensionManager;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+   declare(strict_types=1);
 
-final class AcmeExtension implements ExtensionInterface {
+   namespace Acme\Behat;
 
-  public function getConfigKey(): string {
-    return 'acme';
-  }
+   use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
+   use Behat\Testwork\ServiceContainer\ExtensionManager;
+   use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+   use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-  public function initialize(ExtensionManager $extension_manager): void {}
+   final class AcmeExtension implements ExtensionInterface {
 
-  public function configure(ArrayNodeDefinition $builder): void {}
+     public function getConfigKey(): string {
+       return 'acme';
+     }
 
-  public function load(ContainerBuilder $container, array $config): void {}
+     public function initialize(ExtensionManager $extension_manager): void {}
 
-  public function process(ContainerBuilder $container): void {
-    // Replace a Behat Steps service here.
-  }
+     public function configure(ArrayNodeDefinition $builder): void {}
 
-}
-```
+     public function load(ContainerBuilder $container, array $config): void {}
 
-Register it on the profile beside `BehatStepsExtension`:
+     public function process(ContainerBuilder $container): void {
+       // Replace a Behat Steps service here.
+     }
 
-```php
-$profile->withExtension(new Extension(AcmeExtension::class));
-```
+   }
+   ```
+
+2. In `behat.php`, pass `AcmeExtension` to a `Behat\Config\Extension` and register that on the profile beside `BehatStepsExtension`:
+
+   ```php
+   $profile->withExtension(new Extension(\Acme\Behat\AcmeExtension::class));
+   ```
 
 ## The HTTP client factory and browser adapters
 
-[A context override](steps.md#a-context-override-a-flaky-staging-server) decorates the transport for 1 context. The 2 extension points in this section are meant for package authors.
+The 2 extension points in this section are meant for package authors. To decorate the transport for 1 context, use [a context override](steps.md#a-context-override-a-flaky-staging-server).
 
-Replace `behat_steps.http_client_factory` from a Behat extension to change every context at once, for example with a tracing client for debugging or a mock client for offline tests. Your class implements `HttpClientFactoryInterface`, and the container builds it with the shared transport and the base URL. Extend `HttpClientFactory` to keep the rules [HTTP clients](../guides/http-clients.md#the-rules-the-clients-follow) describes:
+To give every context another HTTP client, such as a tracing client for debugging or a mock client for offline tests, replace the `behat_steps.http_client_factory` service. The container builds your class with the shared transport and the base URL. Your class implements `HttpClientFactoryInterface`, and extending the shipped `HttpClientFactory` keeps the rules that [HTTP clients](../guides/http-clients.md#the-rules-the-clients-follow) describes:
 
 ```php
 public function process(ContainerBuilder $container): void {
@@ -71,18 +75,18 @@ public function process(ContainerBuilder $container): void {
 }
 ```
 
-To give another browser driver a page client, register an adapter that implements `HttpClientCapabilityInterface` from your context, such as in its constructor. Each context keeps its own resolver, which tries your adapter ahead of the shipped ones:
+To give another browser driver a page client, register an adapter that implements `HttpClientCapabilityInterface` from your context, such as in its constructor:
 
 ```php
 $this->getBrowserCapabilityResolver()
   ->registerAdapter(AcmeDriverAdapter::class);
 ```
 
-[Capabilities of the browser driver](../../../MIGRATION.md#capabilities-of-the-browser-driver) covers writing the adapter itself.
+Each context keeps its own resolver, so register the adapter in every context that needs it. The resolver tries your adapter ahead of the shipped ones. [Capabilities of the browser driver](../../../MIGRATION.md#capabilities-of-the-browser-driver) covers writing the adapter itself.
 
 ## Swap a registry or an authenticator
 
-The extension builds its 3 registries and 2 authenticators from the classes that `*.class` container parameters name. A Behat extension of your own sets a parameter to put a class of its own in place of each. The shipped classes are final, so yours implements the interface instead. The registry interfaces sit in `DrevOps\BehatSteps\Extension\Registry`, and the authenticator ones in `DrevOps\BehatSteps\Extension\Auth`:
+The container builds the 3 registries and 2 authenticators from the classes that `*.class` container parameters name. To put a class of your own in place of 1 of them, set its parameter from your extension. The shipped classes are final, so your class implements the interface. The registry interfaces sit in `DrevOps\BehatSteps\Extension\Registry`, and the authenticator interfaces in `DrevOps\BehatSteps\Extension\Auth`. The following table lists each parameter:
 
 | Parameter | Shipped class | Your class implements | The container passes |
 | --- | --- | --- | --- |
@@ -96,17 +100,23 @@ Set the parameter in `process()`:
 
 ```php
 public function process(ContainerBuilder $container): void {
-  $container->setParameter('behat_steps.user_registry.class', AcmeUserRegistry::class);
+  $container->setParameter(
+    'behat_steps.user_registry.class',
+    AcmeUserRegistry::class,
+  );
 }
 ```
 
-Only the class changes: the container builds yours with the arguments in the table, in that order. Everything that receives 1 of these services takes it by its interface, the contexts included, so nothing else needs replacing.
+Only the class changes. The container builds yours with the arguments and calls the table lists, in that order. Every service and context that receives 1 of these services takes it by its interface, so nothing else needs replacing.
 
-`FastLogoutInterface` changes how `AuthTrait` logs out in the teardown after each scenario. With it, `AuthTrait` calls `fastLogout()`. The shipped `Authenticator::fastLogout()` resets the browser session and logs out of any backend the scenario already reached, so the site runs no logout hook. Without it, `AuthTrait` calls `logout()`, and only while a user is still logged in.
+`FastLogoutInterface` changes how `AuthTrait` logs out in the teardown after each scenario:
+
+- With it, `AuthTrait` calls `fastLogout()`. The shipped `Authenticator::fastLogout()` resets the browser session, so the site runs no logout hook. The method also logs out of the first backend in the scenario's order that provides authentication, when the scenario already reached that backend.
+- Without it, `AuthTrait` calls `logout()` only while a user is still logged in.
 
 ## Replace option resolution
 
-[Trait options](../guides/configuration.md#trait-options) lists the layers a trait option resolves through. The `behat_steps.config.resolver_factory` service builds the resolver every option read goes through. To resolve options your own way, register a `TraitOptionResolverFactoryInterface` of your own under that ID:
+The `behat_steps.config.resolver_factory` service builds the resolver that every option read goes through. [Trait options](../guides/configuration.md#trait-options) lists the layers a trait option resolves through. To resolve options your own way, import `Symfony\Component\DependencyInjection\Definition` in your extension and register a `TraitOptionResolverFactoryInterface` implementation under that ID:
 
 ```php
 public function process(ContainerBuilder $container): void {

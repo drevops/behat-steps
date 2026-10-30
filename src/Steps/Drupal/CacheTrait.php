@@ -57,6 +57,8 @@ trait CacheTrait {
    */
   #[Given('the static caches have been cleared')]
   public function cacheClearStatic(): void {
+    // staticCacheClear() clears only resolved backends, so resolve 1 first
+    // and fail when no backend has the cache capability.
     $this->backendFor(CacheCapabilityInterface::class);
 
     $this->staticCacheClear();
@@ -206,8 +208,9 @@ trait CacheTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * The clear-all step resolves the same capability itself and the cron step
-   * the cron capability, so only the page and render cache steps check.
+   * The clear-all and static cache steps resolve the same capability
+   * themselves and the cron step the cron capability, so only the page and
+   * render cache steps check.
    *
    * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.

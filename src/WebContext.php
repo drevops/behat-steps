@@ -86,9 +86,9 @@ class WebContext extends WebRawContext {
   use XmlTrait;
 
   /**
-   * Rejects a suite that registers this context and a subclass of it.
+   * Rejects a suite that registers more than 1 context carrying this class.
    *
-   * Both register the same 28 web traits. Behat reports that as a
+   * Each registers the same 28 web traits. Behat reports that as a
    * 'RedundantStepException' naming the first step text it reached.
    *
    * The exception says nothing about the cause.

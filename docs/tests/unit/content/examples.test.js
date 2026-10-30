@@ -21,8 +21,9 @@ const PAGES = [
 // The steps of Mink's own context the pages use, which STEPS.md doesn't list.
 const MINK_STEPS = [/^the response status code should be \d+$/];
 
-// The body of every Gherkin code block in a page.
-const gherkinBlocks = (markdown) => Array.from(markdown.matchAll(/^```gherkin\n([\s\S]*?)^```$/gm), (match) => match[1]);
+// The body of every Gherkin code block in a page, including a block indented
+// under a numbered step.
+const gherkinBlocks = (markdown) => Array.from(markdown.matchAll(/^ *```gherkin\n([\s\S]*?)^ *```$/gm), (match) => match[1]);
 
 // The pattern of every step a page defines in its PHP code blocks, such as
 // "#[Then('the footer should mention :text')]".

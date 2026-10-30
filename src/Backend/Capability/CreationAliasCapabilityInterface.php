@@ -14,8 +14,8 @@ use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
  * backend translates to a 'uid' value during creation.
  *
  * This capability lets consumers discover which aliases are accepted, for
- * what entity type, and how to document them, and register aliases of their
- * own.
+ * what entity type, and how to document them. It also lets them register
+ * aliases of their own.
  *
  * This interface is intentionally NOT extended by the composite backend
  * interfaces. Consumers should check '$backend instanceof
@@ -40,7 +40,7 @@ interface CreationAliasCapabilityInterface {
    * Registers a creation alias.
    *
    * The backend runs the alias each time it creates an entity of the alias's
-   * entity type from field values and the stub carries a value under the
+   * entity type from field values, when the stub carries a value under the
    * alias's name. A registration replaces the alias registered under the same
    * name for the same entity type, shipped or not.
    *

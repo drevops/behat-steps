@@ -9,8 +9,8 @@ use Behat\Mink\Exception\DriverException;
 /**
  * Reads the last response of the REST session.
  *
- * The REST, JSON and XML steps read their response through these helpers, so
- * each one fails the same way when no REST request has been sent.
+ * Every reader throws the same \RuntimeException when no REST request has
+ * been sent.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */

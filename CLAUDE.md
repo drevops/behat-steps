@@ -37,7 +37,7 @@ composer require --dev drevops/behat-steps:^4
 ### Development Commands
 - `ahoy build` - Setup a fixture Drupal site in the `build` directory
 - `ahoy test-bdd` - Run all BDD tests
-- `ahoy test-bdd path/to/file` - Run all scenarios in specific feature file
+- `ahoy test-bdd /app/path/to/file` - Run all scenarios in specific feature file
 - `ahoy test-bdd -- --tags=wip` - Run all scenarios tagged with `@wip` tag
 - `ahoy debug` - Enable debugging
 - `ahoy drush cex -y` - Export configuration
@@ -64,7 +64,8 @@ The site is an npm project of its own, run on the host rather than in the Docker
 After editing a `.drawio` source in draw.io, export every SVG again so the sources and the renders cannot drift. Each SVG records the hash of the source it came from, and the unit suite fails an SVG exported from an older source or a diagram missing either of its SVGs:
 
 ```bash
-php scripts/draw-diagram.php --export docs/content/architecture docs/content/guides
+php scripts/draw-diagram.php --export \
+  docs/content/architecture docs/content/guides
 ```
 
 [Task B](.claude/skills/update-architecture-docs/SKILL.md#task-b-update-after-a-structural-change) in the skill defines what makes a change structural.
@@ -143,7 +144,7 @@ Scenario: Test error condition
 **RECOMMENDED**: Use the `scripts/check-coverage.php` script for easy coverage assessment:
 ```bash
 # Run tests with coverage
-ahoy test-bdd-coverage tests/behat/features/some_feature.feature
+ahoy test-bdd-coverage /app/tests/behat/features/some_feature.feature
 
 # Check coverage using the script (uses MERGED coverage by default)
 php scripts/check-coverage.php SomeTrait
@@ -159,7 +160,7 @@ php scripts/check-coverage.php SomeTrait
 **Manual method** (if script is not available):
 ```bash
 # Run tests with coverage
-ahoy test-bdd-coverage tests/behat/features/some_feature.feature
+ahoy test-bdd-coverage /app/tests/behat/features/some_feature.feature
 
 # Check main-run coverage
 grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' \
