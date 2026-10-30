@@ -438,7 +438,7 @@ The package ships 3 layers, and the dependency only runs one way: `Steps` on `Ex
   - `Context/`: the contracts the context initializer injects through, the initializer itself and the hook attribute reader.
   - `Config/`: option resolution and `ParametersTrait`, which reads the extension parameters.
   - `Browser/`: the browser capabilities with their adapters and resolver, the `DocumentElement` installed in place of Mink's own and `MinkAwareTrait`.
-  - `Http/`: the factory behind the detached and bare HTTP clients.
+  - `Http/`: the factory behind the detached and bare HTTP clients and the default REST session.
   - `Prerequisite/`: the prerequisite declarations and their reader.
   - `Hook/`, `Listener/`, `Selector/` and `Generator/`: the entity and user creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
   - `Drupal/`: what the extension needs for a Drupal site. `ServiceContainer/DrupalBackendProvider` adds the `drupal` and `drush` settings, the Drupal login text and selector defaults and the 2 backends' service definitions, and `Hook/` holds the node and term creation hooks and the language creation scopes.

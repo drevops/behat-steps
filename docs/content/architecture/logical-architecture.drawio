@@ -65,13 +65,13 @@
         <mxCell id="ex-config-prerequisite" value="&lt;b&gt;Config + Prerequisite&lt;/b&gt;&lt;br&gt;trait options, what a trait&lt;br&gt;needs from the site" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
           <mxGeometry x="600" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="ex-browser-http" value="&lt;b&gt;Browser + Http&lt;/b&gt;&lt;br&gt;browser capability adapters; page,&lt;br&gt;detached and bare HTTP clients" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
-          <mxGeometry x="890" y="50" width="230" height="70" as="geometry" />
+        <mxCell id="ex-browser-http" value="&lt;b&gt;Browser + Http&lt;/b&gt;&lt;br&gt;browser capability adapters; page,&lt;br&gt;detached, bare and REST&lt;br&gt;HTTP clients" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
+          <mxGeometry x="890" y="50" width="230" height="90" as="geometry" />
         </mxCell>
         <mxCell id="ex-auth-hook" value="&lt;b&gt;Auth + Hook&lt;/b&gt;&lt;br&gt;log in and out;&lt;br&gt;entity creation hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
           <mxGeometry x="600" y="160" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="ex-drupal" value="&lt;b&gt;Extension\Drupal&lt;/b&gt;&lt;br&gt;DrupalBackendProvider;&lt;br&gt;node, term, language hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
+        <mxCell id="ex-drupal" value="&lt;b&gt;Extension\Drupal&lt;/b&gt;&lt;br&gt;DrupalBackendProvider;&lt;br&gt;node and term hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
           <mxGeometry x="890" y="160" width="230" height="70" as="geometry" />
         </mxCell>
         <mxCell id="grp-backend" value="Backend layer: src/Backend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#E8F5E9;swimlaneFillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=1.5;" vertex="1" parent="grp-library">
@@ -290,7 +290,7 @@
           <mxGeometry x="0.2" relative="1" as="geometry">
           </mxGeometry>
         </mxCell>
-        <mxCell id="e-browser-http-mink" value="adapts the&lt;br&gt;session&amp;#39;s driver" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=1;exitY=0.285714;exitDx=0;exitDy=0;entryX=0;entryY=0.617021;entryDx=0;entryDy=0;" edge="1" parent="1" source="ex-browser-http" target="out-mink">
+        <mxCell id="e-browser-http-mink" value="adapts the&lt;br&gt;session&amp;#39;s driver" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=1;exitY=0.222222;exitDx=0;exitDy=0;entryX=0;entryY=0.617021;entryDx=0;entryDy=0;" edge="1" parent="1" source="ex-browser-http" target="out-mink">
           <mxGeometry x="0.45" relative="1" as="geometry">
           </mxGeometry>
         </mxCell>
@@ -298,7 +298,7 @@
           <mxGeometry x="0.619048" relative="1" as="geometry">
           </mxGeometry>
         </mxCell>
-        <mxCell id="e-browser-http-sut" value="own requests" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=1;exitY=0.714286;exitDx=0;exitDy=0;entryX=1;entryY=0.285714;entryDx=0;entryDy=0;" edge="1" parent="1" source="ex-browser-http" target="site-sut">
+        <mxCell id="e-browser-http-sut" value="own requests" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=1;exitY=0.555556;exitDx=0;exitDy=0;entryX=1;entryY=0.285714;entryDx=0;entryDy=0;" edge="1" parent="1" source="ex-browser-http" target="site-sut">
           <mxGeometry x="-0.082353" relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1690" y="900" />

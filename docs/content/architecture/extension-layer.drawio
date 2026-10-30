@@ -80,7 +80,7 @@
         <mxCell id="svc-options" value="&lt;b&gt;TraitOptionResolverFactory&lt;/b&gt;&lt;br&gt;builds each context's option resolver" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-services">
           <mxGeometry x="30" y="320" width="360" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="svc-http" value="&lt;b&gt;HttpClientFactory&lt;/b&gt;&lt;br&gt;the detached and bare clients, on 1 shared transport" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-services">
+        <mxCell id="svc-http" value="&lt;b&gt;HttpClientFactory&lt;/b&gt;&lt;br&gt;the detached and bare clients and the default REST session, on 1 shared transport" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-services">
           <mxGeometry x="30" y="410" width="360" height="70" as="geometry" />
         </mxCell>
         <mxCell id="ctx" value="&lt;b&gt;Your context&lt;/b&gt;&lt;br&gt;WebRawContext and every context built on it: receives each service through a set*() method" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
