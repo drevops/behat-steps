@@ -243,6 +243,16 @@ class BackendRegistryTest extends UnitTestCase {
     $this->assertSame([], $registry->getResolvedBackendsFor(ContentCapabilityInterface::class));
   }
 
+  public function testGetResolvedBackendsForListsEachBackendOnce(): void {
+    $capable = $this->createCacheBackendMock(TRUE);
+    $registry = new BackendRegistry(['capable' => $capable]);
+    $registry->setScenarioBackends(['alias' => 'capable', 'capable' => 'capable']);
+
+    $registry->getBackend('capable');
+
+    $this->assertSame([$capable], $registry->getResolvedBackendsFor(CacheCapabilityInterface::class));
+  }
+
   public function testTheNextScenarioForgetsWhatThePreviousOneResolved(): void {
     $capable = $this->createCacheBackendMock(TRUE);
     $registry = new BackendRegistry(['capable' => $capable]);

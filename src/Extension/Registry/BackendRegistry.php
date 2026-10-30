@@ -154,7 +154,8 @@ final class BackendRegistry implements BackendRegistryInterface {
     foreach ($this->scenarioBackends as $name) {
       $backend = $this->backends[$name];
 
-      if ($backend instanceof $capability && in_array($backend, $this->resolvedBackends, TRUE)) {
+      // 2 tags can name the same backend, so it is listed only once.
+      if ($backend instanceof $capability && in_array($backend, $this->resolvedBackends, TRUE) && !in_array($backend, $backends, TRUE)) {
         $backends[] = $backend;
       }
     }
