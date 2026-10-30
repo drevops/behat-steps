@@ -23,7 +23,7 @@
         <mxCell id="ctx-feature" value="&lt;b&gt;FeatureContext, yours&lt;/b&gt;&lt;br&gt;extends DrupalContext, or WebContext&lt;br&gt;for a site that isn't Drupal" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1">
           <mxGeometry x="1420" y="120" width="380" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="grp-helper" value="src/Steps/Helper: 13 helper traits, no steps" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#E3F2FD;swimlaneFillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=1.5;" vertex="1" parent="1">
+        <mxCell id="grp-helper" value="src/Steps/Helper: 15 helper traits, no steps" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#E3F2FD;swimlaneFillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=1.5;" vertex="1" parent="1">
           <mxGeometry x="40" y="300" width="380" height="250" as="geometry" />
         </mxCell>
         <mxCell id="chip-helper-1" value="EntityLifecycleTrait" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-helper">
@@ -38,7 +38,7 @@
         <mxCell id="chip-helper-4" value="StringTrait" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-helper">
           <mxGeometry x="195" y="110" width="170" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="chip-helper-5" value="and 9 more" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-helper">
+        <mxCell id="chip-helper-5" value="and 11 more" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-helper">
           <mxGeometry x="15" y="170" width="170" height="40" as="geometry" />
         </mxCell>
         <mxCell id="grp-web" value="src/Steps/Web: 28 step traits" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#E3F2FD;swimlaneFillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=1.5;" vertex="1" parent="1">

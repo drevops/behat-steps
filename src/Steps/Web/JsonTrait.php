@@ -14,9 +14,9 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\JsonPathTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\RestResponseTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
-use Flow\JSONPath\JSONPath;
 use JsonSchema\Validator;
 
 /**
@@ -45,6 +45,7 @@ use JsonSchema\Validator;
 trait JsonTrait {
 
   use FixtureDirectoryTrait;
+  use JsonPathTrait;
   use RestResponseTrait;
   use StringTrait;
 
@@ -219,7 +220,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should have the value :value')]
   public function jsonAssertPathEquals(string $path, string $value): void {
-    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
+    $actual = $this->jsonPathFormatScalar($this->jsonGetScalar($path));
 
     if ($actual !== $value) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected "%s".', $path, $actual, $value), $this->httpRestSession()->getDriver());
@@ -237,7 +238,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should not have the value :value')]
   public function jsonAssertPathNotEquals(string $path, string $value): void {
-    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
+    $actual = $this->jsonPathFormatScalar($this->jsonGetScalar($path));
 
     if ($actual === $value) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but it should not be.', $path, $actual), $this->httpRestSession()->getDriver());
@@ -255,7 +256,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should contain :value')]
   public function jsonAssertPathContains(string $path, string $value): void {
-    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
+    $actual = $this->jsonPathFormatScalar($this->jsonGetScalar($path));
 
     if (!str_contains((string) $actual, $value)) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and does not contain "%s".', $path, $actual, $value), $this->httpRestSession()->getDriver());
@@ -273,7 +274,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should not contain :value')]
   public function jsonAssertPathNotContains(string $path, string $value): void {
-    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
+    $actual = $this->jsonPathFormatScalar($this->jsonGetScalar($path));
 
     if (str_contains((string) $actual, $value)) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and contains "%s", but it should not.', $path, $actual, $value), $this->httpRestSession()->getDriver());
@@ -291,7 +292,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should match :pattern')]
   public function jsonAssertPathMatches(string $path, string $pattern): void {
-    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
+    $actual = $this->jsonPathFormatScalar($this->jsonGetScalar($path));
 
     $result = @preg_match($pattern, (string) $actual);
 
@@ -315,7 +316,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should not match :pattern')]
   public function jsonAssertPathNotMatches(string $path, string $pattern): void {
-    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
+    $actual = $this->jsonPathFormatScalar($this->jsonGetScalar($path));
 
     $result = @preg_match($pattern, (string) $actual);
 
@@ -342,7 +343,7 @@ trait JsonTrait {
     $value = $this->jsonGetValue($path);
 
     if ($value !== NULL) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected null.', $path, $this->jsonScalarToString($value)), $this->httpRestSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected null.', $path, $this->jsonPathFormatScalar($value)), $this->httpRestSession()->getDriver());
     }
   }
 
@@ -466,11 +467,13 @@ trait JsonTrait {
    * Ensure the JSON response is decoded and cached.
    *
    * Re-decodes the document if the REST response has changed since last decode.
+   *
+   * @return array<int|string, mixed>
+   *   The decoded data.
    */
-  protected function jsonEnsureData(): void {
+  protected function jsonEnsureData(): array {
     if ($this->jsonTestContent !== NULL) {
-      $this->jsonData ??= $this->jsonDecode($this->jsonTestContent);
-      return;
+      return $this->jsonData ??= $this->jsonDecode($this->jsonTestContent);
     }
 
     $content = $this->restResponseGetContent();
@@ -480,6 +483,8 @@ trait JsonTrait {
       $this->jsonData = $this->jsonDecode($content);
       $this->jsonContentHash = $content_hash;
     }
+
+    return $this->jsonData;
   }
 
   /**
@@ -490,19 +495,12 @@ trait JsonTrait {
    *
    * @return array<int|string, mixed>
    *   The decoded data.
+   *
+   * @throws \RuntimeException
+   *   When the content is not valid JSON or decodes to a scalar.
    */
   public function jsonDecode(string $content): array {
-    $data = json_decode($content, TRUE);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new \RuntimeException(sprintf('Failed to decode JSON: %s.', json_last_error_msg()));
-    }
-
-    if (!is_array($data)) {
-      throw new \RuntimeException(sprintf('The JSON response must decode to an array or object, but got %s.', get_debug_type($data)));
-    }
-
-    return $data;
+    return $this->jsonPathDecode($content);
   }
 
   /**
@@ -537,18 +535,7 @@ trait JsonTrait {
    *   The list of matched values.
    */
   public function jsonQuery(string $path): array {
-    $this->jsonEnsureData();
-
-    try {
-      $result = (new JSONPath($this->jsonData))->find($path);
-    }
-    catch (\Exception $exception) {
-      throw new \RuntimeException(sprintf('The JSON path "%s" is invalid: %s.', $path, $exception->getMessage()), $exception->getCode(), $exception);
-    }
-
-    $data = $result->getData();
-
-    return is_array($data) ? array_values($data) : [];
+    return $this->jsonPathQuery($this->jsonEnsureData(), $path);
   }
 
   /**
@@ -567,17 +554,7 @@ trait JsonTrait {
    *   If the expression matches no value or more than 1.
    */
   public function jsonGetValue(string $path): mixed {
-    $matches = $this->jsonQuery($path);
-
-    if (count($matches) === 0) {
-      throw new ExpectationException(sprintf('The JSON path "%s" was not found.', $path), $this->httpRestSession()->getDriver());
-    }
-
-    if (count($matches) > 1) {
-      throw new ExpectationException(sprintf('The JSON path "%s" matched %d values, but a single value is required for this assertion.', $path, count($matches)), $this->httpRestSession()->getDriver());
-    }
-
-    return $matches[0];
+    return $this->jsonPathGetValue($this->jsonEnsureData(), $path);
   }
 
   /**
@@ -593,34 +570,7 @@ trait JsonTrait {
    *   If the expression matches no value, more than 1, or an array or object.
    */
   public function jsonGetScalar(string $path): mixed {
-    $value = $this->jsonGetValue($path);
-
-    if (is_array($value)) {
-      throw new ExpectationException(sprintf('The JSON path "%s" resolves to an array or object, but a scalar value is required for this assertion.', $path), $this->httpRestSession()->getDriver());
-    }
-
-    return $value;
-  }
-
-  /**
-   * Convert a scalar JSON value to its string representation.
-   *
-   * @param mixed $value
-   *   The scalar (or null) value.
-   *
-   * @return string
-   *   The string representation: "true"/"false" for booleans, "null" for null.
-   */
-  protected function jsonScalarToString(mixed $value): string {
-    if (is_bool($value)) {
-      return $value ? 'true' : 'false';
-    }
-
-    if ($value === NULL) {
-      return 'null';
-    }
-
-    return (string) $value;
+    return $this->jsonPathGetScalar($this->jsonEnsureData(), $path);
   }
 
   /**

@@ -16,6 +16,49 @@ Feature: Check that RestTrait works
       """
     Then the REST response status code should be 200
 
+  @rest-body-file
+  Scenario: Assert "When I send a REST :method request to :url with the body from the file :filename" sends the file content
+    Given the REST header "Content-Type" has the value "application/xml"
+    When I send a REST "POST" request to "/mysite_core/test-request-echo" with the body from the file "rest_body.xml"
+    Then the REST response status code should be 200
+    And the REST response should contain "content-type: application/xml"
+    And the REST response should contain "<items>"
+    And the REST response should contain ">Second item</item>"
+
+  @phpserver @rest-json-header
+  Scenario: Assert "Given the REST header :name has the value from the JSON path :path" sends the value
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    When I send a REST "GET" request to "http://cli:8888/json_token.json"
+    Then the REST response status code should be 200
+    Given the REST header "Authorization" has the value from the JSON path "$.authorization"
+    When I send a REST "GET" request to "/mysite_core/test-basic-auth"
+    Then the REST response status code should be 200
+    And the REST response should contain "admin-test"
+
+  @phpserver @rest-json-header
+  Scenario: Assert "Given the REST header :name has the value from the JSON path :path with the prefix :prefix" sends the prefix and the value
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    When I send a REST "GET" request to "http://cli:8888/json_token.json"
+    Then the JSON path "$.access_token" should exist
+    Given the REST header "Authorization" has the value from the JSON path "$.access_token" with the prefix "Basic "
+    When I send a REST "GET" request to "/mysite_core/test-basic-auth"
+    Then the REST response status code should be 200
+    And the REST response should contain "admin-test"
+
+  @phpserver @rest-json-header
+  Scenario: Assert "Given the REST header :name has the value from the JSON path :path" sends a number and a boolean as text
+    When I send a REST "GET" request to "http://cli:8888/json_token.json"
+    Given the REST header "X-Expires-In" has the value from the JSON path "$.expires_in"
+    And the REST header "X-Refresh" has the value from the JSON path "$.refresh" with the prefix "refresh="
+    When I send a REST "POST" request to "/mysite_core/test-request-echo"
+    Then the REST response status code should be 200
+    And the REST response should contain "x-expires-in: 3600"
+    And the REST response should contain "x-refresh: refresh=true"
+
   Scenario: Assert multiple headers can be set
     Given the REST header "Accept" has the value "text/html"
     And the REST header "X-Custom-Header" has the value "custom-value"
@@ -273,4 +316,100 @@ Feature: Check that RestTrait works
     Then it should fail with an error:
       """
       The REST response does not contain "nonexistingtext12345".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Given the REST header :name has the value from the JSON path :path" fails before any REST request
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the REST header "Authorization" has the value from the JSON path "$.access_token"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      No REST request has been sent in this scenario. The REST, JSON and XML steps read the response of "When I send a REST :method request to :url", not the page the browser loaded.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Given the REST header :name has the value from the JSON path :path" fails with an exception for a response that is not JSON
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Given the REST header "Authorization" has the value from the JSON path "$.access_token"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Failed to decode JSON: Syntax error.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Given the REST header :name has the value from the JSON path :path" fails with an error for a missing path
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I send a REST "GET" request to "http://cli:8888/json_token.json"
+      Given the REST header "Authorization" has the value from the JSON path "$.missing"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The JSON path "$.missing" was not found.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Given the REST header :name has the value from the JSON path :path" fails with an error for a null value
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I send a REST "GET" request to "http://cli:8888/json_token.json"
+      Given the REST header "X-Scope" has the value from the JSON path "$.scope"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The JSON path "$.scope" is null in the REST response, but a value is required.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Given the REST header :name has the value from the JSON path :path with the prefix :prefix" fails with an error for an array
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I send a REST "GET" request to "http://cli:8888/json_token.json"
+      Given the REST header "X-Scopes" has the value from the JSON path "$.scopes" with the prefix "scopes="
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The JSON path "$.scopes" resolves to an array or object, but a scalar value is required for this assertion.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Given the REST header :name has the value from the JSON path :path" fails with an error for several matches
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I send a REST "GET" request to "http://cli:8888/json_token.json"
+      Given the REST header "X-Scope" has the value from the JSON path "$.scopes[*]"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The JSON path "$.scopes[*]" matched 2 values, but a single value is required for this assertion.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "When I send a REST :method request to :url with the body from the file :filename" fails with an exception for a missing file
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "POST" request to "/mysite_core/test-request-echo" with the body from the file "rest_missing.xml"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      rest_missing.xml" does not exist.
       """

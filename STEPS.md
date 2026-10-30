@@ -3564,13 +3564,18 @@ When I set the viewport to "375" by "667"
 [Source](src/Steps/Web/RestTrait.php), [Example](tests/behat/features/rest.feature)
 
 >  Test REST APIs with lightweight steps.
->  - Set HTTP headers for subsequent requests.
->  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
+>  - Set HTTP headers for subsequent requests, literally or from a JSON path
+>  in the last response.
+>  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE), with
+>  a body written inline or read from a fixture file.
 >  - Assert response status codes, headers and body content.
 >  
 >  Requests go through the `rest` Mink session, apart from the browser's: they
 >  carry no browser cookies, and the browser keeps its page. The JSON and XML
 >  steps read the same session.
+>  <br/><br/>
+>  The JSON path header steps require the optional `softcreatr/jsonpath`
+>  package: `composer require --dev softcreatr/jsonpath`.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:RestTrait`.
 
@@ -3591,6 +3596,32 @@ Set a REST header for subsequent requests
 ```gherkin
 Given the REST header "Accept" has the value "application/json"
 Given the REST header "Authorization" has the value "Bearer abc123"
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the REST header :name has the value from the JSON path :path</code></summary>
+
+<br/>
+Set a REST header to the value at a JSON path in the last REST response
+<br/><br/>
+
+```gherkin
+Given the REST header "X-Session-Id" has the value from the JSON path "$.session_id"
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the REST header :name has the value from the JSON path :path with the prefix :prefix</code></summary>
+
+<br/>
+Set a REST header to a prefix and the value at a JSON path
+<br/><br/>
+
+```gherkin
+Given the REST header "Authorization" has the value from the JSON path "$.access_token" with the prefix "Bearer "
 ```
 
 </details>
@@ -3621,6 +3652,19 @@ When I send a REST "POST" request to "/api/resource" with the body:
   """
   {"name": "example"}
   """
+```
+
+</details>
+
+<details>
+  <summary><code>@When I send a REST :method request to :url with the body from the file :filename</code></summary>
+
+<br/>
+Send a REST request to a URL with a body read from a fixture file
+<br/><br/>
+
+```gherkin
+When I send a REST "POST" request to "/api/import" with the body from the file "items.xml"
 ```
 
 </details>

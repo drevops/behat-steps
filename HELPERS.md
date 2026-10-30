@@ -27,12 +27,13 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [RandomTrait](#randomtrait) | 10 | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](#regiontrait) | 4 | Interact with and assert against named page regions. |
 | [ResponsiveTrait](#responsivetrait) | 7 | Test responsive layouts with viewport control. |
-| [RestTrait](#resttrait) | 3 | Test REST APIs with lightweight steps. |
+| [RestTrait](#resttrait) | 4 | Test REST APIs with lightweight steps. |
 | [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 9 | Assert XML responses with element and attribute checks. |
 | [FixtureDirectoryTrait](#fixturedirectorytrait) | 5 | Resolves fixture files in the directory Mink's `files_path` parameter names. |
 | [HeadingTrait](#headingtrait) | 1 | Finds a heading by its text within the page or an element of it. |
+| [JsonPathTrait](#jsonpathtrait) | 4 | Looks up values in decoded JSON with JSONPath expressions. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
 | [RestResponseTrait](#restresponsetrait) | 3 | Reads the last response of the REST session. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
@@ -1467,6 +1468,15 @@ Get the BrowserKit browser the REST session drives
 </details>
 
 <details>
+  <summary><code>public function restGetResponseJsonValue(string $path): string</code></summary>
+
+<br/>
+Get the scalar at a JSON path in the last REST response, as a string
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function restResolveUrl(string $url): string</code></summary>
 
 <br/>
@@ -1753,6 +1763,48 @@ Read a file in the fixtures directory
 
 <br/>
 Find a heading whose text matches exactly
+<br/><br/>
+
+</details>
+
+## JsonPathTrait
+
+[Source](src/Steps/Helper/Web/JsonPathTrait.php)
+
+> Looks up values in decoded JSON with JSONPath expressions.
+
+<details>
+  <summary><code>public function jsonPathDecode(string $content): array</code></summary>
+
+<br/>
+Decode a JSON string into an array
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function jsonPathGetScalar(array $data, string $path): mixed</code></summary>
+
+<br/>
+Get the scalar value a JSONPath expression matches in decoded JSON
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function jsonPathGetValue(array $data, string $path): mixed</code></summary>
+
+<br/>
+Get the value a JSONPath expression matches in decoded JSON
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function jsonPathQuery(array $data, string $path): array</code></summary>
+
+<br/>
+Run a JSONPath expression against decoded JSON
 <br/><br/>
 
 </details>
