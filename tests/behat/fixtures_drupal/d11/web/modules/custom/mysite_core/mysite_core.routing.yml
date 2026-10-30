@@ -7,6 +7,17 @@ mysite_core.basic_auth_test:
   defaults:
     _controller: '\Drupal\mysite_core\Controller\TestContent::testCurrentUser'
 
+mysite_core.test_csrf_header:
+  path: '/mysite_core/test-csrf-header'
+  methods: [ POST ]
+  options:
+    _auth: [ 'basic_auth', 'cookie' ]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    _csrf_request_header_token: 'TRUE'
+  defaults:
+    _controller: '\Drupal\mysite_core\Controller\TestContent::testCurrentUser'
+
 mysite_core.test_time:
   path: '/mysite_core/test-time'
   requirements:

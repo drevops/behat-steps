@@ -37,7 +37,10 @@ final class TestContent extends ControllerBase {
   public function testCurrentUser(): array {
     $account = $this->currentUser();
 
-    return ['#markup' => $account->getAccountName()];
+    return [
+      '#markup' => $account->getAccountName(),
+      '#cache' => ['contexts' => ['user']],
+    ];
   }
 
   /**

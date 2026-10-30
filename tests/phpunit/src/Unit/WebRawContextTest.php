@@ -177,6 +177,52 @@ class WebRawContextTest extends UnitTestCase {
     $this->assertNull($identity->credentials);
   }
 
+  public function testHttpRestSessionUsesDeclaredSession(): void {
+    $rest = new Session($this->createMock(DriverInterface::class));
+    $mink = new Mink(['default' => new Session($this->createMock(DriverInterface::class)), 'rest' => $rest]);
+    $factory = $this->createMock(HttpClientFactoryInterface::class);
+    $factory->expects($this->never())->method('createDetached');
+    $context = new WebRawContext();
+    $context->setMink($mink);
+    $context->setHttpClientFactory($factory);
+
+    $this->assertSame($rest, $context->httpRestSession());
+  }
+
+  public function testHttpRestSessionBuildsSessionOnFirstUse(): void {
+    $browser = new HttpBrowser(new MockHttpClient());
+    $identities = [];
+    $factory = $this->createMock(HttpClientFactoryInterface::class);
+    $factory->expects($this->once())->method('createDetached')->willReturnCallback(static function (HttpIdentity $identity) use ($browser, &$identities): HttpBrowser {
+      $identities[] = $identity;
+
+      return $browser;
+    });
+
+    $basic_authenticator = $this->createMock(BasicAuthenticatorInterface::class);
+    $basic_authenticator->method('findCredentials')->willReturn(['username' => 'bob', 'password' => 'pw']);
+
+    $mink = new Mink(['default' => new Session($this->createMock(DriverInterface::class))]);
+    $context = new WebRawContext();
+    $context->setMink($mink);
+    $context->setMinkParameters(['base_url' => 'http://example.com']);
+    $context->setHttpClientFactory($factory);
+    $context->setBasicAuthenticator($basic_authenticator);
+
+    $session = $context->httpRestSession();
+
+    $this->assertSame($session, $context->httpRestSession());
+    $this->assertSame($session, $mink->getSession('rest'));
+    $driver = $session->getDriver();
+    $this->assertInstanceOf(BrowserKitDriver::class, $driver);
+    $this->assertSame($browser, $driver->getClient());
+    $this->assertCount(1, $identities);
+    $this->assertSame([], $identities[0]->cookies);
+    $this->assertNull($identities[0]->cookieUrl);
+    $this->assertSame([], $identities[0]->headers);
+    $this->assertSame(['username' => 'bob', 'password' => 'pw'], $identities[0]->credentials);
+  }
+
   public function testPrerequisitesHoldWhenEveryDeclarationIsMet(): void {
     $drupal = $this->createStub(DrupalBackendInterface::class);
     $drupal->method('moduleIsEnabled')->willReturn(TRUE);

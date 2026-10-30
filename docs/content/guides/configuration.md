@@ -71,7 +71,7 @@ The layout gives you 3 things:
 
 - The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions, and the regression suites hold broad scenarios written in the shipped steps. [Scenario styles](scenario-styles.md) explains why both exist.
 - You can exclude a slow surface without touching the others. Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
-- A surface can offer only the steps that work on it. Register a narrower context there instead of `FeatureContext`, [composed from `WebRawContext`](contexts.md#compose-your-own-context): an API suite built on `RestTrait`, `JsonTrait` and `ResponseTrait` never loads a trait that expects a rendered page. Behat then reports a step that can't work on the surface as undefined, instead of running it into a confusing failure.
+- A surface can offer only the steps that work on it. Register a narrower context there instead of `FeatureContext`, [composed from `WebRawContext`](contexts.md#compose-your-own-context): an API suite built on `RestTrait` and `JsonTrait` never loads a trait that expects a rendered page. Behat then reports a step that can't work on the surface as undefined, instead of running it into a confusing failure.
 
 ### Context constructor arguments
 

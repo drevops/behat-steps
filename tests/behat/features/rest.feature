@@ -33,11 +33,206 @@ Feature: Check that RestTrait works
     Then the REST response status code should be 200
     And the REST response should contain "The Great Adventure"
 
+  Scenario: Assert "When I send a REST :method request to :url" sends none of the browser's cookies
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    And I am logged in as a user with the role "administrator"
+    And the REST header "Authorization" has the value "Basic YWRtaW4tdGVzdDphZG1pbi10ZXN0"
+    When I send a REST "POST" request to "/mysite_core/test-csrf-header"
+    Then the REST response status code should be 200
+    And the REST response should contain "admin-test"
+    When I go to "/admin"
+    Then the response status code should be 200
+
+  Scenario: Assert "When I send a REST :method request to :url with the body:" sends none of the browser's cookies
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    And I am logged in as a user with the role "administrator"
+    And the REST header "Authorization" has the value "Basic YWRtaW4tdGVzdDphZG1pbi10ZXN0"
+    And the REST header "Content-Type" has the value "application/json"
+    When I send a REST "POST" request to "/mysite_core/test-csrf-header" with the body:
+      """
+      {"name": "example"}
+      """
+    Then the REST response status code should be 200
+    And the REST response should contain "admin-test"
+
+  Scenario: Assert a REST request is anonymous without the browser's login
+    Given I am logged in as a user with the role "administrator"
+    When I send a REST "GET" request to "/admin"
+    Then the REST response status code should be 403
+
+  Scenario: Assert a REST request leaves the browser's page in place
+    Given I go to "/user/login"
+    When I send a REST "GET" request to "/mysite_core/test-robots-header"
+    Then the REST response should contain "Robots header test"
+    And the path should be "/user/login"
+    And I should not see the heading "Robots header test"
+
+  Scenario: Assert a REST request carries the basic authentication a step set
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    And I am using basic authentication with the username "admin-test" and the password "admin-test"
+    When I send a REST "GET" request to "/mysite_core/test-basic-auth"
+    Then the REST response status code should be 200
+    And the REST response should contain "admin-test"
+
+  Scenario: Assert a REST "Authorization" header replaces the basic authentication a step set
+    Given the following users exist:
+      | name        | mail                | pass        |
+      | admin-test  | admin-test@bar.com  | admin-test  |
+      | editor-test | editor-test@bar.com | editor-test |
+    And I am using basic authentication with the username "admin-test" and the password "admin-test"
+    And the REST header "Authorization" has the value "Basic ZWRpdG9yLXRlc3Q6ZWRpdG9yLXRlc3Q="
+    When I send a REST "GET" request to "/mysite_core/test-basic-auth"
+    Then the REST response status code should be 200
+    And the REST response should contain "editor-test"
+
+  Scenario: Assert the REST response header steps work
+    When I send a REST "GET" request to "/mysite_core/test-robots-header?value=noindex"
+    Then the REST response should contain the header "X-Robots-Tag"
+    And the REST response should not contain the header "X-Nonexistent-Header"
+    And the REST response header "X-Robots-Tag" should contain "NOINDEX"
+    And the REST response header "X-Robots-Tag" should not contain "nofollow"
+
+  Scenario: Assert the REST response header steps read the REST response, not the page
+    Given I go to "/mysite_core/test-robots-header?value=nofollow"
+    When I send a REST "GET" request to "/mysite_core/test-robots-header?value=noindex"
+    Then the REST response header "X-Robots-Tag" should contain "noindex"
+    And the response header "X-Robots-Tag" should contain "nofollow"
+
+  @javascript
+  Scenario: Assert a REST request runs beside a JavaScript browser session
+    Given I go to "/user/login"
+    When I send a REST "GET" request to "/mysite_core/test-robots-header"
+    Then the REST response status code should be 200
+    And the REST response should contain "Robots header test"
+    And the path should be "/user/login"
+
   @behat-steps-skip:RestTrait
   Scenario: Assert that a scenario with the skip tag still sends REST requests
     Given the REST header "Accept" has the value "text/html"
     When I send a REST "GET" request to "/"
     Then the REST response status code should be 200
+
+  @test-trait:RestTrait
+  Scenario: Assert "When I print the last REST response" prints the response body
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      And I print the last REST response
+      """
+    When I run "behat --no-colors"
+    Then it should pass with:
+      """
+      1 scenario (1 passed)
+      """
+    And the output should contain:
+      """
+      <h1>Robots header test</h1>
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response status code should be :code" fails before any REST request
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/"
+      Then the REST response status code should be 200
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      No REST request has been sent in this scenario. The REST, JSON and XML steps read the response of "When I send a REST :method request to :url", not the page the browser loaded.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response should contain the header :name" fails with an error for a missing header
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Then the REST response should contain the header "X-Nonexistent-Header"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response does not contain the header "X-Nonexistent-Header".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response should not contain the header :name" fails with an error for a present header
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Then the REST response should not contain the header "X-Robots-Tag"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response contains the header "X-Robots-Tag", but it should not.
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response header :name should contain :value" fails with an error for a missing header
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Then the REST response header "X-Nonexistent-Header" should contain "noindex"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response does not contain the header "X-Nonexistent-Header".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response header :name should contain :value" fails with an error for another value
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header?value=noindex"
+      Then the REST response header "X-Robots-Tag" should contain "nofollow"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response header "X-Robots-Tag" is "noindex" and does not contain "nofollow".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response header :name should not contain :value" fails with an error for a missing header
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header"
+      Then the REST response header "X-Nonexistent-Header" should not contain "noindex"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response does not contain the header "X-Nonexistent-Header".
+      """
+
+  @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response header :name should not contain :value" fails with an error for a contained value
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I send a REST "GET" request to "/mysite_core/test-robots-header?value=noindex"
+      Then the REST response header "X-Robots-Tag" should not contain "noindex"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The REST response header "X-Robots-Tag" is "noindex" and contains "noindex", but it should not.
+      """
 
   @test-trait:RestTrait
   Scenario: Assert that negative assertion for "Then the REST response status code should be :code" fails with an error

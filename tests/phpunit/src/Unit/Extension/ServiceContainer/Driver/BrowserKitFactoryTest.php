@@ -115,6 +115,14 @@ class BrowserKitFactoryTest extends UnitTestCase {
     $factory->getClientOptions();
   }
 
+  public function testExcludedSessionKeepsItsOwnOptions(): void {
+    $factory = new BrowserKitFactory();
+    $factory->buildDriver(['http_client_parameters' => ['timeout' => 30]]);
+    $excluded = $factory->buildDriver(['http_client_parameters' => ['timeout' => 60]]);
+
+    $this->assertSame(['timeout' => 30], $factory->getClientOptions($excluded));
+  }
+
   /**
    * Builds the options tree the factory declares for a session.
    */

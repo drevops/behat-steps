@@ -14,7 +14,7 @@ This page shows what each context includes, which one to extend and where your o
 
 Each context builds on the one before it:
 
-- `WebRawContext` extends Mink's `RawMinkContext` and has no steps. It holds the plumbing every step relies on: the backends, the browser's capabilities, the 3 HTTP clients, trait options, prerequisite checks and hook dispatch. It comes with 3 helper traits too: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
+- `WebRawContext` extends Mink's `RawMinkContext` and has no steps. It holds the plumbing every step relies on: the backends, the browser's capabilities, the 4 HTTP clients, trait options, prerequisite checks and hook dispatch. It comes with 3 helper traits too: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
 - `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`: the 28 traits of [web steps](../web-steps/README.md), which work on any website.
 - `DrupalContext` extends `WebContext` and adds every trait under `Steps\Drupal`: the 29 traits of [Drupal steps](../drupal-steps/README.md), and the user registry their login steps need.
 
@@ -166,7 +166,7 @@ class UiContext extends WebRawContext {
 }
 ```
 
-Compose a context like this when a shipped step's text collides with a step you need to keep, or when a suite should offer only a narrow set of steps, such as an API suite built on `RestTrait`, `JsonTrait` and `ResponseTrait`. Each step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity cleanup that removes what its steps created.
+Compose a context like this when a shipped step's text collides with a step you need to keep, or when a suite should offer only a narrow set of steps, such as an API suite built on `RestTrait` and `JsonTrait`. Each step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity cleanup that removes what its steps created.
 
 1 profile carries the extension, and each suite registers its own context:
 

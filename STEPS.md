@@ -1870,6 +1870,9 @@ When I switch to the root document
 >  - Assert JSONPath existence, type, and element counts.
 >  - Validate the response against a JSON Schema.
 >  
+>  The steps read the response of the last REST request, so send one with
+>  `When I send a REST :method request to :url` first.
+>  <br/><br/>
 >  JSONPath expressions use the standard `$.path.to[0].value` syntax.
 >  <br/><br/>
 >  The JSON path steps require the optional `softcreatr/jsonpath` package:
@@ -3563,8 +3566,12 @@ When I set the viewport to "375" by "667"
 >  Test REST APIs with lightweight steps.
 >  - Set HTTP headers for subsequent requests.
 >  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
->  - Assert response status codes and body content.
+>  - Assert response status codes, headers and body content.
 >  
+>  Requests go through the `rest` Mink session, apart from the browser's: they
+>  carry no browser cookies, and the browser keeps its page. The JSON and XML
+>  steps read the same session.
+>  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:RestTrait`.
 
 
@@ -3572,7 +3579,7 @@ When I set the viewport to "375" by "667"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the context's request headers before each scenario. If `FALSE`, they aren't cleared, which changes nothing, because Behat builds a new context for each scenario and its headers start empty. |
+| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the REST headers before each scenario. If `FALSE`, they aren't cleared, which changes nothing, because Behat builds a new context for each scenario and its headers start empty. |
 
 <details>
   <summary><code>@Given the REST header :name has the value :value</code></summary>
@@ -3619,6 +3626,19 @@ When I send a REST "POST" request to "/api/resource" with the body:
 </details>
 
 <details>
+  <summary><code>@When I print the last REST response</code></summary>
+
+<br/>
+Print the last REST response
+<br/><br/>
+
+```gherkin
+When I print the last REST response
+```
+
+</details>
+
+<details>
   <summary><code>@Then the REST response status code should be :code</code></summary>
 
 <br/>
@@ -3641,6 +3661,58 @@ Assert the REST response contains text
 
 ```gherkin
 Then the REST response should contain "success"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response should contain the header :name</code></summary>
+
+<br/>
+Assert the REST response contains a header
+<br/><br/>
+
+```gherkin
+Then the REST response should contain the header "Content-Type"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response should not contain the header :name</code></summary>
+
+<br/>
+Assert the REST response does not contain a header
+<br/><br/>
+
+```gherkin
+Then the REST response should not contain the header "Set-Cookie"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response header :name should contain :value</code></summary>
+
+<br/>
+Assert a header of the REST response contains a value
+<br/><br/>
+
+```gherkin
+Then the REST response header "Content-Type" should contain "application/json"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response header :name should not contain :value</code></summary>
+
+<br/>
+Assert a header of the REST response does not contain a value
+<br/><br/>
+
+```gherkin
+Then the REST response header "Cache-Control" should not contain "public"
 ```
 
 </details>
@@ -3932,6 +4004,9 @@ When I wait for 1 second for AJAX to finish
 >  - Assert XML element existence and content.
 >  - Assert XML attribute values.
 >  - Assert XML structure and namespace usage.
+>  
+>  The steps read the response of the last REST request, so send one with
+>  `When I send a REST :method request to :url` first.
 
 
 <details>

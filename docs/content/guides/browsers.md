@@ -42,7 +42,7 @@ These steps and hooks need each capability:
 - Pressing keys: the [Keyboard](../web-steps/keyboard.md) steps.
 - Reading cookies: the [Cookies](../web-steps/cookie.md) steps, and the detached [HTTP client](http-clients.md), which sends the visitor's cookies.
 - Setting request headers: the `X-Config-No-Override` header that [Config overrides](../drupal-steps/config-override.md) sends.
-- Lending its HTTP client to a step: the [REST APIs](../web-steps/rest.md) steps, whose response becomes the page.
+- Lending its HTTP client to a step: `httpPageClient()`, for a step of your own whose response becomes the page. The [REST APIs](../web-steps/rest.md) steps send through a session of their own, so they run under every browser driver.
 
 A step that needs a capability the session's browser lacks fails with an `UnsupportedDriverActionException` naming the capability. Some steps ask Mink directly for something only a real browser has, such as resizing the window for [Responsive layouts](../web-steps/responsive.md). Under BrowserKit, Mink throws the same exception for those steps.
 

@@ -86,6 +86,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Resize',
     'Resolve',
     'Run',
+    'Send',
     'Set',
     'Substitute',
     'Transpose',

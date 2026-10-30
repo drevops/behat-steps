@@ -292,7 +292,7 @@ Every other class is replaced rather than extended. A suite that swaps in its ow
 | --- | --- | --- |
 | **Backend** | What a step resolves a capability from: Drupal in-process, Drush or Blackbox | `src/Backend`, `BackendInterface`, the `backends` list and the `@backend:` tag, `backendFor()` and `getBackend()` on `WebRawContext`, `BackendRegistry` |
 | **Browser driver** | Mink's driver behind the session: BrowserKit, Selenium2 or Chrome | `browserDriverFor()` and `browserDriverHas()` on `WebRawContext`, the adapters and capabilities under `src/Extension/Browser` |
-| **HTTP client** | What a step sends its own request through: the page, detached or bare client | `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()` on `WebRawContext`, `HttpClientFactory` |
+| **HTTP client** | What a step sends its own request through: the REST session, or the page, detached or bare client | `httpRestSession()`, `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()` on `WebRawContext`, `HttpClientFactory` |
 
 Mink owns the word "driver" across the Behat ecosystem, so no name this package owns uses it for anything else. `Backend` in an identifier of ours means a backend, and `Driver` or `BrowserDriver` means Mink's. In prose, Mink's is a "browser driver", never a "Mink driver" or "the session's driver", and that holds inside `src/Extension/Browser` too. An HTTP client is neither. It's a BrowserKit `AbstractBrowser`, so a docblock may call the object a browser.
 
@@ -557,17 +557,20 @@ The library's own harness in `tests/behat/bootstrap` is not a step trait. Its st
 
 ## Sending a request from a trait
 
-A step that sends its own HTTP request picks 1 of 3 clients on `WebRawContext` by what the response is for, and the method it calls says which:
+A step that sends its own HTTP request picks 1 of 4 clients on `WebRawContext` by what the response is for, and the method it calls says which:
 
 | The response | Call | Used by |
 | --- | --- | --- |
-| Becomes the page the next steps read | `httpPageClient()` | `RestTrait` |
+| Is the API response the REST, JSON and XML steps read | `httpRestSession()` | `RestTrait`, `JsonTrait`, `XmlTrait` |
+| Becomes the browser's page | `httpPageClient()` | None |
 | Belongs to the scenario's visitor, but isn't the page | `httpDetachedClient()` | `FileDownloadTrait`, the hreflang return-link check in `MetatagTrait` |
 | Carries nothing of the scenario | `httpBareClient()` | The engine fetch in `AccessibilityTrait` |
 
-Never build a client of your own, whether that's cURL, `file_get_contents()` over HTTP or a `new HttpBrowser()`. It wouldn't get the connection settings a project declares on its `browserkit_http` session, so a suite on a staging site with a self-signed certificate would pass on the page and fail on the download. A trait calling any of the 3 carries `@phpstan-require-extends \DrevOps\BehatSteps\WebRawContext`.
+Never build a client of your own, whether that's cURL, `file_get_contents()` over HTTP or a `new HttpBrowser()`. It wouldn't get the connection settings a project declares on its `browserkit_http` session, so a suite on a staging site with a self-signed certificate would pass on the page and fail on the download. A trait calling any of the 4 carries `@phpstan-require-extends \DrevOps\BehatSteps\WebRawContext`.
 
-The page client exists only under BrowserKit, and throws `UnsupportedDriverActionException` in a JavaScript session, so a step built on it fails there by design. The detached and bare clients work under every browser driver. In a `@javascript` scenario they run beside the browser: the browser holds the page while the step sends its request from PHP, so a download keeps working there. Keep a detached or bare response in the trait's own state, as `FileDownloadTrait` does, or inside the step, as the hreflang check does. Never write it to the session, or the next page assertion reads the wrong content.
+Each step reads 1 session, fixed by its wording. A step that says REST, JSON or XML reads the REST session through `Steps\Helper\Web\RestResponseTrait`, and every other step reads the browser's. Never route a step by which session answered last.
+
+The page client exists only under BrowserKit, and throws `UnsupportedDriverActionException` in a JavaScript session, so a step built on it fails there by design. The REST session, the detached client and the bare client work under every browser driver. In a `@javascript` scenario they run beside the browser: the browser holds the page while the step sends its request from PHP, so a download keeps working there. Keep a detached or bare response in the trait's own state, as `FileDownloadTrait` does, or inside the step, as the hreflang check does. Never write it to the session, or the next page assertion reads the wrong content.
 
 In a unit test, the test implementation overrides `httpDetachedClient()` or `httpBareClient()` to return an `HttpBrowser` over Symfony's `MockHttpClient`, as `FileDownloadTraitTest` and `MetatagTraitTest` do. [docs/content/guides/http-clients.md](docs/content/guides/http-clients.md) covers the settings and the identity the detached client carries, and [docs/content/extending/](docs/content/extending) covers the extension points.
 

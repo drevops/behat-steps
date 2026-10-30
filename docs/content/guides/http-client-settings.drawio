@@ -8,7 +8,7 @@
         <mxCell id="title" value="Behat Steps: where HTTP client settings come from" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=22;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="16" y="16" width="900" height="34" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" value="Connection settings come from 1 place, and per-trait settings from another. Arrows point the way the settings travel." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
+        <mxCell id="subtitle" value="Connection settings come from the browserkit_http sessions, and per-trait settings from the steps options. Arrows point the way the settings travel." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
           <mxGeometry x="16" y="54" width="1400" height="22" as="geometry" />
         </mxCell>
         <mxCell id="src-mink" value="&lt;b&gt;Mink: sessions.NAME.browserkit_http&lt;/b&gt;&lt;br&gt;http_client_parameters:&lt;br&gt;verify_peer, proxy, resolve, headers, timeout" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1">
@@ -35,8 +35,14 @@
         <mxCell id="c-bare" value="&lt;b&gt;Bare client&lt;/b&gt;&lt;br&gt;a fresh HttpBrowser with the settings only" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
           <mxGeometry x="1000" y="600" width="380" height="90" as="geometry" />
         </mxCell>
+        <mxCell id="src-rest" value="&lt;b&gt;Mink: sessions.rest&lt;/b&gt;&lt;br&gt;optional; its own http_client_parameters" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1">
+          <mxGeometry x="1480" y="120" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="c-rest" value="&lt;b&gt;REST session&lt;/b&gt;&lt;br&gt;the Mink session the REST, JSON and XML steps read" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="1480" y="600" width="380" height="90" as="geometry" />
+        </mxCell>
         <mxCell id="grp-legend" value="Legend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;strokeWidth=1.5;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#455A64;" vertex="1" parent="1">
-          <mxGeometry x="840" y="750" width="540" height="130" as="geometry" />
+          <mxGeometry x="1000" y="740" width="540" height="130" as="geometry" />
         </mxCell>
         <mxCell id="lg-project" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="grp-legend">
           <mxGeometry x="20" y="50" width="40" height="20" as="geometry" />
@@ -85,6 +91,12 @@
         </mxCell>
         <mxCell id="e-bare" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;jumpStyle=arc;jumpSize=10;" edge="1" parent="1" source="transport" target="c-bare">
           <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1190" y="485" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e-rest" value="when no rest session is declared" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=1;exitY=0.2;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;jumpStyle=arc;jumpSize=10;" edge="1" parent="1" source="transport" target="c-rest">
+          <mxGeometry x="0.42" relative="1" as="geometry"><Array as="points"><mxPoint x="1594" y="458" /></Array><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e-rest-own" value="when declared, used as is" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.8;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="src-rest" target="c-rest">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>

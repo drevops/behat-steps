@@ -15,6 +15,9 @@ custom_edit_url: null
 >  - Assert XML element existence and content.
 >  - Assert XML attribute values.
 >  - Assert XML structure and namespace usage.
+>  
+>  The steps read the response of the last REST request, so send one with
+>  `When I send a REST :method request to :url` first.
 
 ## Steps
 
