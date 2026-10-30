@@ -16,11 +16,11 @@ use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
  *
  * date_recur reads 'value' and 'end_value' as UTC and computes occurrences in
  * the record's 'timezone'. The handler relays both columns as given, so a
- * record holds the stored UTC values and names its 'timezone'.
+ * record has to hold the stored UTC values and name its 'timezone'.
  *
- * A record with a date and no 'timezone', or with a date that is not in the
- * storage format, is rejected, because date_recur would compute no
- * occurrences or read a different time.
+ * A record with a date and no 'timezone' is rejected, because date_recur
+ * would compute no occurrences. A date outside the storage format is
+ * rejected, because date_recur would read a different time.
  *
  * The field type's preSave() derives 'infinite' from the rrule, so 'rrule'
  * and 'infinite' are relayed unchanged.

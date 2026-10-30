@@ -47,7 +47,7 @@ final class BehatStepsExtension implements ExtensionInterface {
    * Name of the Mink session the REST, JSON and XML steps send through.
    *
    * A session the Mink configuration declares under this name keeps its own
-   * connection options, apart from the shared transport's.
+   * connection options, and the shared transport leaves them out.
    */
   public const string REST_SESSION = 'rest';
 

@@ -266,18 +266,20 @@ final class DrupalBackendProvider implements BackendProviderInterface {
    *   When the Core class is configured empty.
    */
   protected function loadDrupal(FileLoader $loader, ContainerBuilder $container, array $config): void {
-    if (isset($config['drupal'])) {
-      $loader->load('backends/drupal.yml');
-
-      if (($config['drupal']['core'] ?? NULL) === '') {
-        throw new InvalidConfigurationException('Drupal "core" is empty. Set a value, or leave it out.');
-      }
-
-      $container->setParameter('behat_steps.backend.drupal.drupal_root', self::resolveDirectoryPath($config['drupal']['drupal_root']));
-      $container->setParameter(self::CORE_PARAMETER, $config['drupal']['core'] ?? NULL);
-      $container->setParameter(self::FIELD_HANDLERS_PARAMETER, $config['drupal']['field_handlers'] ?? []);
-      $container->setParameter(self::DRUPAL_CREATION_ALIASES_PARAMETER, $config['drupal']['creation_aliases'] ?? []);
+    if (!isset($config['drupal'])) {
+      return;
     }
+
+    $loader->load('backends/drupal.yml');
+
+    if (($config['drupal']['core'] ?? NULL) === '') {
+      throw new InvalidConfigurationException('Drupal "core" is empty. Set a value, or leave it out.');
+    }
+
+    $container->setParameter('behat_steps.backend.drupal.drupal_root', self::resolveDirectoryPath($config['drupal']['drupal_root']));
+    $container->setParameter(self::CORE_PARAMETER, $config['drupal']['core'] ?? NULL);
+    $container->setParameter(self::FIELD_HANDLERS_PARAMETER, $config['drupal']['field_handlers'] ?? []);
+    $container->setParameter(self::DRUPAL_CREATION_ALIASES_PARAMETER, $config['drupal']['creation_aliases'] ?? []);
   }
 
   /**
@@ -295,30 +297,32 @@ final class DrupalBackendProvider implements BackendProviderInterface {
    *   either is configured empty.
    */
   protected function loadDrush(FileLoader $loader, ContainerBuilder $container, array $config): void {
-    if (isset($config['drush'])) {
-      $loader->load('backends/drush.yml');
-
-      foreach (['alias', 'root'] as $key) {
-        if (($config['drush'][$key] ?? NULL) === '') {
-          throw new InvalidConfigurationException(sprintf('Drush "%s" is empty. Set a value, or leave it out.', $key));
-        }
-      }
-
-      if (!isset($config['drush']['alias']) && !isset($config['drush']['root'])) {
-        throw new InvalidConfigurationException('Drush "alias" or "root" path is required for the Drush backend.');
-      }
-
-      $container->setParameter('behat_steps.backend.drush.alias', $config['drush']['alias'] ?? NULL);
-
-      $config['drush']['binary'] ??= 'vendor/bin/drush';
-      $config['drush']['binary'] = self::resolveBinaryPath($config['drush']['binary']);
-      $container->setParameter('behat_steps.backend.drush.binary', $config['drush']['binary']);
-
-      $container->setParameter('behat_steps.backend.drush.root', isset($config['drush']['root']) ? self::resolveDirectoryPath($config['drush']['root']) : NULL);
-      $container->setParameter(self::DRUSH_CREATION_ALIASES_PARAMETER, $config['drush']['creation_aliases'] ?? []);
-
-      $this->setDrushOptions($container, $config);
+    if (!isset($config['drush'])) {
+      return;
     }
+
+    $loader->load('backends/drush.yml');
+
+    foreach (['alias', 'root'] as $key) {
+      if (($config['drush'][$key] ?? NULL) === '') {
+        throw new InvalidConfigurationException(sprintf('Drush "%s" is empty. Set a value, or leave it out.', $key));
+      }
+    }
+
+    if (!isset($config['drush']['alias']) && !isset($config['drush']['root'])) {
+      throw new InvalidConfigurationException('Drush "alias" or "root" path is required for the Drush backend.');
+    }
+
+    $container->setParameter('behat_steps.backend.drush.alias', $config['drush']['alias'] ?? NULL);
+
+    $config['drush']['binary'] ??= 'vendor/bin/drush';
+    $config['drush']['binary'] = self::resolveBinaryPath($config['drush']['binary']);
+    $container->setParameter('behat_steps.backend.drush.binary', $config['drush']['binary']);
+
+    $container->setParameter('behat_steps.backend.drush.root', isset($config['drush']['root']) ? self::resolveDirectoryPath($config['drush']['root']) : NULL);
+    $container->setParameter(self::DRUSH_CREATION_ALIASES_PARAMETER, $config['drush']['creation_aliases'] ?? []);
+
+    $this->setDrushOptions($container, $config);
   }
 
   /**
@@ -404,7 +408,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   }
 
   /**
-   * Builds a backend as the container hands it out when it can't be lazy.
+   * Makes a backend service eager when its class can't be made lazy.
    *
    * A lazy service can be a generated subclass, so a final class or a class
    * not loadable yet is built eagerly.

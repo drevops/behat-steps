@@ -1106,10 +1106,10 @@ function heading_anchor(string $name): string {
  *   Base path for the repository.
  *
  * @return array<string, array<string, mixed>>
- *   Array of info with 'name', 'name_contextual', 'class', 'context',
- *   'source', 'steps_anchor', 'helpers', 'description' and 'description_full'
- *   keys, and a 'title' key when the class declares one, keyed by short name.
- *   Traits contributing no helper are left out.
+ *   Array of info keyed by short name, with 'name', 'name_contextual',
+ *   'class', 'context', 'source', 'steps_anchor', 'helpers', 'description'
+ *   and 'description_full' keys, and a 'title' key when the class declares
+ *   one. Traits contributing no helper are left out.
  *
  * @throws \ReflectionException
  */
@@ -1262,8 +1262,8 @@ function composes_trait(\ReflectionClass $reflection, string $trait_name): bool 
  * Collect the helpers a class or trait contributes.
  *
  * Visibility is the marker: a public method that Behat does not register and
- * that carries no '@internal' tag is a helper. A protected method
- * is an implementation detail with no contract to a consuming project.
+ * that carries no '@internal' tag is a helper. A protected method is an
+ * implementation detail with no contract to a consuming project.
  *
  * @param \ReflectionClass<object> $reflection
  *   The class or trait reflection.
@@ -1414,7 +1414,7 @@ function relative_link(string $from_file, string $to_path): string {
 }
 
 /**
- * Render the paragraph opening a reference that points at the step skill.
+ * Render the paragraph that opens a reference with a link to the step skill.
  *
  * @param string $from_file
  *   The reference holding the paragraph, relative to the repository root.
@@ -1488,8 +1488,8 @@ function render_step_index(array $info, callable $link): string {
 /**
  * Render a trait's section of the step reference.
  *
- * The headings name the trait, so a search result or a link that lands on one
- * of them says which trait it belongs to.
+ * Each heading includes the trait name, so a search result or a link that
+ * targets a heading identifies its trait.
  *
  * @param string $trait
  *   The short trait name.
@@ -1519,8 +1519,8 @@ function render_step_section(string $trait, array $class_info, string $base_path
  * @param array<string, array<string, mixed>> $info
  *   The extracted trait info from extract_info().
  * @param array<string, array<string, mixed>> $helpers
- *   The helper info from extract_helpers(), so a trait with helpers links to
- *   its section of the helper reference.
+ *   The helper info from extract_helpers(), so the page of a trait with
+ *   helpers links to its section of the helper reference.
  * @param string $base_path
  *   Base path for the repository.
  *
@@ -1604,7 +1604,7 @@ function render_step_links(string $trait, array $class_info, string $from_file, 
  * Render a class description as a blockquote.
  *
  * A '@code' block becomes a fenced block, and an empty line becomes 2 line
- * breaks, except before a list.
+ * breaks, except next to a list item.
  *
  * @param string $description_full
  *   The full class description from parse_class_comment().

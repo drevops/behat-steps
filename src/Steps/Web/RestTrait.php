@@ -391,12 +391,8 @@ trait RestTrait {
     foreach ([$this->requestHeadersAll(), $this->restHeaders] as $headers) {
       foreach ($headers as $name => $value) {
         $key = strtoupper(str_replace('-', '_', $name));
-
-        if ($key !== 'CONTENT_TYPE' && $key !== 'CONTENT_LENGTH') {
-          $key = 'HTTP_' . $key;
-        }
-
-        $server[$key] = $value;
+        $prefix = in_array($key, ['CONTENT_TYPE', 'CONTENT_LENGTH'], TRUE) ? '' : 'HTTP_';
+        $server[$prefix . $key] = $value;
       }
     }
 
