@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
@@ -142,6 +145,40 @@ class DrushTraitTest extends UnitTestCase {
     $this->assertSame('Unable to uninstall no_such_module.', $context->drushGetOutput());
   }
 
+  /**
+   * Tests that a command clears the static caches whatever its exit code.
+   *
+   * @param string $method
+   *   The step method.
+   * @param int $exit_code
+   *   The exit code the command returns.
+   */
+  #[DataProvider('dataProviderRunClearsTheStaticCaches')]
+  public function testRunClearsTheStaticCaches(string $method, int $exit_code): void {
+    $drush = $this->createMock(DrushBackendInterface::class);
+    $has_returned = FALSE;
+    $drush->method('drushResult')->willReturnCallback(static function () use (&$has_returned, $exit_code): DrushResult {
+      $has_returned = TRUE;
+
+      return new DrushResult($exit_code, '', '');
+    });
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject $drupal */
+    $drupal = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, CacheCapabilityInterface::class, ContentCapabilityInterface::class]);
+    // A clear before the command returns would miss what the command changed.
+    $drupal->expects($this->once())->method('cacheClearStatic')->willReturnCallback(static function () use (&$has_returned): void {
+      self::assertTrue($has_returned, 'The static caches were cleared before the drush command returned.');
+    });
+    $context = $this->createContextWithBackend($drush, $drupal);
+    $context->backendFor(ContentCapabilityInterface::class);
+
+    $context->{$method}('user:role:add content_editor jane');
+  }
+
+  public static function dataProviderRunClearsTheStaticCaches(): \Iterator {
+    yield 'succeeding command' => ['drushRun', 0];
+    yield 'failing command' => ['drushRunFailing', 1];
+  }
+
   public function testRunRejectsAnEmptyCommand(): void {
     $drush = $this->createMock(DrushBackendInterface::class);
     $drush->expects($this->never())->method('drushResult');
@@ -154,14 +191,19 @@ class DrushTraitTest extends UnitTestCase {
   }
 
   /**
-   * Create a context whose only backend is the Drush backend given.
+   * Create a context over the Drush backend given and an optional second one.
    *
    * @param \DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface $drush
-   *   The Drush backend.
+   *   The Drush backend, first in the scenario's order.
+   * @param \DrevOps\BehatSteps\Backend\BackendInterface|null $drupal
+   *   A backend after it in the order, or NULL for none.
    */
-  protected function createContextWithBackend(DrushBackendInterface $drush): DrushTraitTestImplementation {
-    $registry = new BackendRegistry(['drush' => $drush]);
-    $registry->setScenarioBackends(['drush' => 'drush']);
+  protected function createContextWithBackend(DrushBackendInterface $drush, ?BackendInterface $drupal = NULL): DrushTraitTestImplementation {
+    $backends = array_filter(['drush' => $drush, 'drupal' => $drupal]);
+    $names = array_keys($backends);
+
+    $registry = new BackendRegistry($backends);
+    $registry->setScenarioBackends(array_combine($names, $names));
 
     $context = new DrushTraitTestImplementation();
     $context->setBackendRegistry($registry);

@@ -229,6 +229,30 @@ class BackendRegistryTest extends UnitTestCase {
     $this->assertSame($second, $registry->getResolvedBackendFor(CacheCapabilityInterface::class));
   }
 
+  public function testGetResolvedBackendsForListsEveryResolvedBackendInScenarioOrder(): void {
+    $first = $this->createCacheBackendMock(TRUE);
+    $unreached = $this->createCacheBackendMock(TRUE);
+    $last = $this->createCacheBackendMock(TRUE);
+    $registry = new BackendRegistry(['first' => $first, 'unreached' => $unreached, 'last' => $last]);
+    $registry->setScenarioBackends(['first' => 'first', 'unreached' => 'unreached', 'last' => 'last']);
+
+    $registry->getBackend('last');
+    $registry->getBackend('first');
+
+    $this->assertSame([$first, $last], $registry->getResolvedBackendsFor(CacheCapabilityInterface::class));
+    $this->assertSame([], $registry->getResolvedBackendsFor(ContentCapabilityInterface::class));
+  }
+
+  public function testGetResolvedBackendsForListsEachBackendOnce(): void {
+    $capable = $this->createCacheBackendMock(TRUE);
+    $registry = new BackendRegistry(['capable' => $capable]);
+    $registry->setScenarioBackends(['alias' => 'capable', 'capable' => 'capable']);
+
+    $registry->getBackend('capable');
+
+    $this->assertSame([$capable], $registry->getResolvedBackendsFor(CacheCapabilityInterface::class));
+  }
+
   public function testTheNextScenarioForgetsWhatThePreviousOneResolved(): void {
     $capable = $this->createCacheBackendMock(TRUE);
     $registry = new BackendRegistry(['capable' => $capable]);

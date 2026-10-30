@@ -54,6 +54,14 @@ Feature: Check that DrushTrait works
     And I print the last drush output
     Then the drush output should match "/^\d+\.\d+/"
 
+  Scenario: Assert "When I run the drush command :command" leaves no stale entity behind
+    Given the following users exist:
+      | name           | roles         |
+      | drush_assigned | administrator |
+    And the user "drush_assigned" should not have the role "content_editor" assigned
+    When I run the drush command "user:role:add content_editor drush_assigned"
+    Then the user "drush_assigned" should have the role "content_editor" assigned
+
   @test-trait:Drupal\DrushTrait
   Scenario: Assert that reading output before running a command fails
     Given some behat configuration

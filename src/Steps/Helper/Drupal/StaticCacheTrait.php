@@ -23,7 +23,20 @@ trait StaticCacheTrait {
    */
   #[AfterScenario]
   public function staticCacheAfterScenario(AfterScenarioScope $scope): void {
-    $this->getBackendRegistry()->getResolvedBackendFor(CacheCapabilityInterface::class)?->cacheClearStatic();
+    $this->staticCacheClear();
+  }
+
+  /**
+   * Clears the static caches of the backends the scenario resolved.
+   *
+   * Every resolved backend is cleared, not only the first in the scenario's
+   * order, since a backend that runs each command in its own process can come
+   * ahead of the one holding the caches.
+   */
+  public function staticCacheClear(): void {
+    foreach ($this->getBackendRegistry()->getResolvedBackendsFor(CacheCapabilityInterface::class) as $backend) {
+      $backend->cacheClearStatic();
+    }
   }
 
 }

@@ -140,17 +140,27 @@ final class BackendRegistry implements BackendRegistryInterface {
    * {@inheritdoc}
    */
   public function getResolvedBackendFor(string $capability): ?object {
-    // Walk the scenario's order rather than the resolution order, so this
-    // returns the same backend 'getBackendFor()' would return.
+    return $this->getResolvedBackendsFor($capability)[0] ?? NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getResolvedBackendsFor(string $capability): array {
+    $backends = [];
+
+    // Walk the scenario's order rather than the resolution order, so the first
+    // entry is the backend 'getBackendFor()' would return.
     foreach ($this->scenarioBackends as $name) {
       $backend = $this->backends[$name];
 
-      if ($backend instanceof $capability && in_array($backend, $this->resolvedBackends, TRUE)) {
-        return $backend;
+      // 2 tags can name the same backend, so it is listed only once.
+      if ($backend instanceof $capability && in_array($backend, $this->resolvedBackends, TRUE) && !in_array($backend, $backends, TRUE)) {
+        $backends[] = $backend;
       }
     }
 
-    return NULL;
+    return $backends;
   }
 
   /**

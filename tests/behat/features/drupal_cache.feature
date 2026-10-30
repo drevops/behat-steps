@@ -38,6 +38,16 @@ Feature: Check that CacheTrait works
     When I go to "/user"
     Then I should see "cache_render_admin"
 
+  Scenario: Assert "Given the static caches have been cleared" shows a change made by another process
+    Given the following users exist:
+      | name             | roles         |
+      | cache_static_set | administrator |
+    And the user "cache_static_set" should not have the role "content_editor" assigned
+    When I run the command "/app/build/vendor/bin/drush --root=/app/build/web --uri=http://nginx:8080 user:role:add content_editor cache_static_set"
+    Then the command should succeed
+    When the static caches have been cleared
+    Then the user "cache_static_set" should have the role "content_editor" assigned
+
   Scenario: Assert "When cron runs" runs cron
     Given the watchdog is cleared
     When cron runs
