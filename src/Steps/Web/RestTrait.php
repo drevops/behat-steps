@@ -14,6 +14,8 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\JsonPathTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\RestResponseTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
@@ -22,13 +24,18 @@ use Symfony\Component\BrowserKit\AbstractBrowser;
 /**
  * Test REST APIs with lightweight steps.
  *
- * - Set HTTP headers for subsequent requests.
- * - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
+ * - Set HTTP headers for subsequent requests, literally or from a JSON path
+ *   in the last response.
+ * - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE), with
+ *   a body written inline or read from a fixture file.
  * - Assert response status codes, headers and body content.
  *
  * Requests go through the `rest` Mink session, apart from the browser's: they
  * carry no browser cookies, and the browser keeps its page. The JSON and XML
  * steps read the same session.
+ *
+ * The JSON path header steps require the optional `softcreatr/jsonpath`
+ * package: `composer require --dev softcreatr/jsonpath`.
  *
  * Skip processing with tag: `@behat-steps-skip:RestTrait`.
  *
@@ -38,6 +45,8 @@ use Symfony\Component\BrowserKit\AbstractBrowser;
  */
 trait RestTrait {
 
+  use FixtureDirectoryTrait;
+  use JsonPathTrait;
   use RequestHeadersTrait;
   use RestResponseTrait;
   use StringTrait;
@@ -77,6 +86,37 @@ trait RestTrait {
   }
 
   /**
+   * Set a REST header to the value at a JSON path in the last REST response.
+   *
+   * @code
+   * Given the REST header "X-Session-Id" has the value from the JSON path "$.session_id"
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Given('the REST header :name has the value from the JSON path :path')]
+  public function restSetHeaderFromJsonPath(string $name, string $path): void {
+    $this->restHeaders[$name] = $this->restGetResponseJsonValue($path);
+  }
+
+  /**
+   * Set a REST header to a prefix and the value at a JSON path.
+   *
+   * The prefix is prepended as it is given, so a prefix separated from the
+   * value by a space ends with that space.
+   *
+   * @code
+   * Given the REST header "Authorization" has the value from the JSON path "$.access_token" with the prefix "Bearer "
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Given('the REST header :name has the value from the JSON path :path with the prefix :prefix')]
+  public function restSetHeaderFromJsonPathWithPrefix(string $name, string $path, string $prefix): void {
+    $this->restHeaders[$name] = $prefix . $this->restGetResponseJsonValue($path);
+  }
+
+  /**
    * Send a REST request to a URL.
    *
    * @code
@@ -106,6 +146,22 @@ trait RestTrait {
   #[When('I send a REST :method request to :url with the body:')]
   public function restSendRequestWithBody(string $method, string $url, PyStringNode $body): void {
     $this->restSend($method, $url, $body->getRaw());
+  }
+
+  /**
+   * Send a REST request to a URL with a body read from a fixture file.
+   *
+   * The file path is relative to the Mink `files_path` parameter.
+   *
+   * @code
+   * When I send a REST "POST" request to "/api/import" with the body from the file "items.xml"
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[When('I send a REST :method request to :url with the body from the file :filename')]
+  public function restSendRequestWithBodyFromFile(string $method, string $url, string $filename): void {
+    $this->restSend($method, $url, $this->fixtureDirectoryReadFile($filename));
   }
 
   /**
@@ -273,6 +329,33 @@ trait RestTrait {
    */
   public function restSend(string $method, string $url, ?string $body = NULL): void {
     $this->restGetBrowser()->request(strtoupper($method), $this->restResolveUrl($url), [], [], $this->restCreateServerArray(), $body);
+  }
+
+  /**
+   * Get the scalar at a JSON path in the last REST response, as a string.
+   *
+   * A JSON boolean becomes "true" or "false", and a number its string form.
+   *
+   * @param string $path
+   *   The JSONPath expression, which must match exactly 1 scalar.
+   *
+   * @return string
+   *   The value.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the expression matches no value, more than 1, an array or object,
+   *   or a JSON `null`.
+   * @throws \RuntimeException
+   *   When no REST request has been sent, or the response is not JSON.
+   */
+  public function restGetResponseJsonValue(string $path): string {
+    $value = $this->jsonPathGetScalar($this->jsonPathDecode($this->restResponseGetContent()), $path);
+
+    if ($value === NULL) {
+      throw new ExpectationException(sprintf('The JSON path "%s" is null in the REST response, but a value is required.', $path), $this->httpRestSession()->getDriver());
+    }
+
+    return $this->jsonPathFormatScalar($value);
   }
 
   /**

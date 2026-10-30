@@ -145,7 +145,7 @@ None of it leaks off the site: headers and credentials go to the site's own host
 
 The REST session calls an API, so it carries no browser cookies, and the browser keeps its login. Each REST request carries these, and the first one wins when 2 set the `Authorization` header:
 
-1. The headers from `the REST header :name has the value :value`, sent with REST requests only.
+1. The headers from `the REST header :name has the value :value` and its JSON path variants, sent with REST requests only.
 2. The headers the other steps set, such as the `Authorization` header the credentials step records and the `X-Config-No-Override` header.
 3. The basic-auth credentials from the `base_url` userinfo, sent to the site's own host only. A declared `rest` session sends its own `auth_basic` option instead.
 

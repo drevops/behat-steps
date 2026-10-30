@@ -1,0 +1,8 @@
+{
+  "access_token": "YWRtaW4tdGVzdDphZG1pbi10ZXN0",
+  "authorization": "Basic YWRtaW4tdGVzdDphZG1pbi10ZXN0",
+  "expires_in": 3600,
+  "refresh": true,
+  "scope": null,
+  "scopes": ["read", "write"]
+}

@@ -45,3 +45,11 @@ mysite_core.test_robots_header:
     _access: 'TRUE'
   defaults:
     _controller: '\Drupal\mysite_core\Controller\TestContent::testRobotsHeader'
+
+mysite_core.test_request_echo:
+  path: '/mysite_core/test-request-echo'
+  methods: [ POST ]
+  requirements:
+    _access: 'TRUE'
+  defaults:
+    _controller: '\Drupal\mysite_core\Controller\TestContent::testRequestEcho'

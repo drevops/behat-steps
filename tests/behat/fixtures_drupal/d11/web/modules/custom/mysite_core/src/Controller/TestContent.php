@@ -107,4 +107,23 @@ final class TestContent extends ControllerBase {
     ]);
   }
 
+  /**
+   * Echoes the request headers and body as plain text.
+   *
+   * Each header is a "name: value" line with the name in lowercase, and a
+   * blank line separates the headers from the body.
+   */
+  public function testRequestEcho(Request $request): Response {
+    $lines = [];
+
+    foreach ($request->headers->all() as $name => $values) {
+      $lines[] = $name . ': ' . implode(', ', $values);
+    }
+
+    return new Response(implode("\n", $lines) . "\n\n" . $request->getContent(), 200, [
+      'Content-Type' => 'text/plain',
+      'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+  }
+
 }
