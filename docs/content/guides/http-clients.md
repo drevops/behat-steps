@@ -76,7 +76,7 @@ Connection settings are `http_client_parameters` on a `browserkit_http` session.
 
 The factory also records the options. `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service. The REST session and the detached and bare clients send through it. So a setting that lets the page load also lets the download and the API request through.
 
-To give the REST session settings of its own, such as for an API on another host, declare a Mink session named `rest`. The REST, JSON and XML steps then use it as declared, and the shared transport ignores its options:
+To give the REST session settings of its own, such as for an API on another host, declare a Mink session named `rest` on a BrowserKit browser driver, such as `browserkit_http`. The REST steps fail on any other driver. The REST, JSON and XML steps then use the session as declared, and the shared transport ignores its options:
 
 ```php
 'default_session' => 'default',

@@ -45,10 +45,10 @@ A step reaches out in 1 of 3 ways, through methods of `WebRawContext` or Mink:
 - The site itself, through `backendFor()` and a capability, as [Backend layer](backend-layer.md) describes.
 - A request of its own, through 1 of the 4 [HTTP clients](../guides/http-clients.md).
 
-The traits fall into 3 groups by what they need besides the page:
+The traits fall into 3 groups by what they need from a backend:
 
 - `MessageTrait`, `MappingTrait`, `RegionTrait` and `BasicAuthTrait` need the extension's configuration but no backend.
-- Every other web trait needs nothing, because it works through the page alone. So do `BatchTrait`, `BigPipeTrait` and `ConfigOverrideTrait` under `Steps/Drupal`.
+- Every other web trait needs no backend, and neither do `BatchTrait`, `BigPipeTrait` and `ConfigOverrideTrait` under `Steps/Drupal`. `ConfigOverrideTrait` passes its signal to the scenario's backends that accept it, and works when there are none.
 - Every other trait names the capabilities it works through, so it runs on any backend that provides them.
 
 [What a trait needs from the backend](../../../CONTRIBUTING.md#what-a-trait-needs-from-the-backend) lists which trait uses which.

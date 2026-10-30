@@ -20,7 +20,7 @@ The `drupal` backend takes the first 3 through `drupal.field_handlers`, `drupal.
 
 A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler. The handler turns the value a scenario writes into the value Drupal stores. A date in the site's timezone becomes UTC, a term name becomes its ID and a file path becomes a managed file. The package ships a handler for each field type it supports. `DefaultHandler` relays any other plain-scalar value as written. When a field whose type has no handler holds an entity reference or a complex value, the step fails until you register a handler for that type.
 
-`drupal.field_handlers` maps a field type to a handler class of your own. An entry for a new field type adds a handler. An entry for a shipped type, such as `datetime` in the following example, replaces the shipped handler.
+`drupal.field_handlers` maps a field type to a handler class of your own. An entry for a new field type adds a handler. An entry for a shipped type, such as `datetime`, replaces the shipped handler.
 
 To add the `RatingHandler` class for a `rating` field type:
 
@@ -43,10 +43,15 @@ To add the `RatingHandler` class for a `rating` field type:
      public function expand(mixed $values): array {
        $deltas = [];
 
+       // A keyed array is 1 record of columns, so it makes 1 delta.
+       $records = is_array($values) && !array_is_list($values)
+         ? [$values]
+         : (array) $values;
+
        // A delta arrives as a bare value or as a record of columns, and
        // "4 stars" stores 4.
-       foreach ((array) $values as $value) {
-         $rating = is_array($value) ? ($value['value'] ?? '') : $value;
+       foreach ($records as $record) {
+         $rating = is_array($record) ? ($record['value'] ?? '') : $record;
          $deltas[] = ['value' => (int) $rating];
        }
 
@@ -65,8 +70,7 @@ To add the `RatingHandler` class for a `rating` field type:
      'drupal' => [
        'drupal_root' => 'web',
        'field_handlers' => [
-         'rating' => RatingHandler::class,
-         'datetime' => FiscalDatetimeHandler::class,
+         'rating' => \Acme\Behat\Field\RatingHandler::class,
        ],
      ],
    ]));
@@ -78,7 +82,7 @@ The package registers each class the option names through `FieldHandlerCapabilit
 
 ```php
 $this->backendFor(FieldHandlerCapabilityInterface::class)
-  ->registerFieldHandler('rating', RatingHandler::class);
+  ->registerFieldHandler('rating', \Acme\Behat\Field\RatingHandler::class);
 ```
 
 The registration lasts until the run ends, because the package keeps 1 backend for the whole run.
@@ -167,7 +171,7 @@ To add the `OrganizationAlias` class, which resolves an `organization` column on
      'drupal' => [
        'drupal_root' => 'web',
        'creation_aliases' => [
-         OrganizationAlias::class,
+         \Acme\Behat\Alias\OrganizationAlias::class,
        ],
      ],
    ]));
@@ -183,11 +187,11 @@ To add the `OrganizationAlias` class, which resolves an `organization` column on
 
 The package builds each class with no constructor arguments when it builds the backend, so the class can sit in the same places as a [field handler](#field-handlers). A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException`. The message names the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
 
-The package registers each class the options name through `CreationAliasCapabilityInterface`, which both Drupal backends provide. To register an alias whose constructor takes arguments, such as a lookup service, build it in a context of your own and register it through the same interface:
+The package registers each class the options name through `CreationAliasCapabilityInterface`, which both Drupal backends provide. To register an alias whose constructor takes arguments, build it in a context of your own and register it through the same interface. Here, `OrganizationLookupAlias` is a class of your own whose constructor takes a lookup service:
 
 ```php
 $this->backendFor(CreationAliasCapabilityInterface::class)
-  ->registerCreationAlias(new OrganizationAlias($lookup));
+  ->registerCreationAlias(new OrganizationLookupAlias($lookup));
 ```
 
 This registration also lasts until the run ends. `backendFor()` returns the first backend in the scenario's order that provides the capability. With `drupal` first in the `backends` list, the alias goes to `drupal`. To reach the Drush backend by name, call `$this->getBackend('drush')`.

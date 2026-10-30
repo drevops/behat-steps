@@ -59,7 +59,7 @@ To add the extension:
 2. Register it on the profile beside `BehatStepsExtension`:
 
    ```php
-   $profile->withExtension(new Extension(AcmeExtension::class));
+   $profile->withExtension(new Extension(\Acme\Behat\AcmeExtension::class));
    ```
 
 ## The HTTP client factory and browser adapters
