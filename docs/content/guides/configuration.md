@@ -54,7 +54,9 @@ $spec = (new Suite('spec'))
   ->withPaths('%paths.base%/tests/behat/features/spec')
   ->addContext(FeatureContext::class);
 
-$profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
+$profile = (new Profile('default', [
+  'autoload' => ['%paths.base%/tests/behat/bootstrap'],
+]))
   ->withSuite($ui)
   ->withSuite($api)
   ->withSuite($spec)

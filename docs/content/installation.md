@@ -174,7 +174,9 @@ To run `@javascript` scenarios through a Selenium server instead, follow these s
        'javascript_session' => 'selenium2',
        'sessions' => [
          'browserkit_http' => ['browserkit_http' => NULL],
-         'selenium2' => ['selenium2' => ['wd_host' => 'http://selenium:4444/wd/hub']],
+         'selenium2' => ['selenium2' => [
+           'wd_host' => 'http://selenium:4444/wd/hub',
+         ]],
        ],
      ]));
    ```

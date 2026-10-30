@@ -41,7 +41,11 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 final class RatingHandler implements FieldHandlerInterface {
 
-  public function __construct(EntityStubInterface $stub, string $entity_type, string $field_name) {}
+  public function __construct(
+    EntityStubInterface $stub,
+    string $entity_type,
+    string $field_name,
+  ) {}
 
   public function expand(mixed $values): array {
     $deltas = [];
@@ -64,7 +68,8 @@ Put the class where your suite loads classes from: an `autoload-dev` entry in Co
 The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way. The registration lasts for the rest of the run, because the backend does:
 
 ```php
-$this->backendFor(FieldHandlerCapabilityInterface::class)->registerFieldHandler('rating', RatingHandler::class);
+$this->backendFor(FieldHandlerCapabilityInterface::class)
+  ->registerFieldHandler('rating', RatingHandler::class);
 ```
 
 The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs. The shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
@@ -120,7 +125,8 @@ final class OrganizationAlias implements PreCreateAliasInterface {
   }
 
   public function getDescription(): string {
-    return "Resolves an organization code supplied via 'organization' to the organization that carries it.";
+    return "Resolves an organization code supplied via 'organization' "
+      . 'to the organization that carries it.';
   }
 
   public function applyToStub(EntityStubInterface $stub): void {
@@ -133,7 +139,9 @@ final class OrganizationAlias implements PreCreateAliasInterface {
       ->execute();
 
     if ($ids === []) {
-      throw new CreationAliasResolutionException(sprintf('No organization has the code "%s".', $code));
+      throw new CreationAliasResolutionException(
+        sprintf('No organization has the code "%s".', $code),
+      );
     }
 
     // "ACME" stores the ID of the organization with that code.
@@ -157,7 +165,8 @@ The package builds each class with no constructor arguments when it builds the b
 The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. A context of your own builds an alias whose constructor takes arguments, such as a lookup service, and registers it the same way. The registration lasts for the rest of the run, because the backend does:
 
 ```php
-$this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlias(new OrganizationAlias($lookup));
+$this->backendFor(CreationAliasCapabilityInterface::class)
+  ->registerCreationAlias(new OrganizationAlias($lookup));
 ```
 
 `backendFor()` returns the first backend in the scenario's order that provides the capability, so with `drupal` first in the `backends` list, that's where the alias lands. `$this->getBackend('drush')` reaches the Drush backend by name instead.
@@ -231,7 +240,8 @@ use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 
-final class AcmeJsonApiBackend implements BackendInterface, CronCapabilityInterface {
+final class AcmeJsonApiBackend implements
+  BackendInterface, CronCapabilityInterface {
 
   protected RandomGeneratorInterface $random;
 

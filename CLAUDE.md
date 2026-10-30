@@ -64,7 +64,8 @@ The site is an npm project of its own, run on the host rather than in the Docker
 After editing a `.drawio` source in draw.io, export every SVG again so the sources and the renders cannot drift. Each SVG records the hash of the source it came from, and the unit suite fails an SVG exported from an older source or a diagram missing either of its SVGs:
 
 ```bash
-php scripts/draw-diagram.php --export docs/content/architecture docs/content/guides
+php scripts/draw-diagram.php --export \
+  docs/content/architecture docs/content/guides
 ```
 
 [Task B](.claude/skills/update-architecture-docs/SKILL.md#task-b-update-after-a-structural-change) in the skill defines what makes a change structural.

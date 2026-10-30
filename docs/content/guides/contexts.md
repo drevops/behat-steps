@@ -126,7 +126,9 @@ Here's what each part of the trait does:
 Behat loads both files from `tests/behat/bootstrap` by their names, through the profile's `autoload` setting in `behat.php`:
 
 ```php
-$profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
+$profile = (new Profile('default', [
+  'autoload' => ['%paths.base%/tests/behat/bootstrap'],
+]))
 ```
 
 A scenario in `tests/behat/features/publishing.feature` then reads in your site's own words:

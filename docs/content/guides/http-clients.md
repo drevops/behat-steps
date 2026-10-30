@@ -40,7 +40,8 @@ Each client starts from a different state, and its response goes to a different 
 
 ```php
 // REST: the response stays in the REST session.
-$this->httpRestSession()->getDriver()->getClient()->request('POST', $url, [], [], $server, $body);
+$client = $this->httpRestSession()->getDriver()->getClient();
+$client->request('POST', $url, [], [], $server, $body);
 
 // Page: the response becomes the page.
 $this->httpPageClient()->request('POST', $url, [], [], $server, $body);
@@ -84,7 +85,10 @@ To give the REST session settings of its own, such as for an API on another host
     'http_client_parameters' => ['verify_peer' => FALSE],
   ]],
   'rest' => ['browserkit_http' => [
-    'http_client_parameters' => ['timeout' => 60, 'auth_basic' => ['api', 'secret']],
+    'http_client_parameters' => [
+      'timeout' => 60,
+      'auth_basic' => ['api', 'secret'],
+    ],
   ]],
 ],
 ```
@@ -128,7 +132,10 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
   Behat stops with this error:
 
   ```text
-  The 2 "browserkit_http" sessions declare different "http_client_parameters". Behat Steps sends its own requests with 1 set of connection options, so give every "browserkit_http" session the same options, apart from a session named "rest".
+  The 2 "browserkit_http" sessions declare different "http_client_parameters".
+  Behat Steps sends its own requests with 1 set of connection options, so give
+  every "browserkit_http" session the same options, apart from a session named
+  "rest".
   ```
 
 ## What the detached client carries

@@ -18,7 +18,7 @@ Make sure you have the following:
 - [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy) and [Ahoy](https://github.com/ahoy-cli/ahoy) installed.
 - No other web server running on your machine, such as Apache, Nginx or MAMP.
 - A checkout of the repository in a directory Docker can share, as [Docker's file sharing settings](https://docs.docker.com/desktop/settings-and-maintenance/settings/#file-sharing) describe.
-- Node.js 24.22.1 or newer, to build and test the documentation site on your machine. A change to a step doesn't need it, because `ahoy update-docs` runs in Docker.
+- Node.js 26.13.0 or newer, to build and test the documentation site on your machine. A change to a step doesn't need it, because `ahoy update-docs` runs in Docker.
 
 ## Set up
 
@@ -70,14 +70,20 @@ Helpers are public API too, so renaming or removing one is a breaking change tha
 Run the suites from the repository root:
 
 ```bash
-ahoy test-unit                                             # The unit suite
-ahoy test-kernel                                           # The kernel suite
-ahoy test-coverage                                         # Unit and kernel, with coverage
-ahoy test-bdd                                              # Every Behat scenario
-ahoy test-bdd tests/behat/features/cookie.feature          # The scenarios of 1 feature file
-ahoy test-bdd -- --tags=wip                                # The scenarios tagged @wip
-ahoy test-bdd-coverage tests/behat/features/cookie.feature # 1 feature file, with coverage
-ahoy cli "php scripts/check-coverage.php CookieTrait"      # A trait's coverage and missed lines
+ahoy test-unit               # The unit suite
+ahoy test-kernel             # The kernel suite
+ahoy test-coverage           # Unit and kernel, with coverage
+ahoy test-bdd                # Every Behat scenario
+ahoy test-bdd -- --tags=wip  # The scenarios tagged @wip
+
+# The scenarios of 1 feature file
+ahoy test-bdd tests/behat/features/cookie.feature
+
+# 1 feature file, with coverage
+ahoy test-bdd-coverage tests/behat/features/cookie.feature
+
+# A trait's coverage and missed lines
+ahoy cli "php scripts/check-coverage.php CookieTrait"
 ```
 
 A test sits where its subject sits: `src/Steps/Helper/Web/StringTrait.php` is tested by `tests/phpunit/src/Unit/Steps/Helper/Web/StringTraitTest.php`. Codecov's `codecov/patch` and `codecov/project` checks are required, so a code path no test reaches needs a test rather than a coverage marker. CI collects coverage on 2 legs, both on Behat 3: 1 that runs the browser steps through Selenium and 1 through headless Chrome. Locally, `scripts/check-coverage.php` reads the coverage of the last `ahoy test-bdd-coverage` run, nested `@test-trait` runs included. [Running tests](../../../CONTRIBUTING.md#running-tests) and [Coverage markers](../../../CONTRIBUTING.md#coverage-markers) cover the details.

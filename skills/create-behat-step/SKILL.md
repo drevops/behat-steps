@@ -85,10 +85,15 @@ Write each step method with:
 A step that takes a number parses it, and fails on anything else as the package does:
 
 ```php
-$number = filter_var($count, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+$number = filter_var($count, FILTER_VALIDATE_INT, [
+  'options' => ['min_range' => 0],
+]);
 
 if ($number === FALSE) {
-  throw new \RuntimeException(sprintf('The count must be an integer of 0 or greater, but "%s" was given.', $count));
+  throw new \RuntimeException(sprintf(
+    'The count must be an integer of 0 or greater, but "%s" was given.',
+    $count,
+  ));
 }
 ```
 
@@ -150,12 +155,19 @@ trait PublishingTrait {
    * Assert that the page with a title is authored by a user.
    */
   #[Then('the page titled :title should be authored by the user :name')]
-  public function publishingAssertPageAuthoredBy(string $title, string $name): void {
+  public function publishingAssertPageAuthoredBy(
+    string $title,
+    string $name,
+  ): void {
     $nid = $this->contentGetNidByTitle('page', $title);
     $uid = $this->queryGetEntityId($this->userGetByName($name), 'uid');
 
     if ($this->queryNodeIds('page', ['nid' => $nid, 'uid' => $uid]) === []) {
-      throw new ExpectationException(sprintf('The page "%s" is not authored by the user "%s", but it should be.', $title, $name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf(
+        'The page "%s" is not authored by the user "%s", but it should be.',
+        $title,
+        $name,
+      ), $this->getSession()->getDriver());
     }
   }
 

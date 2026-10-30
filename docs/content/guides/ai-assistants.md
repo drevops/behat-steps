@@ -33,7 +33,8 @@ Regenerate after adding new step traits or updating dependencies.
 
 For detailed examples, see: vendor/drevops/behat-steps/STEPS.md
 For the helpers behind the steps, see: vendor/drevops/behat-steps/HELPERS.md
-To add a step of your own, follow: vendor/drevops/behat-steps/skills/create-behat-step/SKILL.md
+To add a step of your own, follow:
+vendor/drevops/behat-steps/skills/create-behat-step/SKILL.md
 ```
 
 `behat --definitions=i` lists every step your suite registers, Mink's and your project's included, so it's the list to write scenarios from. The 2 references add what the list leaves out: an example for each step this package ships, the options that change it and the helpers a step definition of your own can call. Both open with a link to the skill, so an agent that reads either one finds it too.
@@ -60,7 +61,8 @@ Link the skill into the skills directory your agent reads, from your project's r
 
 ```bash
 mkdir -p .claude/skills
-ln -s ../../vendor/drevops/behat-steps/skills/create-behat-step .claude/skills/create-behat-step
+ln -s ../../vendor/drevops/behat-steps/skills/create-behat-step \
+  .claude/skills/create-behat-step
 ```
 
 For another agent, link the skill into the skills directory that agent reads, the same way. Commit the link: it points into `vendor/`, so after every `composer update` it resolves to the skill of the release you installed. On a system without symbolic links, copy the directory instead, and copy it again after you update the package.

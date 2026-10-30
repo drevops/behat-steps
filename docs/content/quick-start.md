@@ -121,7 +121,9 @@ To create the 2 files:
      ->addContext(FeatureContext::class)
      ->addContext(MinkContext::class);
 
-   $profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
+   $profile = (new Profile('default', [
+     'autoload' => ['%paths.base%/tests/behat/bootstrap'],
+   ]))
      ->withSuite($suite)
      ->withExtension(new Extension(MinkExtension::class, [
        'base_url' => 'http://your-site.local',
@@ -157,7 +159,9 @@ On a Drupal site, `drupal_root` is the folder that holds Drupal's `index.php`, s
 `DrupalContext` also checks Drupal's log. Its `WatchdogTrait` fails a scenario when a PHP warning or error is logged between the scenario's start and its end, even one that never shows on the page. `WatchdogTrait` reads the log through the core `dblog` module. Without `dblog` enabled, every scenario fails at its start with this error:
 
 ```text
-WatchdogTrait requires that the core "dblog" module is enabled, which does not hold. Meet the prerequisite, or switch WatchdogTrait off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
+WatchdogTrait requires that the core "dblog" module is enabled, which does not
+hold. Meet the prerequisite, or switch WatchdogTrait off with the
+"watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
 ```
 
 To fix the error, enable `dblog`, or set the `watchdog.enabled` option the error names to `FALSE`. The option goes under `steps` in the `BehatStepsExtension` settings:

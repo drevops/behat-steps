@@ -96,7 +96,10 @@ Set the parameter in `process()`:
 
 ```php
 public function process(ContainerBuilder $container): void {
-  $container->setParameter('behat_steps.user_registry.class', AcmeUserRegistry::class);
+  $container->setParameter(
+    'behat_steps.user_registry.class',
+    AcmeUserRegistry::class,
+  );
 }
 ```
 
