@@ -57,7 +57,9 @@ trait CacheTrait {
    */
   #[Given('the static caches have been cleared')]
   public function cacheClearStatic(): void {
-    $this->backendFor(CacheCapabilityInterface::class)->cacheClearStatic();
+    $this->backendFor(CacheCapabilityInterface::class);
+
+    $this->staticCacheClear();
   }
 
   /**
