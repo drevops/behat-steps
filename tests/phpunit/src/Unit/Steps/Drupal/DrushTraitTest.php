@@ -156,10 +156,18 @@ class DrushTraitTest extends UnitTestCase {
   #[DataProvider('dataProviderRunClearsTheStaticCaches')]
   public function testRunClearsTheStaticCaches(string $method, int $exit_code): void {
     $drush = $this->createMock(DrushBackendInterface::class);
-    $drush->method('drushResult')->willReturn(new DrushResult($exit_code, '', ''));
+    $has_returned = FALSE;
+    $drush->method('drushResult')->willReturnCallback(static function () use (&$has_returned, $exit_code): DrushResult {
+      $has_returned = TRUE;
+
+      return new DrushResult($exit_code, '', '');
+    });
     /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject $drupal */
     $drupal = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, CacheCapabilityInterface::class, ContentCapabilityInterface::class]);
-    $drupal->expects($this->once())->method('cacheClearStatic');
+    // A clear before the command returns would miss what the command changed.
+    $drupal->expects($this->once())->method('cacheClearStatic')->willReturnCallback(static function () use (&$has_returned): void {
+      self::assertTrue($has_returned, 'The static caches were cleared before the drush command returned.');
+    });
     $context = $this->createContextWithBackend($drush, $drupal);
     $context->backendFor(ContentCapabilityInterface::class);
 
