@@ -800,11 +800,14 @@ The Behat tests are the functional and integration tests of the traits, and they
 Run `ahoy build` to set up a fixture Drupal site in the `build` directory, then run the tests with these commands:
 
 ```bash
-ahoy test-bdd                # Run all Behat tests
+# Run all Behat tests
+ahoy test-bdd
 
-ahoy test-bdd path/to/file   # Run all Behat scenarios in specific feature file
+# Run all Behat scenarios in a specific feature file, by its container path
+ahoy test-bdd /app/tests/behat/features/cookie.feature
 
-ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
+# Run all Behat scenarios tagged with `@wip` tag
+ahoy test-bdd -- --tags=wip
 ```
 
 Every step the library registers needs at least 1 scenario that runs it. Behat only resolves a step definition when a scenario uses it, so a pattern no scenario reaches can ship unusable without the suite noticing. [tests/phpunit/src/StepScenarioCoverageTest.php](tests/phpunit/src/StepScenarioCoverageTest.php) enforces this in the unit suite: it matches every registered pattern against the steps the feature files run and fails on any step nothing reaches. Steps a `@test-trait` scenario hands to its nested run count, since they do run. Steps in a scenario the suite filters out, such as one tagged `@test-skipped`, don't.

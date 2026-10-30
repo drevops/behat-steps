@@ -10,7 +10,7 @@ description: Install Behat Steps, pick the context that matches your site, creat
 
 Follow this page to go from an empty project to a passing test on your own site. It's for anyone setting up Behat Steps, including developers new to Behat. In 7 parts, you install the package, set up a context and the configuration, then write a scenario and run it. The last part adds a step of your own.
 
-Behat runs tests written as plain-English scenarios, such as "When I visit the homepage, then I should see the heading Welcome", line by line against your site. Every line needs PHP code behind it. Behat Steps is a library of that code, already written and tested, so you can start by writing the scenarios.
+Behat runs tests written as plain-English scenarios, with lines such as `When I visit "/"`, line by line against your site. Every line needs PHP code behind it. Behat Steps is a library of that code, already written and tested, so you can start by writing the scenarios.
 
 On this page, Behat loads pages through HTTP requests from PHP, so your scenarios don't run JavaScript. [Browsers](guides/browsers.md) covers the real browsers that run JavaScript.
 
@@ -26,7 +26,7 @@ On a Drupal site, you also need the following:
 - Drupal 11 or 12.
 - A place to run Behat that reaches your site's code and database, such as the site's own container. The Drupal steps load Drupal inside the test run, and your scenarios then visit the pages they create. Run this page's commands there.
 - A copy of the site you can write to. The Drupal steps create content and users in its database, and Behat Steps deletes them afterward, so never point Behat at your live site.
-- The core Database Logging module (`dblog`) enabled, because Behat Steps checks its log in every scenario. Part 3 shows how to switch the check off instead.
+- The core Database Logging module (`dblog`) enabled, because Behat Steps checks the site's log in every scenario. Part 3 shows how to switch the check off instead.
 
 ## 1. Install the package
 
@@ -40,12 +40,12 @@ The command also installs Behat and Mink, the library Behat uses to drive a brow
 
 ## 2. Pick your context
 
-Behat reads steps from classes called contexts. In part 3 you create a context of your own, `FeatureContext`, and your own steps go in it later. `FeatureContext` extends 1 of the 2 contexts Behat Steps ships. Pick the context that matches your site:
+Behat reads steps from classes called contexts. In part 3 you create a context of your own, `FeatureContext`. Your own steps go in it later. `FeatureContext` extends 1 of the 2 contexts Behat Steps ships. Pick the context that matches your site:
 
 | Your site | `FeatureContext` extends | What it brings |
 | --- | --- | --- |
-| Built with Drupal | `DrupalContext` | Every web step, plus the Drupal steps for content, users, caches, email, queues and more |
-| Built with anything else | `WebContext` | Every web step: pages, forms, links, cookies, JSON, XML and tables |
+| Built with Drupal | `DrupalContext` | Every web step, plus the Drupal steps, such as content, users, caches, email and queues |
+| Built with anything else | `WebContext` | Every web step, such as pages, forms, links, cookies, JSON, XML and tables |
 
 `DrupalContext` builds on `WebContext`, so extend only 1 of them. [Contexts](guides/contexts.md) explains what each context includes and why it works this way.
 
@@ -148,13 +148,13 @@ To create the 2 files:
 `behat.php` sets up the following:
 
 - The suite sets where your scenarios live and which contexts Behat loads: your `FeatureContext` and Mink's `MinkContext`. `MinkContext` adds Mink's own basic steps, such as `I fill in "Title" with "About us"`. `%paths.base%` is the folder that holds `behat.php`.
-- The profile's `autoload` setting tells Behat to load your classes from `tests/behat/bootstrap`, the folder that holds `FeatureContext.php`.
+- The profile's `autoload` setting makes Behat load your classes from `tests/behat/bootstrap`, the folder that holds `FeatureContext.php`.
 - The Mink extension sets up the browser session your scenarios use. The `browserkit_http` session loads pages through HTTP requests from PHP. It's quick, but it doesn't run JavaScript.
 - `BehatStepsExtension` switches Behat Steps on. A site built without Drupal uses it with no settings, and [Configuration reference](guides/configuration-reference.md#extension-options) lists every setting.
 
-Register only these 2 contexts. Registering `WebContext` or `DrupalContext` beside `FeatureContext` defines steps twice, and Behat Steps stops the run with an error that says to keep `FeatureContext`.
+Register only `FeatureContext` and `MinkContext`. Registering `WebContext` or `DrupalContext` beside `FeatureContext` defines steps twice, and Behat Steps stops the run with an error that says to keep `FeatureContext`.
 
-On a Drupal site, `drupal_root` is the folder that holds Drupal's `index.php`, such as `web` or `docroot`. Write it as a path from the folder you run Behat in. Set `base_url` to the address of that same site, because the browser visits what the Drupal steps create. With `drupal_root` set, the Drupal steps load Drupal inside the test run and create content and users through Drupal's API. Behat Steps calls this way of reaching a site a backend, and [Key concepts](concepts.md#backends-reaching-the-site-without-the-browser) explains backends, Drush included.
+On a Drupal site, `drupal_root` is the folder that holds Drupal's `index.php`, such as `web` or `docroot`. Write it as a path from the folder you run Behat in. Set `base_url` to the address of that same site, because the browser visits what the Drupal steps create. With `drupal_root` set, the Drupal steps load Drupal inside the test run and create content and users through Drupal's API. Behat Steps calls this way of reaching a site a backend. [Key concepts](concepts.md#backends-reaching-the-site-without-the-browser) explains backends, Drush included.
 
 `DrupalContext` also checks Drupal's log. Its `WatchdogTrait` fails a scenario when a PHP warning or error is logged between the scenario's start and its end, even one that never shows on the page. `WatchdogTrait` reads the log through the core `dblog` module. Without `dblog` enabled, every scenario fails at its start with this error:
 
@@ -164,7 +164,7 @@ hold. Meet the prerequisite, or switch WatchdogTrait off with the
 "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
 ```
 
-To fix the error, enable `dblog`, or set the `watchdog.enabled` option the error names to `FALSE`. The option goes under `steps` in the `BehatStepsExtension` settings:
+To fix the error, enable `dblog` or set the `watchdog.enabled` option the error names to `FALSE`. To set the option, replace the lines from step 4 with these, which add it under `steps`:
 
 ```php
   ->withExtension(new Extension(BehatStepsExtension::class, [
@@ -260,7 +260,7 @@ Run `vendor/bin/behat` again, and confirm that the summary reads `2 scenarios (2
 
 To check something no shipped step covers, write a step of your own in `FeatureContext`. Follow 2 rules for every step of your own:
 
-- Give the method a name `FeatureContext` doesn't inherit. Every method a shipped trait adds starts with the trait's name without `Trait`, such as `element` in `elementAssertHeadingExists()`, so a name like `footerShouldMention()` stays clear of them.
+- Give the method a name `FeatureContext` doesn't inherit. Every method a shipped trait adds starts with the trait's name without `Trait`, such as `element` in `elementAssertHeadingExists()`. A name like `footerShouldMention()` stays clear of them.
 - Use step text that no shipped step uses. When 2 step definitions share the same text, Behat stops with an error before it runs the first step. `vendor/bin/behat --definitions="footer"` lists every step whose text contains "footer", so you can check a word before you use it.
 
 To add a step that checks your site's footer:
@@ -291,13 +291,13 @@ To add a step that checks your site's footer:
 
 2. Add a scenario that uses your step to `homepage.feature`, after the first scenario. Replace `Powered by Drupal` with text from your own site's footer:
 
-```gherkin
-  Scenario: Visitor sees who runs the site
-    When I visit "/"
-    Then the footer should mention "Powered by Drupal"
-```
+   ```gherkin
+     Scenario: Visitor sees who runs the site
+       When I visit "/"
+       Then the footer should mention "Powered by Drupal"
+   ```
 
-Run `vendor/bin/behat` again. The new scenario passes when your footer contains the text. When the footer doesn't, it fails with Mink's message naming the text.
+3. Run `vendor/bin/behat` again, and confirm that the new scenario passes. When your footer doesn't contain the text, the scenario fails with Mink's message naming the text.
 
 ## Where to next
 
@@ -308,4 +308,4 @@ Run `vendor/bin/behat` again. The new scenario passes when your footer contains 
 - [Usage](guides/usage.md) covers configuring the traits and the cleanup after each scenario.
 - [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step, with an example for each.
 - [Configuration reference](guides/configuration-reference.md) lists every option and tag, and [behat.dist.php](../../behat.dist.php) sets every extension option as a reference.
-- [Writing tests with AI assistants](guides/ai-assistants.md) points a coding agent at the same reference, and at the skill that writes a step of your own.
+- [Writing tests with AI assistants](guides/ai-assistants.md) shows how to point a coding agent at `STEPS.md`, `HELPERS.md` and the skill that writes a step of your own.

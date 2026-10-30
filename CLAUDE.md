@@ -37,7 +37,7 @@ composer require --dev drevops/behat-steps:^4
 ### Development Commands
 - `ahoy build` - Setup a fixture Drupal site in the `build` directory
 - `ahoy test-bdd` - Run all BDD tests
-- `ahoy test-bdd path/to/file` - Run all scenarios in specific feature file
+- `ahoy test-bdd /app/path/to/file` - Run all scenarios in specific feature file
 - `ahoy test-bdd -- --tags=wip` - Run all scenarios tagged with `@wip` tag
 - `ahoy debug` - Enable debugging
 - `ahoy drush cex -y` - Export configuration
@@ -144,7 +144,7 @@ Scenario: Test error condition
 **RECOMMENDED**: Use the `scripts/check-coverage.php` script for easy coverage assessment:
 ```bash
 # Run tests with coverage
-ahoy test-bdd-coverage tests/behat/features/some_feature.feature
+ahoy test-bdd-coverage /app/tests/behat/features/some_feature.feature
 
 # Check coverage using the script (uses MERGED coverage by default)
 php scripts/check-coverage.php SomeTrait
@@ -160,7 +160,7 @@ php scripts/check-coverage.php SomeTrait
 **Manual method** (if script is not available):
 ```bash
 # Run tests with coverage
-ahoy test-bdd-coverage tests/behat/features/some_feature.feature
+ahoy test-bdd-coverage /app/tests/behat/features/some_feature.feature
 
 # Check main-run coverage
 grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' \
