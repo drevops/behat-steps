@@ -14,7 +14,7 @@ This view shows the parts of the library and which way they depend on each other
 The library is 3 layers with 3 contexts on top, and every dependency points down:
 
 - The contexts sit on top. `WebRawContext` registers no steps: it hands the traits their backends, browser capabilities, HTTP clients and options. `WebContext` adds the 28 web step traits, and `DrupalContext` adds the 29 Drupal ones. Your project's `FeatureContext` extends 1 of them and uses step traits of your own, as [Contexts](../guides/contexts.md) describes.
-- The [Steps layer](steps-layer.md), `src/Steps`, holds the step traits under `Steps\Web` and `Steps\Drupal`, and the 13 helper traits under `Steps\Helper`, which register no steps. A step body is a thin wrapper over those helpers.
+- The [Steps layer](steps-layer.md), `src/Steps`, holds the step traits under `Steps\Web` and `Steps\Drupal`, and the 15 helper traits under `Steps\Helper`, which register no steps. A step body is a thin wrapper over those helpers.
 - The [Extension layer](extension-layer.md), `src/Extension`, holds `BehatStepsExtension`, which wires the library into Behat: the listeners and registries that set up each scenario, option resolution and prerequisites, the authenticators, the browser capability adapters, the HTTP clients and the creation hooks.
 - The [Backend layer](backend-layer.md), `src/Backend`, talks to the site and references nothing from Behat. `BackendInterface` declares only bootstrapping and a random value generator, and everything else a backend can do is a capability interface. `DrupalBackend` runs Drupal in the same PHP process and provides 34 of the 35 capabilities, and `DrushBackend` runs `drush` and provides 14. `BlackboxBackend` provides none, for a site the suite can only browse.
 

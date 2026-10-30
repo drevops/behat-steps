@@ -47,7 +47,7 @@
         <mxCell id="st-drupal" value="&lt;b&gt;Steps\Drupal&lt;/b&gt;&lt;br&gt;29 traits: content, users,&lt;br&gt;taxonomy, email, Drush" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-steps">
           <mxGeometry x="310" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="st-helper" value="&lt;b&gt;Steps\Helper&lt;/b&gt;&lt;br&gt;13 helper traits, no steps:&lt;br&gt;entity lifecycle, login, strings" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-steps">
+        <mxCell id="st-helper" value="&lt;b&gt;Steps\Helper&lt;/b&gt;&lt;br&gt;15 helper traits, no steps:&lt;br&gt;entity lifecycle, login, strings" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-steps">
           <mxGeometry x="600" y="50" width="230" height="70" as="geometry" />
         </mxCell>
         <mxCell id="st-web" value="&lt;b&gt;Steps\Web&lt;/b&gt;&lt;br&gt;28 traits: pages, forms,&lt;br&gt;elements, JSON, REST" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-steps">
