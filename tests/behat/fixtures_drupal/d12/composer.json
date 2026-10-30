@@ -36,7 +36,7 @@
         "drupal/entity_reference_revisions": "^1.14.0",
         "drupal/profile": "^1.16.0",
         "drupal/state_machine": "^1.14.0",
-        "drupal/token": "^1.17.0",
+        "drupal/token": "^1.18.0",
         "drupal/entity": "^1.8.0",
         "drupal/inline_entity_form": "^3.0.0",
         "drupal/rat": "^1.0.1"
