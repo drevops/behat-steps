@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="drawio" version="26.0.0">
   <diagram id="http-client-methods" name="HTTP client methods">
-    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="700" background="#ffffff" math="0" shadow="0">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="860" background="#ffffff" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="title" value="Behat Steps: how a step reaches each HTTP client" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=22;fontStyle=1;fontColor=#263238;" vertex="1" parent="1">
           <mxGeometry x="16" y="16" width="900" height="34" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" value="The page client is a browser capability, so only a BrowserKit session has one. The other 2 come from a factory under every browser driver." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
+        <mxCell id="subtitle" value="The page client is a browser capability, so only a BrowserKit session has one. The REST session is a Mink session, and the other 2 come from a factory, under every browser driver." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
           <mxGeometry x="16" y="54" width="1180" height="22" as="geometry" />
         </mxCell>
-        <mxCell id="ctx" value="&lt;b&gt;WebRawContext&lt;/b&gt;&lt;br&gt;the 3 methods a step calls" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
+        <mxCell id="ctx" value="&lt;b&gt;WebRawContext&lt;/b&gt;&lt;br&gt;the 4 methods a step calls" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
           <mxGeometry x="40" y="300" width="260" height="90" as="geometry" />
         </mxCell>
         <mxCell id="m-page" value="&lt;b&gt;httpPageClient()&lt;/b&gt;" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
@@ -44,8 +44,17 @@
         <mxCell id="o-bare" value="&lt;b&gt;A fresh HttpBrowser&lt;/b&gt;&lt;br&gt;with an empty cookie jar" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="1">
           <mxGeometry x="1220" y="465" width="360" height="80" as="geometry" />
         </mxCell>
+        <mxCell id="m-rest" value="&lt;b&gt;httpRestSession()&lt;/b&gt;" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
+          <mxGeometry x="380" y="630" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="r-rest" value="&lt;b&gt;Mink::hasSession('rest')&lt;/b&gt;&lt;br&gt;the declared rest session, or 1 built&lt;br&gt;with createDetached() and registered" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="760" y="620" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="o-rest" value="&lt;b&gt;The rest Mink session&lt;/b&gt;&lt;br&gt;a BrowserKit session beside the&lt;br&gt;browser's, with no cookies" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="625" width="360" height="80" as="geometry" />
+        </mxCell>
         <mxCell id="grp-legend" value="Legend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;strokeWidth=1.5;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#455A64;" vertex="1" parent="1">
-          <mxGeometry x="680" y="590" width="900" height="90" as="geometry" />
+          <mxGeometry x="680" y="750" width="900" height="90" as="geometry" />
         </mxCell>
         <mxCell id="lg-contexts" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="grp-legend">
           <mxGeometry x="20" y="50" width="40" height="20" as="geometry" />
@@ -105,6 +114,15 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e-bare-o" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="r-bare" target="o-bare">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-rest" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.95;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ctx" target="m-rest">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="320" y="385" /><mxPoint x="320" y="665" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e-rest-r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m-rest" target="r-rest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-rest-o" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="r-rest" target="o-rest">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>

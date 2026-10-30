@@ -83,7 +83,7 @@
         <mxCell id="n-3-4b" value="&lt;b&gt;3.4b DrupalBackend or DrushBackend&lt;/b&gt;&lt;br&gt;Core turns a stub into an entity,&lt;br&gt;or drush runs a command" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#2E7D32;" vertex="1" parent="band-steps">
           <mxGeometry x="1210" y="330" width="300" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="n-3-3c" value="&lt;b&gt;3.3c An HTTP client&lt;/b&gt;&lt;br&gt;httpPageClient(), httpDetachedClient()&lt;br&gt;or httpBareClient()" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#6A1B9A;" vertex="1" parent="band-steps">
+        <mxCell id="n-3-3c" value="&lt;b&gt;3.3c An HTTP client&lt;/b&gt;&lt;br&gt;httpRestSession(), httpPageClient(),&lt;br&gt;httpDetachedClient() or httpBareClient()" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#6A1B9A;" vertex="1" parent="band-steps">
           <mxGeometry x="1550" y="190" width="300" height="80" as="geometry" />
         </mxCell>
         <mxCell id="n-4-2" value="&lt;b&gt;4.2 Cleanup&lt;/b&gt;&lt;br&gt;EntityLifecycleTrait: registered entities,&lt;br&gt;newest first; AuthTrait: users, then roles" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#1565C0;" vertex="1" parent="band-steps">

@@ -66,10 +66,10 @@ Picking one comes down to what the response is for:
 
 ## Where the settings come from
 
-Connection settings come from 1 place, and per-trait settings from another. Select the diagram to zoom in.
+Connection settings come from the `browserkit_http` sessions, and per-trait settings from the `steps` options. Select the diagram to zoom in.
 
-[![Where HTTP client settings come from: the browserkit_http session's options reach the page client through Mink and the detached and bare clients through 1 shared transport, and the steps options reach the detached and bare clients per request](http-client-settings.svg#gh-light-mode-only)](http-client-settings.svg)
-[![Where HTTP client settings come from: the browserkit_http session's options reach the page client through Mink and the detached and bare clients through 1 shared transport, and the steps options reach the detached and bare clients per request](http-client-settings.dark.svg#gh-dark-mode-only)](http-client-settings.dark.svg)
+[![Where HTTP client settings come from: the browserkit_http session's options reach the page client through Mink and the detached and bare clients and the REST session through 1 shared transport, a declared rest session keeps its own options, and the steps options reach the detached and bare clients per request](http-client-settings.svg#gh-light-mode-only)](http-client-settings.svg)
+[![Where HTTP client settings come from: the browserkit_http session's options reach the page client through Mink and the detached and bare clients and the REST session through 1 shared transport, a declared rest session keeps its own options, and the steps options reach the detached and bare clients per request](http-client-settings.dark.svg#gh-dark-mode-only)](http-client-settings.dark.svg)
 
 Connection settings are `http_client_parameters` on a `browserkit_http` session. They're the Symfony HttpClient options Mink documents, such as `verify_peer`, `proxy`, `resolve`, `headers` and `timeout`. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own and keeps its configuration tree. It receives each session's options when Mink builds that session. Because it builds the session exactly as Mink does, the page client applies the options to every host.
 
@@ -153,12 +153,12 @@ A request carries 1 `Authorization` header. A site behind basic auth whose API a
 
 ## JavaScript scenarios: the sidecar client
 
-In a `@javascript` scenario, 2 things talk to the site:
+In a `@javascript` scenario, 3 things talk to the site:
 
-[![The sidecar client: in a JavaScript scenario, visits, clicks and AJAX go through the browser, while a file download or the hreflang check goes through the detached client in PHP](http-client-sidecar.svg#gh-light-mode-only)](http-client-sidecar.svg)
-[![The sidecar client: in a JavaScript scenario, visits, clicks and AJAX go through the browser, while a file download or the hreflang check goes through the detached client in PHP](http-client-sidecar.dark.svg#gh-dark-mode-only)](http-client-sidecar.dark.svg)
+[![The sidecar client: in a JavaScript scenario, visits, clicks and AJAX go through the browser, while a file download or the hreflang check goes through the detached client in PHP, and the REST, JSON and XML steps go through the REST session in PHP](http-client-sidecar.svg#gh-light-mode-only)](http-client-sidecar.svg)
+[![The sidecar client: in a JavaScript scenario, visits, clicks and AJAX go through the browser, while a file download or the hreflang check goes through the detached client in PHP, and the REST, JSON and XML steps go through the REST session in PHP](http-client-sidecar.dark.svg#gh-dark-mode-only)](http-client-sidecar.dark.svg)
 
-The browser makes the page's requests, and its capabilities or flags configure them. Some steps still send requests from PHP while the scenario runs, because doing them in the browser would either put the result out of PHP's reach or navigate away from the page. `FileDownloadTrait` is the clearest case: it reads the browser's cookies and downloads the file itself.
+The browser makes the page's requests, and its capabilities or flags configure them. Some steps still send requests from PHP while the scenario runs, because doing them in the browser would either put the result out of PHP's reach or navigate away from the page. `FileDownloadTrait` is the clearest case: it reads the browser's cookies and downloads the file itself. The REST steps send their API requests through the REST session, so the browser keeps its page.
 
 Those PHP requests take their settings from `http_client_parameters`, which only a `browserkit_http` session holds. So a JavaScript-only suite testing a site with a self-signed certificate needs 2 settings: `acceptInsecureCerts` in the browser's capabilities so the browser accepts the certificate, and `verify_peer: false` so PHP does. `verify_peer: false` goes on a `browserkit_http` session, so declare one, even if no scenario browses with it. Mink builds every session it's given, and building the session hands the options over:
 
@@ -205,8 +205,8 @@ After a download, `Then the response status code should be 200` still reads the 
 
 The page client is a browser capability, the REST session is a Mink session, and the other 2 come from a factory:
 
-[![How a step reaches each HTTP client: httpPageClient() resolves a browser capability that only BrowserKit provides, while httpDetachedClient() and httpBareClient() ask the HTTP client factory for a fresh browser](http-client-methods.svg#gh-light-mode-only)](http-client-methods.svg)
-[![How a step reaches each HTTP client: httpPageClient() resolves a browser capability that only BrowserKit provides, while httpDetachedClient() and httpBareClient() ask the HTTP client factory for a fresh browser](http-client-methods.dark.svg#gh-dark-mode-only)](http-client-methods.dark.svg)
+[![How a step reaches each HTTP client: httpPageClient() resolves a browser capability that only BrowserKit provides, httpRestSession() returns the rest Mink session, declared or built on first use, while httpDetachedClient() and httpBareClient() ask the HTTP client factory for a fresh browser](http-client-methods.svg#gh-light-mode-only)](http-client-methods.svg)
+[![How a step reaches each HTTP client: httpPageClient() resolves a browser capability that only BrowserKit provides, httpRestSession() returns the rest Mink session, declared or built on first use, while httpDetachedClient() and httpBareClient() ask the HTTP client factory for a fresh browser](http-client-methods.dark.svg#gh-dark-mode-only)](http-client-methods.dark.svg)
 
 - Whether a page client exists depends on the browser driver, so `httpPageClient()` resolves `HttpClientCapabilityInterface` through `browserDriverFor()`, like any other capability. The BrowserKit adapter provides it; the Selenium2 and Chrome adapters don't.
 - `httpRestSession()` returns the Mink session named `rest`. When the configuration declares none, the first call builds 1 from `createDetached()` with no cookies and registers it with Mink, which resets it before each scenario.
