@@ -42,6 +42,25 @@ trait CacheTrait {
   }
 
   /**
+   * Clear the static caches.
+   *
+   * Clears the caches the Behat process keeps in memory, such as the entities
+   * and the config it loaded. An entity changed by another process, such as a
+   * shell command or an HTTP request, then reads as it is stored. The Drush
+   * steps clear them after every command on their own.
+   *
+   * @code
+   * Given the static caches have been cleared
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Given('the static caches have been cleared')]
+  public function cacheClearStatic(): void {
+    $this->backendFor(CacheCapabilityInterface::class)->cacheClearStatic();
+  }
+
+  /**
    * Clear the page cache for a single path.
    *
    * Deletes the internal page cache entries for the path on any host, with

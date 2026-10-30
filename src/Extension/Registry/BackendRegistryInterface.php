@@ -121,6 +121,20 @@ interface BackendRegistryInterface {
   public function getResolvedBackendFor(string $capability): ?object;
 
   /**
+   * Returns every backend with the capability that this scenario resolved.
+   *
+   * @param class-string<T> $capability
+   *   The capability interface to look for.
+   *
+   * @return array<int, T>
+   *   The backends in the scenario's order, empty when this scenario resolved
+   *   no such backend.
+   *
+   * @template T of object
+   */
+  public function getResolvedBackendsFor(string $capability): array;
+
+  /**
    * Returns the Behat environment.
    */
   public function getEnvironment(): ?Environment;

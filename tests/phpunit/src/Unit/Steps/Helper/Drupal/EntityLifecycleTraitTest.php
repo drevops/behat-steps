@@ -18,6 +18,7 @@ use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\DrushCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
@@ -650,6 +651,21 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context->staticCacheAfterScenario($this->createAfterScenarioScope());
   }
 
+  public function testStaticCachesAreClearedOnEveryBackendTheScenarioReached(): void {
+    $drush = $this->createBackend([CacheCapabilityInterface::class, DrushCapabilityInterface::class]);
+    $drush->expects($this->once())->method('cacheClearStatic');
+    $unreached = $this->createBackend([CacheCapabilityInterface::class]);
+    $unreached->expects($this->never())->method('cacheClearStatic');
+    $drupal = $this->createBackend([CacheCapabilityInterface::class, ContentCapabilityInterface::class]);
+    $drupal->expects($this->once())->method('cacheClearStatic');
+
+    $context = $this->createContext(['drush' => $drush, 'unreached' => $unreached, 'drupal' => $drupal]);
+    $context->backendFor(DrushCapabilityInterface::class);
+    $context->backendFor(ContentCapabilityInterface::class);
+
+    $context->staticCacheClear();
+  }
+
   public function testStaticCachesAreSkippedOnBackendTheScenarioNeverReached(): void {
     $backend = $this->createBackend([CacheCapabilityInterface::class]);
     $backend->expects($this->never())->method('cacheClearStatic');
@@ -974,10 +990,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds an initialized context over the given backend.
+   * Builds an initialized context over the given backends.
    *
-   * @param \DrevOps\BehatSteps\Backend\BackendInterface $backend
-   *   The backend the registry returns.
+   * @param \DrevOps\BehatSteps\Backend\BackendInterface|array<string, \DrevOps\BehatSteps\Backend\BackendInterface> $backends
+   *   The backend the registry returns, or several keyed by name in the
+   *   scenario's order.
    * @param \DrevOps\BehatSteps\Extension\Registry\UserRegistryInterface|null $user_registry
    *   The user registry, when the test inspects it.
    * @param \DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface|null $authenticator
@@ -985,12 +1002,15 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    * @param \Behat\Testwork\Hook\HookDispatcher|null $dispatcher
    *   The hook dispatcher, when the test needs one that finds hooks.
    */
-  protected function createContext(BackendInterface $backend, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): RegistryExposingContext {
+  protected function createContext(BackendInterface|array $backends, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): RegistryExposingContext {
     $environment = $this->createMock(Environment::class);
     $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
 
-    $backend_registry = new BackendRegistry(['test' => $backend]);
-    $backend_registry->setScenarioBackends(['test' => 'test']);
+    $backends = is_array($backends) ? $backends : ['test' => $backends];
+    $names = array_keys($backends);
+
+    $backend_registry = new BackendRegistry($backends);
+    $backend_registry->setScenarioBackends(array_combine($names, $names));
     $backend_registry->setEnvironment($environment);
 
     $context = new RegistryExposingContext();

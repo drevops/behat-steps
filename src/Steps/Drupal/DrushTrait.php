@@ -8,6 +8,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DrushCapabilityInterface;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\StaticCacheTrait;
 
 /**
  * Run Drush commands and assert their output.
@@ -25,6 +26,8 @@ use DrevOps\BehatSteps\Steps\Exception\AssertionException;
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DrushTrait {
+
+  use StaticCacheTrait;
 
   /**
    * Output of the most recent Drush command, NULL until one has run.
@@ -212,14 +215,10 @@ trait DrushTrait {
    *   When the command exits non-zero.
    */
   public function drushRunExpectingSuccess(string $command, ?string $arguments = NULL): void {
-    [$name, $words] = $this->drushParseCommand($command, $arguments);
-    $result = $this->drushGetBackend()->drushResult($name, $words);
+    $exit_code = $this->drushExecute($command, $arguments);
 
-    $output = $this->drushCombineOutput($result->output, $result->errorOutput);
-    $this->drushOutput = $output;
-
-    if ($result->exitCode !== 0) {
-      throw new \RuntimeException(sprintf('The drush command "%s" exited with code %d. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $result->exitCode, $output));
+    if ($exit_code !== 0) {
+      throw new \RuntimeException(sprintf('The drush command "%s" exited with code %d. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $exit_code, $this->drushOutput));
     }
   }
 
@@ -238,15 +237,34 @@ trait DrushTrait {
    *   When the command exits zero.
    */
   public function drushRunExpectingFailure(string $command, ?string $arguments = NULL): void {
+    if ($this->drushExecute($command, $arguments) === 0) {
+      throw new AssertionException(sprintf('The drush command "%s" was expected to fail, but it exited 0. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $this->drushOutput));
+    }
+  }
+
+  /**
+   * Run a Drush command, keeping its output, and return its exit code.
+   *
+   * The command runs in a process of its own, so the static caches of the
+   * backends this scenario resolved are cleared after it returns.
+   *
+   * @param string $command
+   *   The Drush command to run, which may carry arguments of its own.
+   * @param string|null $arguments
+   *   Arguments appended to the command, or NULL for none.
+   *
+   * @return int
+   *   The exit code of the command.
+   */
+  protected function drushExecute(string $command, ?string $arguments): int {
     [$name, $words] = $this->drushParseCommand($command, $arguments);
     $result = $this->drushGetBackend()->drushResult($name, $words);
 
-    $output = $this->drushCombineOutput($result->output, $result->errorOutput);
-    $this->drushOutput = $output;
+    $this->staticCacheClear();
 
-    if ($result->exitCode === 0) {
-      throw new AssertionException(sprintf('The drush command "%s" was expected to fail, but it exited 0. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $output));
-    }
+    $this->drushOutput = $this->drushCombineOutput($result->output, $result->errorOutput);
+
+    return $result->exitCode;
   }
 
   /**

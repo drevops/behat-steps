@@ -69,6 +69,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 7 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 5 | Finds the entities a step reads, asserts on or deletes. |
+| [Drupal\StaticCacheTrait](#drupalstaticcachetrait) | 1 | Clears the static caches a scenario left behind. |
 
 ## Index of Root context helpers
 
@@ -3221,6 +3222,21 @@ Get the id a stub carries
 
 <br/>
 Load the ids of the nodes of a content type matching the conditions
+<br/><br/>
+
+</details>
+
+## Drupal\StaticCacheTrait
+
+[Source](src/Steps/Helper/Drupal/StaticCacheTrait.php)
+
+> Clears the static caches a scenario left behind.
+
+<details>
+  <summary><code>public function staticCacheClear(): void</code></summary>
+
+<br/>
+Clears the static caches of the backends the scenario resolved
 <br/><br/>
 
 </details>

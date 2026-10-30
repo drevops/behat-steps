@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
@@ -14,6 +13,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\StaticCacheTrait;
 
 /**
  * Manage Drupal webforms.
@@ -30,6 +30,7 @@ trait WebformTrait {
 
   use EntityLifecycleTrait;
   use QueryTrait;
+  use StaticCacheTrait;
 
   /**
    * Remove all webforms with a title containing the given string.
@@ -178,7 +179,7 @@ trait WebformTrait {
 
     // A webform changed through the admin UI in another process stays as this
     // process loaded it until this process resets its caches.
-    $this->getBackendRegistry()->getResolvedBackendFor(CacheCapabilityInterface::class)?->cacheClearStatic();
+    $this->staticCacheClear();
 
     return $this->queryEntityStubs('webform', 'id', ['title' => ['CONTAINS', $title]] + $conditions);
   }

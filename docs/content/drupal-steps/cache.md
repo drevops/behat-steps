@@ -43,6 +43,19 @@ Given the cache has been cleared
 </details>
 
 <details>
+  <summary><code>@Given the static caches have been cleared</code></summary>
+
+<br/>
+Clear the static caches
+<br/><br/>
+
+```gherkin
+Given the static caches have been cleared
+```
+
+</details>
+
+<details>
   <summary><code>@Given the page cache for the path :path has been cleared</code></summary>
 
 <br/>
