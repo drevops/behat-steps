@@ -71,7 +71,7 @@
         <mxCell id="ex-auth-hook" value="&lt;b&gt;Auth + Hook&lt;/b&gt;&lt;br&gt;log in and out;&lt;br&gt;entity creation hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
           <mxGeometry x="600" y="160" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="ex-drupal" value="&lt;b&gt;Extension\Drupal&lt;/b&gt;&lt;br&gt;DrupalBackendProvider;&lt;br&gt;node and term hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
+        <mxCell id="ex-drupal" value="&lt;b&gt;Extension\Drupal&lt;/b&gt;&lt;br&gt;DrupalBackendProvider;&lt;br&gt;node, term, language hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
           <mxGeometry x="890" y="160" width="230" height="70" as="geometry" />
         </mxCell>
         <mxCell id="grp-backend" value="Backend layer: src/Backend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#E8F5E9;swimlaneFillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=1.5;" vertex="1" parent="grp-library">

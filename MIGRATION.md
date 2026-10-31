@@ -1890,7 +1890,7 @@ $value = $this->stateFindValue('my_module.launched');
 | `DrupalAuthenticationManagerInterface::loggedIn()` | `AuthenticatorInterface::isLoggedIn()` | A custom authenticator that declares `loggedIn()` fails to load until it declares `isLoggedIn()` |
 | `DrupalAuthenticationManagerInterface::logIn()` | `AuthenticatorInterface::login()` | Case only |
 | `DrupalAuthenticationManagerInterface::logOut()` | `AuthenticatorInterface::logout()` | Case only |
-| `DrupalAuthenticationManager::getLogoutElement()` | `Authenticator::getLogoutElement()` | Now `protected`; call `isLoggedIn()`, the question it served |
+| `DrupalAuthenticationManager::getLogoutElement()` | `Authenticator::findLogoutElement()` | Now `protected`; call `isLoggedIn()`, the question it served |
 | `DrupalAuthenticationManager::resolveBasicAuth()` | `BasicAuthenticatorInterface::findCredentials()` | Was protected. Returns the credentials `base_url` carries, so a class implementing the interface adds it |
 | `DriverManagerInterface::getDriver()` | `BackendRegistryInterface::getBackend()` | Takes a backend's name; `getBackendFor()` resolves 1 by capability |
 | `DriverManagerInterface::getDrivers()` | `BackendRegistryInterface::getBackends()` | |

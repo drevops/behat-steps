@@ -96,7 +96,7 @@ trait RestTrait {
    */
   #[Given('the REST header :name has the value from the JSON path :path')]
   public function restSetHeaderFromJsonPath(string $name, string $path): void {
-    $this->restHeaders[$name] = $this->restGetResponseJsonValue($path);
+    $this->restHeaders[$name] = $this->restResolveHeaderValue($path);
   }
 
   /**
@@ -113,7 +113,7 @@ trait RestTrait {
    */
   #[Given('the REST header :name has the value from the JSON path :path with the prefix :prefix')]
   public function restSetHeaderFromJsonPathWithPrefix(string $name, string $path, string $prefix): void {
-    $this->restHeaders[$name] = $prefix . $this->restGetResponseJsonValue($path);
+    $this->restHeaders[$name] = $prefix . $this->restResolveHeaderValue($path);
   }
 
   /**
@@ -332,24 +332,39 @@ trait RestTrait {
   }
 
   /**
-   * Get the scalar at a JSON path in the last REST response, as a string.
-   *
-   * A JSON boolean becomes "true" or "false", and a number its string form.
+   * Get the scalar at a JSON path in the last REST response.
    *
    * @param string $path
    *   The JSONPath expression, which must match exactly 1 scalar.
    *
-   * @return string
-   *   The value.
+   * @return mixed
+   *   The matched scalar, or NULL for a JSON `null`.
    *
    * @throws \Behat\Mink\Exception\ExpectationException
-   *   When the expression matches no value, more than 1, an array or object,
-   *   or a JSON `null`.
+   *   When the expression matches no value, more than 1, or an array or object.
    * @throws \RuntimeException
    *   When no REST request has been sent, or the response is not JSON.
    */
-  public function restGetResponseJsonValue(string $path): string {
-    $value = $this->jsonPathGetScalar($this->jsonPathDecode($this->restResponseGetContent()), $path);
+  public function restGetResponseJsonValue(string $path): mixed {
+    return $this->jsonPathGetScalar($this->jsonPathDecode($this->restResponseGetContent()), $path);
+  }
+
+  /**
+   * Resolves a JSON path in the last REST response to a header value.
+   *
+   * A JSON boolean becomes "true" or "false", and a number its string form.
+   *
+   * @param string $path
+   *   The JSONPath expression.
+   *
+   * @return string
+   *   The header value.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the expression matches a JSON `null`, which a header can't carry.
+   */
+  protected function restResolveHeaderValue(string $path): string {
+    $value = $this->restGetResponseJsonValue($path);
 
     if ($value === NULL) {
       throw new ExpectationException(sprintf('The JSON path "%s" is null in the REST response, but a value is required.', $path), $this->httpRestSession()->getDriver());
