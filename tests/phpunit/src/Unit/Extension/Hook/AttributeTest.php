@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Hook;
 
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\AfterLanguageCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\AfterNodeCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\AfterTermCreate;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeLanguageCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeTermCreate;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterLanguageCreate as AfterLanguageCreateCall;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterNodeCreate as AfterNodeCreateCall;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterTermCreate as AfterTermCreateCall;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeLanguageCreate as BeforeLanguageCreateCall;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeNodeCreate as BeforeNodeCreateCall;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeTermCreate as BeforeTermCreateCall;
 use DrevOps\BehatSteps\Extension\Hook\Attribute\AfterEntityCreate;
@@ -29,10 +33,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Tests the attributes a context method declares its entity hooks with.
  */
 #[CoversClass(AfterEntityCreate::class)]
+#[CoversClass(AfterLanguageCreate::class)]
 #[CoversClass(AfterNodeCreate::class)]
 #[CoversClass(AfterTermCreate::class)]
 #[CoversClass(AfterUserCreate::class)]
 #[CoversClass(BeforeEntityCreate::class)]
+#[CoversClass(BeforeLanguageCreate::class)]
 #[CoversClass(BeforeNodeCreate::class)]
 #[CoversClass(BeforeTermCreate::class)]
 #[CoversClass(BeforeUserCreate::class)]
@@ -92,6 +98,8 @@ class AttributeTest extends UnitTestCase {
     yield 'after node' => [AfterNodeCreate::class, AfterNodeCreateCall::class];
     yield 'before term' => [BeforeTermCreate::class, BeforeTermCreateCall::class];
     yield 'after term' => [AfterTermCreate::class, AfterTermCreateCall::class];
+    yield 'before language' => [BeforeLanguageCreate::class, BeforeLanguageCreateCall::class];
+    yield 'after language' => [AfterLanguageCreate::class, AfterLanguageCreateCall::class];
     yield 'before user' => [BeforeUserCreate::class, BeforeUserCreateCall::class];
     yield 'after user' => [AfterUserCreate::class, AfterUserCreateCall::class];
   }
@@ -109,6 +117,8 @@ class AttributeTest extends UnitTestCase {
     yield 'after node' => [AfterNodeCreate::class];
     yield 'before term' => [BeforeTermCreate::class];
     yield 'after term' => [AfterTermCreate::class];
+    yield 'before language' => [BeforeLanguageCreate::class];
+    yield 'after language' => [AfterLanguageCreate::class];
     yield 'before user' => [BeforeUserCreate::class];
     yield 'after user' => [AfterUserCreate::class];
   }

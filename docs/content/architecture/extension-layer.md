@@ -58,7 +58,7 @@ The layer also holds these pieces:
 
 ## The Drupal half
 
-`Extension\Drupal` holds what the extension needs for a Drupal site. `DrupalBackendProvider` adds the `drupal` and `drush` settings and the Drupal defaults of the login text and selectors. It also adds the Drupal and Drush backends, each registered only when its `drupal` or `drush` key is set. The node and term creation hooks and the language creation scopes sit beside it.
+`Extension\Drupal` holds what the extension needs for a Drupal site. `DrupalBackendProvider` adds the `drupal` and `drush` settings and the Drupal defaults of the login text and selectors. It also adds the Drupal and Drush backends, each registered only when its `drupal` or `drush` key is set. The node, term and language creation hooks sit beside it.
 
 ## What the layer may reach
 
