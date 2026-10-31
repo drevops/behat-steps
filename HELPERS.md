@@ -1469,10 +1469,10 @@ Get the BrowserKit browser the REST session drives
 </details>
 
 <details>
-  <summary><code>public function restGetResponseJsonValue(string $path): string</code></summary>
+  <summary><code>public function restGetResponseJsonValue(string $path): mixed</code></summary>
 
 <br/>
-Get the scalar at a JSON path in the last REST response, as a string
+Get the scalar at a JSON path in the last REST response
 <br/><br/>
 
 </details>

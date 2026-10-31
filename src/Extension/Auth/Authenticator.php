@@ -87,7 +87,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     $page->fillField($this->getText('username_field'), $login_value);
     $page->fillField($this->getText('password_field'), $pass);
 
-    $login_element = $this->getLoginElement($page);
+    $login_element = $this->findLoginElement($page);
 
     if (!$login_element instanceof NodeElement) {
       throw new ElementNotFoundException($session->getDriver(), 'submit button', 'css', 'login form');
@@ -139,7 +139,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     $session->visit($logout_url);
 
     if ($session->getCurrentUrl() === $logout_confirm_url) {
-      $logout_element = $this->getLogoutConfirmElement($session->getPage());
+      $logout_element = $this->findLogoutConfirmElement($session->getPage());
 
       if (!$logout_element instanceof NodeElement) {
         throw new ElementNotFoundException($session->getDriver(), 'logout button', 'css', 'logout confirmation page');
@@ -201,7 +201,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     // polls until one appears.
     $session->visit($this->locatePath('/'));
 
-    if ($this->waitUntil($this->getLoginSignalWait(), fn(): bool => $this->hasLoggedInSelector() || $this->getLogoutElement() instanceof NodeElement)) {
+    if ($this->waitUntil($this->getLoginSignalWait(), fn(): bool => $this->hasLoggedInSelector() || $this->findLogoutElement() instanceof NodeElement)) {
       return TRUE;
     }
 
@@ -233,21 +233,21 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
   /**
    * Returns the logout element from the page.
    */
-  protected function getLogoutElement(): ?NodeElement {
+  protected function findLogoutElement(): ?NodeElement {
     return $this->getSession()->getPage()->findLink($this->getText('logout'));
   }
 
   /**
    * Returns the login element from the page.
    */
-  protected function getLoginElement(DocumentElement $element): ?NodeElement {
+  protected function findLoginElement(DocumentElement $element): ?NodeElement {
     return $element->findButton($this->getText('login'));
   }
 
   /**
    * Returns the logout confirm element from the page.
    */
-  protected function getLogoutConfirmElement(DocumentElement $element): ?NodeElement {
+  protected function findLogoutConfirmElement(DocumentElement $element): ?NodeElement {
     return $element->findButton($this->getText('logout'));
   }
 
@@ -323,7 +323,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
   protected function backendLogout(): void {
     // Only a backend the scenario already reached can hold a backend session,
     // and resolving one here would bootstrap it.
-    $this->backendRegistry->getResolvedBackendFor(AuthenticationCapabilityInterface::class)?->logout();
+    $this->backendRegistry->findResolvedBackendFor(AuthenticationCapabilityInterface::class)?->logout();
   }
 
 }

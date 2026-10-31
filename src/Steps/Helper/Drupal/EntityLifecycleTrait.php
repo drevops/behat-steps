@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Helper\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Hook\AfterScenario;
-use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
@@ -455,13 +454,7 @@ trait EntityLifecycleTrait {
       throw new \RuntimeException('The hook dispatcher is available only after Behat has initialized the context.');
     }
 
-    $environment = $this->getBackendRegistry()->getEnvironment();
-
-    if (!$environment instanceof Environment) {
-      throw new \RuntimeException('Hooks can be dispatched only once a scenario has started.');
-    }
-
-    $scope = new $scope_class($environment, $this, $stub);
+    $scope = new $scope_class($this->getBackendRegistry()->getEnvironment(), $this, $stub);
     $call_results = $this->hookDispatcher->dispatchScopeHooks($scope);
 
     foreach ($call_results as $call_result) {

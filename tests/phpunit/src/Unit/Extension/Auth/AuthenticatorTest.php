@@ -180,7 +180,7 @@ class AuthenticatorTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->method('hasCapability')->willReturn(TRUE);
     $backend_registry->method('getBackendFor')->willReturn($auth_backend);
-    $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
+    $backend_registry->method('findResolvedBackendFor')->willReturn($auth_backend);
 
     $authenticator = $this->createAuthenticator($session, NULL, $backend_registry);
     $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
@@ -249,7 +249,7 @@ class AuthenticatorTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->method('hasCapability')->willReturn(TRUE);
     $backend_registry->method('getBackendFor')->willReturn($auth_backend);
-    $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
+    $backend_registry->method('findResolvedBackendFor')->willReturn($auth_backend);
 
     $authenticator = $this->createAuthenticator($session, NULL, $backend_registry);
     $authenticator->logout();
@@ -527,7 +527,7 @@ class AuthenticatorTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->method('hasCapability')->willReturn(TRUE);
     $backend_registry->method('getBackendFor')->willReturn($auth_backend);
-    $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
+    $backend_registry->method('findResolvedBackendFor')->willReturn($auth_backend);
 
     $authenticator = new Authenticator($mink, new UserRegistry(), $backend_registry, new BasicAuthenticator($mink, static::MINK_PARAMS), static::MINK_PARAMS, static::EXTENSION_PARAMS);
     $authenticator->fastLogout();

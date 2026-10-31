@@ -139,7 +139,7 @@ final class BackendRegistry implements BackendRegistryInterface {
   /**
    * {@inheritdoc}
    */
-  public function getResolvedBackendFor(string $capability): ?object {
+  public function findResolvedBackendFor(string $capability): ?object {
     return $this->getResolvedBackendsFor($capability)[0] ?? NULL;
   }
 
@@ -166,7 +166,11 @@ final class BackendRegistry implements BackendRegistryInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEnvironment(): ?Environment {
+  public function getEnvironment(): Environment {
+    if (!$this->environment instanceof Environment) {
+      throw new \RuntimeException('The Behat environment is available only once a scenario has started.');
+    }
+
     return $this->environment;
   }
 

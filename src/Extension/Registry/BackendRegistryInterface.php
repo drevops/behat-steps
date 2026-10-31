@@ -118,7 +118,7 @@ interface BackendRegistryInterface {
    *
    * @template T of object
    */
-  public function getResolvedBackendFor(string $capability): ?object;
+  public function findResolvedBackendFor(string $capability): ?object;
 
   /**
    * Returns every backend with the capability that this scenario resolved.
@@ -136,8 +136,11 @@ interface BackendRegistryInterface {
 
   /**
    * Returns the Behat environment.
+   *
+   * @throws \RuntimeException
+   *   When no scenario has started.
    */
-  public function getEnvironment(): ?Environment;
+  public function getEnvironment(): Environment;
 
   /**
    * Sets the Behat environment.

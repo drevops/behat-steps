@@ -602,7 +602,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   protected function anyBackendFor(string $capability): object {
     $registry = $this->getBackendRegistry();
 
-    return $registry->getResolvedBackendFor($capability) ?? $registry->getBackendFor($capability);
+    return $registry->findResolvedBackendFor($capability) ?? $registry->getBackendFor($capability);
   }
 
   /**

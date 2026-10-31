@@ -530,16 +530,16 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Assert that a `Get` method declares a return type without NULL.
    *
-   * `Get` throws when nothing matches, so a caller uses the result without a
-   * NULL check. `mixed` declares no type to check, so it is not reported.
+   * A nullable type says NULL means a miss, which is a `Find`. A `Get` throws
+   * on a miss, and one reading a value that can be NULL declares `mixed`.
    *
    * @param class-string $trait
    *   The trait to check.
    * @param string $file
    *   The absolute path to the file declaring the trait.
    */
-  #[DataProvider('dataProviderGetNeverReturnsNull')]
-  public function testGetNeverReturnsNull(string $trait, string $file): void {
+  #[DataProvider('dataProviderGetDeclaresNoNullableType')]
+  public function testGetDeclaresNoNullableType(string $trait, string $file): void {
     $violations = [];
 
     foreach (static::collectTraitOwnMethodsWithVerb($trait, $file, 'Get') as $method) {
@@ -552,10 +552,10 @@ class TraitMethodNamingTest extends UnitTestCase {
       $violations[] = static::describeReturnType($method);
     }
 
-    $this->assertSame([], $violations, 'A "Get" method throws when nothing matches and never returns NULL, so its return type excludes NULL. Rename a method that returns NULL on a miss to "Find": "cookieFindByName", not "cookieGetByName".');
+    $this->assertSame([], $violations, 'A "Get" method throws when something it depends on is missing, so a nullable return type says it is a "Find". Rename a method that returns NULL on a miss to "Find": "cookieFindByName", not "cookieGetByName". A "Get" reading a value that can be NULL declares "mixed".');
   }
 
-  public static function dataProviderGetNeverReturnsNull(): array {
+  public static function dataProviderGetDeclaresNoNullableType(): array {
     return static::discoverTraitFiles();
   }
 
