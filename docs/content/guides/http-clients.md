@@ -219,7 +219,7 @@ The page client is a browser capability, the REST session is a Mink session, and
 [![How a step reaches each HTTP client: httpPageClient() resolves a browser capability that only BrowserKit provides, httpRestSession() returns the rest Mink session, declared or built on first use, while httpDetachedClient() and httpBareClient() ask the HTTP client factory for a fresh browser](http-client-methods.dark.svg#gh-dark-mode-only)](http-client-methods.dark.svg)
 
 - Whether a page client exists depends on the browser driver, so `httpPageClient()` resolves `HttpClientCapabilityInterface` through `browserDriverFor()`, like any other capability. The BrowserKit adapter provides it; the Selenium2 and Chrome adapters don't.
-- `httpRestSession()` returns the Mink session named `rest`. When the configuration declares none, the first call builds a session on a `createDetached()` browser with no cookies and registers it with Mink. Mink resets it before each scenario.
+- `httpRestSession()` returns the Mink session named `rest`. When the configuration declares none, the first call builds a session on a `createDetached()` browser with no cookies, from the context's `getHttpClientFactory()`, and registers it with Mink. Mink resets it before each scenario.
 - The detached and bare clients exist under every browser driver, so no capability has to resolve them. `HttpClientFactoryInterface` builds them. The context initializer injects the `behat_steps.http_client_factory` service into `WebRawContext`, as it injects the option resolver factory. The scenario's identity reaches the factory as an `HttpIdentity` value object: the cookies, the URL they were read from, the headers and the credentials.
 
 `HttpClientFactoryInterface` declares 3 methods:
