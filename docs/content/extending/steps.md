@@ -113,9 +113,9 @@ An override replaces the resolution entirely, so the option, the `steps` default
 
 ### A context override: a flaky staging server
 
-A context also overrides how its traits send their own requests. `getHttpClientFactory()` returns the factory behind the detached and bare clients, as [How a step reaches each client](../guides/http-clients.md#how-a-step-reaches-each-client) describes.
+A context also overrides how its traits send their own requests. `getHttpClientFactory()` returns the factory behind the detached and bare clients and the default REST session, as [How a step reaches each client](../guides/http-clients.md#how-a-step-reaches-each-client) describes.
 
-Decorate the transport in the context, and every detached and bare client it builds retries a failed request:
+Decorate the transport in the context, and every client the factory builds retries a failed request:
 
 ```php
 use DrevOps\BehatSteps\DrupalContext;
@@ -135,9 +135,11 @@ class FeatureContext extends DrupalContext {
 }
 ```
 
-That covers downloads, the hreflang check and the engine fetch for every trait in that context. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
+That covers downloads, the hreflang check, the engine fetch and the requests of the REST steps for every trait in that context. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
 
-`RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit only for an idempotent method such as `GET`. It retries a 423, 425, 429, 502 or 503 response whatever the method, so a `POST` a step sends can reach the server twice. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` that limits those status codes to `GenericRetryStrategy::IDEMPOTENT_METHODS`.
+To leave the REST steps out, [declare a Mink session named `rest`](../guides/http-clients.md#where-the-settings-come-from), which skips the factory. Without that session, the first context to send a REST request builds it, and the session lasts for the run. So in a run with several contexts, that context's factory serves them all.
+
+`RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit only for an idempotent method such as `GET`. It retries a 423, 425, 429, 502 or 503 response whatever the method, so a `POST` a step sends can reach the server twice, as `When I send a REST "POST" request to "/api/orders"` can. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` that limits those status codes to `GenericRetryStrategy::IDEMPOTENT_METHODS`.
 
 ## Declare options for a trait of your own
 
