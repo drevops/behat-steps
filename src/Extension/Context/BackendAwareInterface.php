@@ -66,9 +66,6 @@ interface BackendAwareInterface extends Context, ParametersAwareInterface {
 
   /**
    * Returns the factory that builds the detached and bare browsers.
-   *
-   * It also builds the browser of the REST session when the suite declares no
-   * Mink session named 'rest'.
    */
   public function getHttpClientFactory(): HttpClientFactoryInterface;
 
