@@ -190,7 +190,7 @@ class BackendRegistryTest extends UnitTestCase {
     $registry = new BackendRegistry(['capable' => $this->createCacheBackendMock(TRUE)]);
     $registry->setScenarioBackends(['capable' => 'capable']);
 
-    $this->assertNull($registry->findResolvedBackendFor(CacheCapabilityInterface::class));
+    $this->assertNull($registry->getResolvedBackendFor(CacheCapabilityInterface::class));
   }
 
   public function testGetResolvedBackendForReturnsBackendTheScenarioResolved(): void {
@@ -200,8 +200,8 @@ class BackendRegistryTest extends UnitTestCase {
 
     $registry->getBackendFor(CacheCapabilityInterface::class);
 
-    $this->assertSame($capable, $registry->findResolvedBackendFor(CacheCapabilityInterface::class));
-    $this->assertNull($registry->findResolvedBackendFor(ContentCapabilityInterface::class));
+    $this->assertSame($capable, $registry->getResolvedBackendFor(CacheCapabilityInterface::class));
+    $this->assertNull($registry->getResolvedBackendFor(ContentCapabilityInterface::class));
   }
 
   public function testGetResolvedBackendForAnswersInScenarioOrder(): void {
@@ -215,7 +215,7 @@ class BackendRegistryTest extends UnitTestCase {
     $registry->getBackend('second');
     $registry->getBackend('first');
 
-    $this->assertSame($first, $registry->findResolvedBackendFor(CacheCapabilityInterface::class));
+    $this->assertSame($first, $registry->getResolvedBackendFor(CacheCapabilityInterface::class));
   }
 
   public function testGetResolvedBackendForSkipsAnUnreachedBackendAheadInTheOrder(): void {
@@ -226,7 +226,7 @@ class BackendRegistryTest extends UnitTestCase {
 
     $registry->getBackend('second');
 
-    $this->assertSame($second, $registry->findResolvedBackendFor(CacheCapabilityInterface::class));
+    $this->assertSame($second, $registry->getResolvedBackendFor(CacheCapabilityInterface::class));
   }
 
   public function testGetResolvedBackendsForListsEveryResolvedBackendInScenarioOrder(): void {
@@ -261,7 +261,7 @@ class BackendRegistryTest extends UnitTestCase {
 
     $registry->setScenarioBackends(['capable' => 'capable']);
 
-    $this->assertNull($registry->findResolvedBackendFor(CacheCapabilityInterface::class));
+    $this->assertNull($registry->getResolvedBackendFor(CacheCapabilityInterface::class));
   }
 
   public function testGetEnvironmentThrowsBeforeScenarioStarts(): void {

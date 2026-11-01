@@ -195,10 +195,10 @@ Behat runs every hook on an event even when an earlier one fails, and reports ea
 
 ### Lookups
 
-A lookup's verb says what it does when nothing matches, so a caller knows whether to check for `NULL` or catch an exception without opening the docblock.
+A lookup's verb says what a caller can expect when nothing matches.
 
 - **`Find`** returns `NULL` when nothing matches, and its return type is nullable: `tableFindRowByText()`, `blockFindByLabel()`, `cookieFindByName()`.
-- **`Get`** returns what it reads, and throws only when something it depends on is missing: setup, configuration, an earlier step or a target the caller named, as in `tableGetRowByText()`, `drushGetOutput()` and `getSelector()`. A `NULL` that is the value returns as `NULL`, as a JSON `null` does from `jsonGetValue()`, and the step that needs another value throws. A `Get` that can return `NULL` declares `mixed`, because a nullable type on a trait's method says `NULL` means a miss. A consumer override point is a `Get`, because it always supplies a value.
+- **`Get`** returns what it finds, and can return `NULL` when the element isn't there or the value is `NULL`, as `getLoginElement()`, `getResolvedBackendFor()` and `jsonGetValue()` do. The step that needs a value throws. A `Get` throws when a dependency it relies on is missing, such as a context service Behat hasn't initialized, as `authGetUserRegistry()` does. A `Get` also throws when a step can't continue without the target the caller named, as `tableGetRowByText()` does. A consumer override point is a `Get`, because it always supplies a value.
 - **`Load`** loads a set and returns an empty array when nothing matches, as `userLoadMultiple()` does, or loads a document into the trait's own state, as `xmlLoadDocument()` does. A lookup for 1 item is a `Find` or a `Get`, never a `Load`.
 
 A trait that needs both contracts for 1 lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one. `Read` isn't one either: it reads a file's contents, as `fixtureDirectoryReadFile()` does, and names nothing else.
@@ -213,7 +213,7 @@ When several entities share the title, label, name or description a lookup match
 - A config entity, such as a block or a menu, goes through `entityLifecycleFindNewest()`. It prefers the entity the scenario created last, read from the cleanup registry. Otherwise it takes the last machine name in natural order, because a colliding machine name gains a growing suffix.
 - A `... does not exist` step deletes every match, and a step that only checks whether an entity exists checks every match. A step that reads or changes 1 entity resolves the newest. `the block :label in the region :region should exist` counts as a step that reads 1 entity, because it reads the newest block's region.
 
-`TraitMethodNamingTest` reads each declared return type: a `Find` must allow `NULL`, a `Get` must not declare a nullable type, and a `Load` must return `array` or `void`. A `Get` declaring `mixed` leaves the test no type to read, so review holds it to the same rule. The native type can't say what an array holds, so each `LoadMultiple()` has a kernel test under `tests/phpunit/src/Kernel/Steps/Drupal/` that pins its stubs and keys instead.
+`TraitMethodNamingTest` reads each declared return type: a `Find` must allow `NULL`, and a `Load` must return `array` or `void`. The native type can't say what an array holds, so each `LoadMultiple()` has a kernel test under `tests/phpunit/src/Kernel/Steps/Drupal/` that pins its stubs and keys instead.
 
 ### The verb comes first
 

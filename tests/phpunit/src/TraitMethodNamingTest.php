@@ -528,38 +528,6 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
-   * Assert that a `Get` method declares a return type without NULL.
-   *
-   * A nullable type says NULL means a miss, which is a `Find`. A `Get` throws
-   * on a miss, and one reading a value that can be NULL declares `mixed`.
-   *
-   * @param class-string $trait
-   *   The trait to check.
-   * @param string $file
-   *   The absolute path to the file declaring the trait.
-   */
-  #[DataProvider('dataProviderGetDeclaresNoNullableType')]
-  public function testGetDeclaresNoNullableType(string $trait, string $file): void {
-    $violations = [];
-
-    foreach (static::collectTraitOwnMethodsWithVerb($trait, $file, 'Get') as $method) {
-      $type = $method->getReturnType();
-
-      if ($type instanceof \ReflectionType && (!$type->allowsNull() || ($type instanceof \ReflectionNamedType && $type->getName() === 'mixed'))) {
-        continue;
-      }
-
-      $violations[] = static::describeReturnType($method);
-    }
-
-    $this->assertSame([], $violations, 'A "Get" method throws when something it depends on is missing, so a nullable return type says it is a "Find". Rename a method that returns NULL on a miss to "Find": "cookieFindByName", not "cookieGetByName". A "Get" reading a value that can be NULL declares "mixed".');
-  }
-
-  public static function dataProviderGetDeclaresNoNullableType(): array {
-    return static::discoverTraitFiles();
-  }
-
-  /**
    * Assert that a `Load` method returns an array or nothing.
    *
    * `Load` loads a set, or loads data into the trait's own state. A lookup

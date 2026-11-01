@@ -139,7 +139,7 @@ final class BackendRegistry implements BackendRegistryInterface {
   /**
    * {@inheritdoc}
    */
-  public function findResolvedBackendFor(string $capability): ?object {
+  public function getResolvedBackendFor(string $capability): ?object {
     return $this->getResolvedBackendsFor($capability)[0] ?? NULL;
   }
 

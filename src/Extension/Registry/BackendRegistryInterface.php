@@ -118,7 +118,7 @@ interface BackendRegistryInterface {
    *
    * @template T of object
    */
-  public function findResolvedBackendFor(string $capability): ?object;
+  public function getResolvedBackendFor(string $capability): ?object;
 
   /**
    * Returns every backend with the capability that this scenario resolved.
