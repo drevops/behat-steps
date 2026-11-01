@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Hook;
 
 use Behat\Testwork\Hook\FilterableHook;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterLanguageCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterNodeCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterTermCreate;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeLanguageCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeNodeCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeTermCreate;
 use DrevOps\BehatSteps\Extension\Hook\Call\AfterEntityCreate;
@@ -24,10 +26,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 #[CoversClass(EntityHook::class)]
 #[CoversClass(AfterEntityCreate::class)]
+#[CoversClass(AfterLanguageCreate::class)]
 #[CoversClass(AfterNodeCreate::class)]
 #[CoversClass(AfterTermCreate::class)]
 #[CoversClass(AfterUserCreate::class)]
 #[CoversClass(BeforeEntityCreate::class)]
+#[CoversClass(BeforeLanguageCreate::class)]
 #[CoversClass(BeforeNodeCreate::class)]
 #[CoversClass(BeforeTermCreate::class)]
 #[CoversClass(BeforeUserCreate::class)]
@@ -59,6 +63,8 @@ class CallTest extends UnitTestCase {
     yield 'after node' => [AfterNodeCreate::class, 'AfterNodeCreate', 'node.create.after'];
     yield 'before term' => [BeforeTermCreate::class, 'BeforeTermCreate', 'term.create.before'];
     yield 'after term' => [AfterTermCreate::class, 'AfterTermCreate', 'term.create.after'];
+    yield 'before language' => [BeforeLanguageCreate::class, 'BeforeLanguageCreate', 'language.create.before'];
+    yield 'after language' => [AfterLanguageCreate::class, 'AfterLanguageCreate', 'language.create.after'];
     yield 'before user' => [BeforeUserCreate::class, 'BeforeUserCreate', 'user.create.before'];
     yield 'after user' => [AfterUserCreate::class, 'AfterUserCreate', 'user.create.after'];
   }

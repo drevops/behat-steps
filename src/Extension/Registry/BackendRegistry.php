@@ -166,7 +166,11 @@ final class BackendRegistry implements BackendRegistryInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEnvironment(): ?Environment {
+  public function getEnvironment(): Environment {
+    if (!$this->environment instanceof Environment) {
+      throw new \RuntimeException('The Behat environment is available only once a scenario has started.');
+    }
+
     return $this->environment;
   }
 

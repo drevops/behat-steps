@@ -382,6 +382,43 @@ class DrushBackendMethodsTest extends UnitTestCase {
     }
   }
 
+  public function testResolveProjectDrushMakesRelativeComposerBinAbsolute(): void {
+    $this->writeFixture('bin/drush', '');
+    $original_cwd = (string) getcwd();
+    $original_composer = getenv('COMPOSER_BIN_DIR');
+    putenv('COMPOSER_BIN_DIR=bin');
+    chdir(static::$tmp);
+
+    try {
+      $expected = getcwd() . '/bin/drush';
+
+      $this->assertSame($expected, DrushBackend::resolveProjectDrush());
+      $this->assertSame($expected, (new DrushBackend('alias'))->binary);
+    }
+    finally {
+      chdir($original_cwd);
+      putenv('COMPOSER_BIN_DIR' . ($original_composer === FALSE ? '' : '=' . $original_composer));
+    }
+  }
+
+  public function testResolveProjectDrushLeavesBareNameWhenNotFound(): void {
+    $original_cwd = (string) getcwd();
+    $original_composer = getenv('COMPOSER_BIN_DIR');
+    putenv('COMPOSER_BIN_DIR');
+    chdir(static::$tmp);
+
+    try {
+      $this->assertSame('drush', DrushBackend::resolveProjectDrush());
+    }
+    finally {
+      chdir($original_cwd);
+
+      if ($original_composer !== FALSE) {
+        putenv('COMPOSER_BIN_DIR=' . $original_composer);
+      }
+    }
+  }
+
   public function testResolveProjectDrushFallsBackToVendorBin(): void {
     $this->writeFixture('vendor/bin/drush', '');
     $original_cwd = (string) getcwd();

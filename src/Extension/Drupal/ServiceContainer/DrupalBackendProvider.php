@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Extension\Drupal\ServiceContainer;
 
 use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
+use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BackendProviderInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -160,7 +161,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     }
 
     if (!str_contains($binary, '/')) {
-      return $binary === 'drush' ? self::resolveProjectDrush() : $binary;
+      return $binary === 'drush' ? DrushBackend::resolveProjectDrush() : $binary;
     }
 
     $cwd = (string) getcwd();
@@ -194,24 +195,6 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     $resolved = realpath($path);
 
     return $resolved === FALSE ? $path : $resolved;
-  }
-
-  /**
-   * Resolves a bare 'drush' to the project's Drush, or leaves it to $PATH.
-   *
-   * Checks 'COMPOSER_BIN_DIR', then 'vendor/bin/drush' in the working
-   * directory.
-   */
-  protected static function resolveProjectDrush(): string {
-    $composer_bin = getenv('COMPOSER_BIN_DIR');
-
-    if ($composer_bin && file_exists($composer_bin . '/drush')) {
-      return self::resolveDirectoryPath($composer_bin) . '/drush';
-    }
-
-    $candidate = getcwd() . '/vendor/bin/drush';
-
-    return file_exists($candidate) ? $candidate : 'drush';
   }
 
   /**

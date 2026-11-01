@@ -136,8 +136,11 @@ interface BackendRegistryInterface {
 
   /**
    * Returns the Behat environment.
+   *
+   * @throws \RuntimeException
+   *   When no scenario has started.
    */
-  public function getEnvironment(): ?Environment;
+  public function getEnvironment(): Environment;
 
   /**
    * Sets the Behat environment.

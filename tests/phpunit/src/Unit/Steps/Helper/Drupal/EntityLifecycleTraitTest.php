@@ -28,6 +28,8 @@ use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\FastLogoutInterface;
 use DrevOps\BehatSteps\Extension\Context\UserAwareInterface;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterLanguageCreate;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeLanguageCreate;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Extension\Registry\UserRegistry;
@@ -35,6 +37,7 @@ use DrevOps\BehatSteps\Extension\Registry\UserRegistryInterface;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\StaticCacheTrait;
+use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\ListedHookReader;
 use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\RegistryExposingContext;
 use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -292,6 +295,37 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     yield 'language' => ['entityLifecycleCreateLanguage', new EntityStub('language'), LanguageCapabilityInterface::class];
   }
 
+  public function testLanguageCreationRunsItsHooks(): void {
+    $stub = (new EntityStub('language', NULL, ['langcode' => 'fr']))->markSaved(new \stdClass());
+    $backend = $this->createBackend([LanguageCapabilityInterface::class]);
+    $calls = new \ArrayObject();
+
+    $backend->method('createLanguage')->willReturnCallback(static function () use ($stub, $calls): EntityStub {
+      $calls->append('create');
+
+      return $stub;
+    });
+
+    $manager = new EnvironmentManager();
+    $manager->registerEnvironmentReader(new ListedHookReader([
+      new BeforeLanguageCreate(static function () use ($calls): void {
+        $calls->append('before');
+      }),
+      new AfterLanguageCreate(static function () use ($calls): void {
+        $calls->append('after');
+      }),
+    ]));
+
+    $call_center = new CallCenter();
+    $call_center->registerCallHandler(new RuntimeCallHandler());
+
+    $context = $this->createContext($backend, NULL, NULL, new HookDispatcher(new HookRepository($manager), $call_center));
+
+    $context->entityLifecycleCreateLanguage($stub);
+
+    $this->assertSame(['before', 'create', 'after'], $calls->getArrayCopy());
+  }
+
   public function testHookExceptionSurfacesFromDispatcher(): void {
     $manager = new EnvironmentManager();
     $manager->registerEnvironmentReader(new ThrowingHookReader());
@@ -320,15 +354,12 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public function testHooksCannotBeDispatchedBeforeScenarioStarts(): void {
-    $backend_registry = $this->createMock(BackendRegistryInterface::class);
-    $backend_registry->method('getEnvironment')->willReturn(NULL);
-
     $context = new RegistryExposingContext();
-    $context->setBackendRegistry($backend_registry);
+    $context->setBackendRegistry(new BackendRegistry());
     $context->setHookDispatcher($this->createHookDispatcher());
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Hooks can be dispatched only once a scenario has started.');
+    $this->expectExceptionMessage('The Behat environment is available only once a scenario has started.');
 
     $context->entityLifecycleCreate(new EntityStub('block_content'));
   }

@@ -131,7 +131,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     }
 
     if ($binary === 'drush') {
-      $binary = $this->resolveProjectDrush($binary);
+      $binary = self::resolveProjectDrush();
     }
 
     $this->binary = $binary;
@@ -1125,28 +1125,25 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   }
 
   /**
-   * Resolves the project-level Drush binary path.
+   * Resolves a bare 'drush' to the project's Drush, or leaves it to $PATH.
    *
-   * @param string $fallback
-   *   The fallback binary path if project-level Drush is not found.
+   * Checks 'COMPOSER_BIN_DIR', then 'vendor/bin/drush' in the working
+   * directory. A path it finds is absolute, so it stays valid after the working
+   * directory changes.
    *
    * @return string
-   *   The resolved binary path.
+   *   The absolute path to the project's Drush, or 'drush' when it has none.
    */
-  protected function resolveProjectDrush(string $fallback): string {
+  public static function resolveProjectDrush(): string {
     $composer_bin = getenv('COMPOSER_BIN_DIR');
 
     if ($composer_bin && file_exists($composer_bin . '/drush')) {
-      return $composer_bin . '/drush';
+      return realpath($composer_bin) . '/drush';
     }
 
-    $cwd = getcwd();
+    $candidate = getcwd() . '/vendor/bin/drush';
 
-    if ($cwd && file_exists($cwd . '/vendor/bin/drush')) {
-      return $cwd . '/vendor/bin/drush';
-    }
-
-    return $fallback;
+    return file_exists($candidate) ? $candidate : 'drush';
   }
 
   /**

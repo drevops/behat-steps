@@ -264,10 +264,13 @@ class BackendRegistryTest extends UnitTestCase {
     $this->assertNull($registry->getResolvedBackendFor(CacheCapabilityInterface::class));
   }
 
-  public function testGetEnvironmentReturnsNullByDefault(): void {
+  public function testGetEnvironmentThrowsBeforeScenarioStarts(): void {
     $registry = new BackendRegistry();
 
-    $this->assertNull($registry->getEnvironment());
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The Behat environment is available only once a scenario has started.');
+
+    $registry->getEnvironment();
   }
 
   public function testSetAndGetEnvironment(): void {
