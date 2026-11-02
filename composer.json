@@ -55,7 +55,7 @@
         "phpspec/prophecy-phpunit": "^2.5.0",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.3.4",
-        "phpunit/phpunit": "^12.5.42",
+        "phpunit/phpunit": "^12.5.43",
         "rector/rector": "^2.8.3",
         "softcreatr/jsonpath": "^0.10 || ^1.0"
     },
