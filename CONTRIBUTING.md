@@ -507,8 +507,7 @@ A step is only as portable as the backend behind it, so each trait falls into 1 
   - A read takes a field's values from `getEntityValues()` in their storage shape and a bundle from `getEntityBundle()`, or puts the field into the lookup's conditions.
   - A step visiting an entity's page asks `getEntityUrl()` for it by link relationship, such as `edit-form`, so the site's own route sets the path.
   - A config entity is created, changed and copied through `ConfigEntityCapabilityInterface`, which saves through the entity storage so the save hooks run.
-  - The create pipeline parses a table's cells against the field definitions through `EntityDefinitionCapabilityInterface`. That capability also answers whether a bundle exists and what it's labeled, for `ContentTrait`, `MediaTrait`, `ContentBlockTrait` and `TaxonomyTrait`, and gives `ParagraphsTrait` the ID key of an entity type and a bundle's fields. It gives `EntityTrait` the label key of an entity type.
-
+  - The create pipeline parses a table's cells against the field definitions through `EntityDefinitionCapabilityInterface`. That capability also answers whether a bundle exists and what it's labeled, for `ContentTrait`, `MediaTrait`, `ContentBlockTrait` and `TaxonomyTrait`, and gives `ParagraphsTrait` the ID key of an entity type and a bundle's fields.
   Other traits work through these capabilities:
 
   - `EmailTrait` collects through `MailCapabilityInterface`.

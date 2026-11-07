@@ -141,7 +141,7 @@ trait EntityTrait {
       throw new \RuntimeException(sprintf('The entity type "%s" has no bundle "%s".', $entity_type, $bundle));
     }
 
-    $id = $this->entityFindIdByLabel($entity_type, $label, $bundle);
+    $id = $this->queryFindNewestEntityIdByLabel($entity_type, $label, $bundle);
 
     if ($id === NULL) {
       $noun = $bundle === NULL ? sprintf('"%s"', $entity_type) : sprintf('"%s" "%s"', $bundle, $entity_type);
@@ -150,29 +150,6 @@ trait EntityTrait {
     }
 
     return $id;
-  }
-
-  /**
-   * Find the id of the newest entity of a type with a label.
-   *
-   * @param string $entity_type
-   *   The entity type id. Its ids must be serial, as content entity ids are.
-   * @param string $label
-   *   The label to match exactly.
-   * @param string|null $bundle
-   *   The bundle to restrict the lookup to, or NULL for every bundle.
-   *
-   * @return string|null
-   *   The id of the entity created last with the label, or NULL when no
-   *   entity has it.
-   *
-   * @throws \RuntimeException
-   *   When the entity type is unknown or declares no label key.
-   */
-  public function entityFindIdByLabel(string $entity_type, string $label, ?string $bundle = NULL): ?string {
-    $label_key = $this->backendFor(EntityDefinitionCapabilityInterface::class)->getEntityLabelKey($entity_type);
-
-    return $this->queryFindNewestEntityId($entity_type, [$label_key => $label], $bundle);
   }
 
   /**

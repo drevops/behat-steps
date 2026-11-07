@@ -40,6 +40,28 @@ class QueryTraitTest extends UnitTestCase {
   }
 
   /**
+   * Tests that a label lookup keys its condition by the type's label field.
+   *
+   * @param array<int, string> $ids
+   *   The ids the lookup returns.
+   * @param string|null $expected
+   *   The id expected back.
+   */
+  #[DataProvider('dataProviderFindNewestEntityIdByLabel')]
+  public function testFindNewestEntityIdByLabel(array $ids, ?string $expected): void {
+    $backend = $this->createMock(DrupalBackendInterface::class);
+    $backend->method('getEntityLabelKey')->with('taxonomy_term')->willReturn('name');
+    $backend->expects($this->once())->method('findEntityIds')->with('taxonomy_term', ['name' => 'Jazz'], 'tags')->willReturn($ids);
+
+    $this->assertSame($expected, $this->createContext($backend)->queryFindNewestEntityIdByLabel('taxonomy_term', 'Jazz', 'tags'));
+  }
+
+  public static function dataProviderFindNewestEntityIdByLabel(): \Iterator {
+    yield 'the newest of several' => [['3', '9', '12'], '12'];
+    yield 'no match' => [[], NULL];
+  }
+
+  /**
    * Tests that the id a stub carries is read as a string.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub

@@ -91,13 +91,6 @@ class EntityTraitTest extends UnitTestCase {
     yield 'no match in any bundle' => [NULL, TRUE, 'The "taxonomy_term" entity with the label "Jazz" does not exist.'];
   }
 
-  public function testFindIdByLabelReturnsNullWhenNothingMatches(): void {
-    $backend = $this->createBackend(TRUE);
-    $backend->method('findEntityIds')->willReturn([]);
-
-    $this->assertNull($this->createContext($backend)->entityFindIdByLabel('taxonomy_term', 'Jazz', 'tags'));
-  }
-
   /**
    * Creates a backend that resolves entity definitions and lookups.
    *
