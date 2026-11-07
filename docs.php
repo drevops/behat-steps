@@ -2495,6 +2495,7 @@ function kind_placeholders(): array {
     'seconds',
     'tolerance',
     'vocabulary',
+    'wrapper_type',
   ];
 }
 

@@ -22,8 +22,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for attaching paragraphs to an entity through 'ParagraphsTrait'.
  *
- * The 'landing_page' content type references 'text' paragraphs from its
- * 'field_paragraph' field, which takes any number of them.
+ * The 'landing_page' content type references 'text' and 'row' paragraphs from
+ * its 'field_paragraph' field, and a 'row' references 'text' paragraphs from
+ * its 'field_paragraph_columns' field. Both fields take any number of them.
  */
 #[CoversTrait(ParagraphsTrait::class)]
 #[Group('behat')]
@@ -52,8 +53,11 @@ class ParagraphsTraitKernelTest extends StepTraitKernelTestBase {
     ParagraphsType::create(['id' => 'text', 'label' => 'Text'])->save();
     $this->attachField('paragraph', 'text', 'field_paragraph_title', 'string');
 
+    ParagraphsType::create(['id' => 'row', 'label' => 'Row'])->save();
+    $this->attachField('paragraph', 'row', 'field_paragraph_columns', 'entity_reference_revisions', ['target_type' => 'paragraph'], ['handler' => 'default:paragraph', 'handler_settings' => ['target_bundles' => ['text' => 'text']]], -1);
+
     NodeType::create(['type' => 'landing_page', 'name' => 'Landing page'])->save();
-    $this->attachField('node', 'landing_page', 'field_paragraph', 'entity_reference_revisions', ['target_type' => 'paragraph'], ['handler' => 'default:paragraph', 'handler_settings' => ['target_bundles' => ['text' => 'text']]], -1);
+    $this->attachField('node', 'landing_page', 'field_paragraph', 'entity_reference_revisions', ['target_type' => 'paragraph'], ['handler' => 'default:paragraph', 'handler_settings' => ['target_bundles' => ['text' => 'text', 'row' => 'row']]], -1);
   }
 
   public function testAddWithFieldsAppendsEachParagraphToTheParent(): void {
@@ -90,6 +94,55 @@ class ParagraphsTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertCount(1, $items);
     $this->assertSame((string) $created->getValue('id'), (string) $items[0]['target_id']);
     $this->assertSame('Direct', $this->loadParagraph($items[0]['target_id'])->get('field_paragraph_title')->value);
+  }
+
+  public function testAddWithFieldsInNewWrapperNestsEachParagraphInItsOwnWrapper(): void {
+    $node = $this->createLandingPage('Landing');
+
+    $this->context->paragraphsAddWithFieldsInNewWrapper('node', 'landing_page', 'field_paragraph', 'title', 'Landing', 'row', 'field_paragraph_columns', 'text', new TableNode([['field_paragraph_title', 'First']]));
+    $this->context->paragraphsAddWithFieldsInNewWrapper('node', 'landing_page', 'field_paragraph', 'title', 'Landing', 'row', 'field_paragraph_columns', 'text', new TableNode([['field_paragraph_title', 'Second']]));
+
+    $titles = [];
+
+    foreach ($this->reloadNode($node)->get('field_paragraph')->getValue() as $item) {
+      $wrapper = $this->loadParagraph($item['target_id']);
+
+      $this->assertSame('row', $wrapper->bundle());
+      $this->assertEquals($wrapper->getRevisionId(), $item['target_revision_id'], 'The entity references the current revision of the wrapper.');
+      $this->assertSame('node', $wrapper->get('parent_type')->value);
+      $this->assertSame((string) $node->id(), (string) $wrapper->get('parent_id')->value);
+      $this->assertSame('field_paragraph', $wrapper->get('parent_field_name')->value);
+
+      $columns = $wrapper->get('field_paragraph_columns')->getValue();
+      $this->assertCount(1, $columns, 'Each wrapper holds only the paragraph created with it.');
+
+      $paragraph = $this->loadParagraph($columns[0]['target_id']);
+
+      $this->assertSame('text', $paragraph->bundle());
+      $this->assertEquals($paragraph->getRevisionId(), $columns[0]['target_revision_id'], 'The wrapper references the current revision of the paragraph.');
+      $this->assertSame('paragraph', $paragraph->get('parent_type')->value);
+      $this->assertSame((string) $wrapper->id(), (string) $paragraph->get('parent_id')->value);
+      $this->assertSame('field_paragraph_columns', $paragraph->get('parent_field_name')->value);
+
+      $titles[] = $paragraph->get('field_paragraph_title')->value;
+    }
+
+    $this->assertSame(['First', 'Second'], $titles, 'The second wrapper was appended after the first.');
+  }
+
+  public function testAttachFromStubToNewWrapperCreatesNothingWhenTheWrapperLacksTheField(): void {
+    $node = $this->createLandingPage('Landing');
+
+    try {
+      $this->context->paragraphsAttachFromStubToNewWrapper(new EntityStub('node', 'landing_page', ['nid' => $node->id()]), 'field_paragraph', 'row', 'field_missing', 'text', new EntityStub('paragraph', 'text', ['field_paragraph_title' => 'Orphan']));
+      $this->fail('A missing wrapper field throws.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame('The entity type "paragraph" with bundle "row" does not have a field "field_missing".', $exception->getMessage());
+    }
+
+    $this->assertSame([], $this->reloadNode($node)->get('field_paragraph')->getValue());
+    $this->assertSame([], \Drupal::entityTypeManager()->getStorage('paragraph')->getQuery()->accessCheck(FALSE)->execute(), 'No paragraph was created.');
   }
 
   public function testFindEntityReturnsTheStubOfTheNewestEntity(): void {

@@ -41,3 +41,20 @@ Given the following fields for the "text" paragraph exist in the field "field_co
 ```
 
 </details>
+
+<details>
+  <summary><code>@Given the following fields for the :paragraph_type paragraph exist in the field :wrapper_field of a new :wrapper_type paragraph in the field :parent_field within the :parent_bundle :parent_entity_type entity with the value :parent_lookup_value in the field :parent_lookup_field:</code></summary>
+
+<br/>
+Create a paragraph of the given type with fields in a new wrapper paragraph
+<br/><br/>
+
+```gherkin
+Given the following fields for the "column" paragraph exist in the field "field_columns" of a new "row" paragraph in the field "field_rows" within the "landing_page" "node" entity with the value "My landing page" in the field "title":
+  | field_paragraph_title           | My paragraph title   |
+  | field_paragraph_longtext:value  | My paragraph message |
+  | field_paragraph_longtext:format | full_html            |
+  | ...                             | ...                  |
+```
+
+</details>
