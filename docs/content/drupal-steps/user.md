@@ -14,6 +14,7 @@ custom_edit_url: null
 >  - Create user accounts
 >  - Create user roles
 >  - Visit user profile pages for editing and deletion.
+>  - Log in through a one-time login link.
 >  - Assert user roles.
 >  - Assert user account status (active/inactive).
 
@@ -330,6 +331,19 @@ Visit the password reset link for the currently logged-in user
 
 ```gherkin
 When I visit my own password reset link
+```
+
+</details>
+
+<details>
+  <summary><code>@When I log in through the one-time login link for the user :name</code></summary>
+
+<br/>
+Log in as a user through their one-time login link
+<br/><br/>
+
+```gherkin
+When I log in through the one-time login link for the user "test_user"
 ```
 
 </details>

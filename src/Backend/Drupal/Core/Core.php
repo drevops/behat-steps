@@ -758,10 +758,34 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
-    $account = $this->loadUser($stub);
-    $timestamp = \Drupal::time()->getRequestTime();
+    return $this->buildOneTimeLoginUrl($stub, 'user.reset');
+  }
 
-    return Url::fromRoute('user.reset', [
+  /**
+   * {@inheritdoc}
+   */
+  public function getOneTimeLoginDirectUrl(EntityStubInterface $stub): string {
+    return $this->buildOneTimeLoginUrl($stub, 'user.reset.login');
+  }
+
+  /**
+   * Builds the path of a one-time login route for a user.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The user stub.
+   * @param string $route
+   *   The route name, 'user.reset' or 'user.reset.login'.
+   *
+   * @return string
+   *   The path, relative to the site root.
+   */
+  protected function buildOneTimeLoginUrl(EntityStubInterface $stub, string $route): string {
+    $account = $this->loadUser($stub);
+    // Drupal rejects a link older than the last login, and the request time
+    // of a long-running process can predate a login made during it.
+    $timestamp = \Drupal::time()->getCurrentTime();
+
+    return Url::fromRoute($route, [
       'uid' => $account->id(),
       'timestamp' => $timestamp,
       'hash' => \Drupal::service(OneTimeAuthentication::class)->generateHmac($account, $timestamp),

@@ -60,4 +60,11 @@ class RecordingUserCapability implements UserCapabilityInterface {
     return '/user/reset/' . $stub->getValue('uid') . '/1/hash';
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getOneTimeLoginDirectUrl(EntityStubInterface $stub): string {
+    return $this->getOneTimeLoginUrl($stub) . '/login';
+  }
+
 }

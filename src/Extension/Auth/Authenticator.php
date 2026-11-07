@@ -22,7 +22,7 @@ use DrevOps\BehatSteps\Extension\Registry\UserRegistryInterface;
 /**
  * Logs a user in and out of the site under test.
  */
-final class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
+final class Authenticator implements AuthenticatorInterface, FastLogoutInterface, UrlLoginInterface {
 
   use MinkAwareTrait;
   use ParametersTrait;
@@ -122,9 +122,27 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
       throw new ExpectationException($message, $session->getDriver());
     }
 
-    $this->userRegistry->setCurrentUser($user);
+    $this->registerLogin($user);
+  }
 
-    $this->backendLogin($user);
+  /**
+   * {@inheritdoc}
+   */
+  public function loginWithUrl(EntityStubInterface $user, string $path): void {
+    $this->fastLogout();
+
+    $session = $this->getSession();
+    $session->visit($this->locatePath($path));
+
+    // 'isLoggedIn()' navigates away from a page without the logged-in
+    // selector, so the selector gets the whole wait first.
+    $this->waitUntil($this->getLoginSignalWait(), $this->hasLoggedInSelector(...));
+
+    if (!$this->isLoggedIn()) {
+      throw new ExpectationException(sprintf('The user "%s" is not logged in after visiting the URL "%s".', (string) $user->getValue('name'), $path), $session->getDriver());
+    }
+
+    $this->registerLogin($user);
   }
 
   /**
@@ -306,6 +324,15 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     }
 
     return TRUE;
+  }
+
+  /**
+   * Records the user as logged in, in the registry and on the backend.
+   */
+  protected function registerLogin(EntityStubInterface $user): void {
+    $this->userRegistry->setCurrentUser($user);
+
+    $this->backendLogin($user);
   }
 
   /**

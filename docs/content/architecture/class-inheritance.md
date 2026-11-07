@@ -28,7 +28,7 @@ The services the extension builds each have 1 implementation of their interface,
 | `Extension\Registry\BackendRegistryInterface` | `BackendRegistry` |
 | `Extension\Registry\ScenarioTagRegistryInterface` | `ScenarioTagRegistry` |
 | `Extension\Registry\UserRegistryInterface` | `UserRegistry` |
-| `Extension\Auth\AuthenticatorInterface`, `FastLogoutInterface` | `Authenticator` |
+| `Extension\Auth\AuthenticatorInterface`, `FastLogoutInterface`, `UrlLoginInterface` | `Authenticator` |
 | `Extension\Auth\BasicAuthenticatorInterface` | `BasicAuthenticator` |
 | `Extension\Http\HttpClientFactoryInterface` | `HttpClientFactory` |
 | `Extension\Config\TraitOptionResolverFactoryInterface` | `TraitOptionResolverFactory` |
