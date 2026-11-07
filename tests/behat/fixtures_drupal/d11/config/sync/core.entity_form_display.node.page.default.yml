@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.page.body
+    - field.field.node.page.field_color
     - field.field.node.page.field_date_only
     - field.field.node.page.field_daterange
     - field.field.node.page.field_daterange_date_only
@@ -13,6 +14,7 @@ dependencies:
     - node.type.page
     - workflows.workflow.editorial
   module:
+    - color_field
     - content_moderation
     - datetime
     - datetime_range
@@ -40,6 +42,14 @@ content:
     weight: 10
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_color:
+    type: color_field_widget_default
+    weight: 127
+    region: content
+    settings:
+      placeholder_color: ''
+      placeholder_opacity: ''
     third_party_settings: {  }
   field_date_only:
     type: datetime_default
