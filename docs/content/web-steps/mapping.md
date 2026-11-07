@@ -1,7 +1,7 @@
 ---
 title: "Mapped values - Web steps"
 sidebar_label: "Mapped values"
-sidebar_position: 14
+sidebar_position: 15
 description: "Replace {{ Key }} tokens in step arguments and table cells."
 custom_edit_url: null
 ---

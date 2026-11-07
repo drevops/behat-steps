@@ -1,7 +1,7 @@
 ---
 title: "REST APIs - Web steps"
 sidebar_label: "REST APIs"
-sidebar_position: 24
+sidebar_position: 25
 description: "Test REST APIs with lightweight steps."
 custom_edit_url: null
 ---

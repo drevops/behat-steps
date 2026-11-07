@@ -1,7 +1,7 @@
 ---
 title: "Keyboard - Web steps"
 sidebar_label: "Keyboard"
-sidebar_position: 12
+sidebar_position: 13
 description: "Simulate keyboard interactions in the browser."
 custom_edit_url: null
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Waits - Web steps"
 sidebar_label: "Waits"
-sidebar_position: 27
+sidebar_position: 28
 description: "Wait for a period of time or for AJAX to finish."
 custom_edit_url: null
 ---

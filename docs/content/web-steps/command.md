@@ -1,7 +1,7 @@
 ---
 title: "Shell commands - Web steps"
 sidebar_label: "Shell commands"
-sidebar_position: 25
+sidebar_position: 26
 description: "Run local shell commands and assert on their result."
 custom_edit_url: null
 ---

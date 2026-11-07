@@ -1,7 +1,7 @@
 ---
 title: "Elements - Web steps"
 sidebar_label: "Elements"
-sidebar_position: 5
+sidebar_position: 6
 description: "Interact with HTML elements using CSS selectors and DOM attributes."
 custom_edit_url: null
 ---

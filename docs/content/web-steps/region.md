@@ -1,7 +1,7 @@
 ---
 title: "Page regions - Web steps"
 sidebar_label: "Page regions"
-sidebar_position: 18
+sidebar_position: 19
 description: "Interact with and assert against named page regions."
 custom_edit_url: null
 ---

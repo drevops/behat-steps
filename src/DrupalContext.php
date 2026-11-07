@@ -40,7 +40,7 @@ use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
  *
  * Extending this class is enough to write features against a Drupal site
  * without declaring a step. It is 'WebContext' plus every trait under
- * 'Steps\Drupal', so a Drupal project extends 1 class and gets all 57 step
+ * 'Steps\Drupal', so a Drupal project extends 1 class and gets all 58 step
  * traits.
  *
  * Each of those traits composes the helpers it needs, so the traits that
@@ -52,7 +52,7 @@ use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
  *
  * Composing all of them therefore costs a project nothing.
  *
- * Registering this context beside 'WebContext' is fatal, because the 28 web
+ * Registering this context beside 'WebContext' is fatal, because the 29 web
  * traits would register their steps twice. 'WebContext::assertOneContext()'
  * reports that rather than letting Behat name an arbitrary step.
  *

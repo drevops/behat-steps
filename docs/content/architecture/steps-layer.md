@@ -15,7 +15,7 @@ The steps layer, `src/Steps`, is the part you use every day: the traits that hol
 
 The layer has 5 directories:
 
-- `src/Steps/Web` holds 28 step traits for any website.
+- `src/Steps/Web` holds 29 step traits for any website.
 - `src/Steps/Drupal` holds 29 step traits for a Drupal site.
 - `src/Steps/Helper/Web` holds 10 helper traits. They cover fixture directories, heading lookup, JavaScript error collection, JSON path lookup, last-step tracking, the request header bag, REST response reads, string shaping, table transposition and token replacement.
 - `src/Steps/Helper/Drupal` holds 5 helper traits: the entity lifecycle, authentication, static caches, fixture files and entity lookups.

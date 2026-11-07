@@ -1,7 +1,7 @@
 ---
 title: "Dropzone uploads - Web steps"
 sidebar_label: "Dropzone uploads"
-sidebar_position: 4
+sidebar_position: 5
 description: "Simulate a real multi-file drag-and-drop gesture onto a Dropzone target."
 custom_edit_url: null
 ---

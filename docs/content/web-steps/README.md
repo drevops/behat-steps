@@ -39,6 +39,7 @@ You can find a step in 3 ways:
 | [Accessibility](accessibility.md) | `AccessibilityTrait` | Assess accessibility of rendered pages. |
 | [Basic authentication](basic-auth.md) | `BasicAuthTrait` | Keep HTTP basic authentication applied across session resets. |
 | [Cookies](cookie.md) | `CookieTrait` | Verify and inspect browser cookies. |
+| [CSV files](csv.md) | `CsvTrait` | Assert the columns, rows and values of CSV files. |
 | [Dropzone uploads](dropzone.md) | `DropzoneTrait` | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
 | [Elements](element.md) | `ElementTrait` | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [Failure diagnostics](diagnostics.md) | `DiagnosticsTrait` | Append on-failure diagnostics to the failure message of any failed step. |

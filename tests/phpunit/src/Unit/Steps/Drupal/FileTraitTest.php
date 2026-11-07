@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
-use Behat\Mink\Driver\DriverInterface;
-use Behat\Mink\Exception\ExpectationException;
-use Behat\Mink\Mink;
-use Behat\Mink\Session;
 use DrevOps\BehatSteps\Backend\BlackboxBackendInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
@@ -21,7 +17,7 @@ use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Tests the managed file module checks, the setup hook and the CSV steps.
+ * Tests the file module checks of the managed file steps and the setup hook.
  */
 #[CoversTrait(FileTrait::class)]
 class FileTraitTest extends UnitTestCase {
@@ -134,128 +130,6 @@ class FileTraitTest extends UnitTestCase {
   }
 
   /**
-   * Tests parsing CSV content into records.
-   *
-   * @param string $content
-   *   The CSV content.
-   * @param array<int, string> $args
-   *   The separator and enclosure to pass, or none for the defaults.
-   * @param array<int, array<int, string>> $expected
-   *   The expected records.
-   */
-  #[DataProvider('dataProviderParseCsv')]
-  public function testParseCsv(string $content, array $args, array $expected): void {
-    $this->assertSame($expected, (new FileTraitTestImplementation())->fileParseCsv($content, ...$args));
-  }
-
-  public static function dataProviderParseCsv(): \Iterator {
-    yield 'empty content' => ['', [], []];
-    yield 'only blank lines' => ["\n\n", [], []];
-    yield 'header only' => ["a,b\n", [], [['a', 'b']]];
-    yield 'no trailing newline' => ["a,b\n1,2", [], [['a', 'b'], ['1', '2']]];
-    yield 'CRLF line endings' => ["a,b\r\n1,2\r\n", [], [['a', 'b'], ['1', '2']]];
-    yield 'blank lines skipped' => ["a,b\n\n1,2\n\n", [], [['a', 'b'], ['1', '2']]];
-    yield 'byte order mark dropped' => ["\xEF\xBB\xBFa,b\n1,2\n", [], [['a', 'b'], ['1', '2']]];
-    yield 'quoted separator' => ["a,b\n\"1,5\",2\n", [], [['a', 'b'], ['1,5', '2']]];
-    yield 'doubled quote' => ["a\n\"say \"\"hi\"\"\"\n", [], [['a'], ['say "hi"']]];
-    yield 'backslash is not an escape' => ["a,b\n\"c:\\\",2\n", [], [['a', 'b'], ['c:\\', '2']]];
-    yield 'quoted newline' => ["a,b\n\"line 1\nline 2\",2\n", [], [['a', 'b'], ["line 1\nline 2", '2']]];
-    yield 'empty values' => ["a,b,c\n,,\n", [], [['a', 'b', 'c'], ['', '', '']]];
-    yield 'custom separator and enclosure' => ["a;b\n'1;5';2\n", [';', "'"], [['a', 'b'], ['1;5', '2']]];
-  }
-
-  public function testCsvStepsAndHelpersPassOnMatchingFile(): void {
-    $context = $this->createContext($this->createCsvBackend("clip_id,title,result\nclip-1,\"First, clip\",updated\nclip-2,Second,created\n"));
-
-    $context->fileAssertCsvHasColumns('temporary://report.csv', new TableNode([['clip_id', 'title', 'result']]));
-    $context->fileAssertCsvRowCount('temporary://report.csv', '2');
-    $context->fileAssertCsvRowExists('temporary://report.csv', new TableNode([['result', 'updated'], ['clip_id', 'clip-1']]));
-    $context->fileAssertCsvRowNotExists('temporary://report.csv', new TableNode([['clip_id', 'clip-1'], ['result', 'created']]));
-
-    $this->assertSame(['clip_id', 'title', 'result'], $context->fileGetCsvHeader('temporary://report.csv'));
-    $this->assertSame([['clip_id' => 'clip-1', 'title' => 'First, clip', 'result' => 'updated'], ['clip_id' => 'clip-2', 'title' => 'Second', 'result' => 'created']], $context->fileGetCsvRows('temporary://report.csv'));
-    $this->assertSame(['clip_id' => 'clip-2', 'title' => 'Second', 'result' => 'created'], $context->fileFindCsvRow('temporary://report.csv', ['result' => 'created']));
-    $this->assertNull($context->fileFindCsvRow('temporary://report.csv', ['result' => 'failed']));
-  }
-
-  public function testCsvRowCountOfHeaderOnlyFileIsZero(): void {
-    $this->expectNotToPerformAssertions();
-
-    $this->createContext($this->createCsvBackend("clip_id,result\n"))->fileAssertCsvRowCount('temporary://report.csv', '0');
-  }
-
-  /**
-   * Tests that a CSV step fails with a message naming what went wrong.
-   *
-   * @param string $content
-   *   The CSV content the file holds.
-   * @param string $method
-   *   The step or helper to call.
-   * @param array<int, mixed> $args
-   *   The arguments to call it with, after the URI.
-   * @param class-string<\Throwable> $expected_class
-   *   The expected exception class.
-   * @param string $expected_message
-   *   The expected exception message.
-   */
-  #[DataProvider('dataProviderCsvFailure')]
-  public function testCsvFailure(string $content, string $method, array $args, string $expected_class, string $expected_message): void {
-    $context = $this->createContext($this->createCsvBackend($content));
-
-    $this->expectException($expected_class);
-    $this->expectExceptionMessage($expected_message);
-
-    $context->{$method}('temporary://report.csv', ...$args);
-  }
-
-  public static function dataProviderCsvFailure(): \Iterator {
-    $content = "clip_id,title,result\nclip-1,First,updated\nclip-2,Second,created\n";
-
-    yield 'row missing' => [$content, 'fileAssertCsvRowExists', [new TableNode([['clip_id', 'clip-1'], ['result', 'created']])], ExpectationException::class, 'The CSV file "temporary://report.csv" has no row where the column "clip_id" has the value "clip-1" and the column "result" has the value "created".'];
-    yield 'row present' => [$content, 'fileAssertCsvRowNotExists', [new TableNode([['clip_id', 'clip-2']])], ExpectationException::class, 'The CSV file "temporary://report.csv" has a row where the column "clip_id" has the value "clip-2", but it should not.'];
-    yield 'row column missing' => [$content, 'fileAssertCsvRowExists', [new TableNode([['status', 'failed']])], ExpectationException::class, 'The CSV file "temporary://report.csv" has no column "status".'];
-    yield 'negated row column missing' => [$content, 'fileAssertCsvRowNotExists', [new TableNode([['status', 'failed']])], ExpectationException::class, 'The CSV file "temporary://report.csv" has no column "status".'];
-    yield 'row count' => [$content, 'fileAssertCsvRowCount', ['3'], ExpectationException::class, 'The CSV file "temporary://report.csv" has 2 data row(s), but it should have 3.'];
-    yield 'row count not an integer' => [$content, 'fileAssertCsvRowCount', ['many'], \RuntimeException::class, 'The count must be an integer, but "many" was given.'];
-    yield 'row count negative' => [$content, 'fileAssertCsvRowCount', ['-1'], \RuntimeException::class, 'The count must be 0 or greater, but "-1" was given.'];
-    yield 'columns differ' => [$content, 'fileAssertCsvHasColumns', [new TableNode([['clip_id', 'result']])], ExpectationException::class, 'The CSV file "temporary://report.csv" has the columns "clip_id", "title", "result", but it should have the columns "clip_id", "result".'];
-    yield 'columns in another order' => [$content, 'fileAssertCsvHasColumns', [new TableNode([['clip_id', 'result', 'title']])], ExpectationException::class, 'The CSV file "temporary://report.csv" has the columns "clip_id", "title", "result", but it should have the columns "clip_id", "result", "title".'];
-    yield 'columns table with 2 rows' => [$content, 'fileAssertCsvHasColumns', [new TableNode([['clip_id'], ['result']])], \RuntimeException::class, 'The columns table must list the column names in 1 row.'];
-    yield 'row table with 1 column' => [$content, 'fileAssertCsvRowExists', [new TableNode([['clip_id'], ['result']])], \RuntimeException::class, 'The row table must have 2 columns: the column name and the value.'];
-    yield 'row table with 3 columns' => [$content, 'fileAssertCsvRowExists', [new TableNode([['clip_id', 'clip-1', 'extra']])], \RuntimeException::class, 'The row table must have 2 columns: the column name and the value.'];
-    yield 'row table naming a column twice' => [$content, 'fileAssertCsvRowExists', [new TableNode([['clip_id', 'clip-1'], ['clip_id', 'clip-2']])], \RuntimeException::class, 'The row table names the column "clip_id" more than once.'];
-    yield 'empty file' => ['', 'fileAssertCsvRowCount', ['0'], ExpectationException::class, 'The CSV file "temporary://report.csv" has no header row.'];
-    yield 'empty file header' => ["\n", 'fileGetCsvHeader', [], ExpectationException::class, 'The CSV file "temporary://report.csv" has no header row.'];
-    yield 'duplicate column' => ["clip_id,result,clip_id\nclip-1,updated,clip-1\n", 'fileGetCsvRows', [], ExpectationException::class, 'The CSV file "temporary://report.csv" has the column "clip_id" more than once.'];
-    yield 'short data row' => ["clip_id,result\nclip-1,updated\nclip-2\n", 'fileAssertCsvRowCount', ['2'], ExpectationException::class, 'The data row 2 of the CSV file "temporary://report.csv" has 1 value(s), but the header has 2 column(s).'];
-    yield 'long data row' => ["clip_id,result\nclip-1,updated,extra\n", 'fileFindCsvRow', [['clip_id' => 'clip-1']], ExpectationException::class, 'The data row 1 of the CSV file "temporary://report.csv" has 3 value(s), but the header has 2 column(s).'];
-  }
-
-  public function testCsvStepOnMissingFileFails(): void {
-    $drupal = $this->createStub(DrupalBackendInterface::class);
-    $drupal->method('fileExistsUnmanaged')->willReturn(FALSE);
-
-    $this->expectException(ExpectationException::class);
-    $this->expectExceptionMessage('The file "temporary://missing.csv" does not exist.');
-
-    $this->createContext($drupal)->fileAssertCsvRowCount('temporary://missing.csv', '0');
-  }
-
-  /**
-   * Creates a Drupal backend holding 1 CSV file at 'temporary://report.csv'.
-   *
-   * @param string $content
-   *   The CSV content.
-   */
-  protected function createCsvBackend(string $content): DrupalBackendInterface {
-    $drupal = $this->createStub(DrupalBackendInterface::class);
-    $drupal->method('fileExistsUnmanaged')->willReturnMap([['temporary://report.csv', TRUE]]);
-    $drupal->method('fileReadUnmanaged')->willReturnMap([['temporary://report.csv', $content]]);
-
-    return $drupal;
-  }
-
-  /**
    * Creates a context backed by the given Drupal backend.
    *
    * @param \DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface $drupal
@@ -265,15 +139,8 @@ class FileTraitTest extends UnitTestCase {
     $registry = new BackendRegistry(['drupal' => $drupal]);
     $registry->setScenarioBackends(['drupal' => 'drupal']);
 
-    $session = $this->createStub(Session::class);
-    $session->method('getDriver')->willReturn($this->createStub(DriverInterface::class));
-
-    $mink = new Mink(['default' => $session]);
-    $mink->setDefaultSessionName('default');
-
     $context = new FileTraitTestImplementation();
     $context->setBackendRegistry($registry);
-    $context->setMink($mink);
 
     return $context;
   }

@@ -59,14 +59,14 @@ Mink also ships `MinkContext`, a context with Mink's own basic steps, such as `I
 
 ### Steps, grouped in traits
 
-Behat Steps ships its step definitions as PHP traits, each holding the steps for 1 job, such as cookies, forms, links, content or users. 28 traits work on any website, and 29 only make sense on a Drupal site. [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step with an example.
+Behat Steps ships its step definitions as PHP traits, each holding the steps for 1 job, such as cookies, forms, links, content or users. 29 traits work on any website, and 29 only make sense on a Drupal site. [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step with an example.
 
 ### 3 contexts, each building on the last
 
 The library composes the traits into 3 contexts, and each context extends the one before it:
 
 1. `WebRawContext` extends Mink's `RawMinkContext` and adds backend access, configuration, hook dispatch and 3 web helper traits. It has no steps.
-2. `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`, 28 in all.
+2. `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`, 29 in all.
 3. `DrupalContext` extends `WebContext` and adds every trait under `Steps\Drupal`, 29 in all.
 
 So `DrupalContext` already holds every web step. Your project extends exactly 1 of the 3 in a class of its own, `FeatureContext`, and registers that class alone:
