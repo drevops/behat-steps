@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
+use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
@@ -19,7 +20,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Tests the entity reference autocomplete steps of EntityTrait.
+ * Tests the entity reference steps and the entity ID tokens of EntityTrait.
  */
 #[CoversTrait(EntityTrait::class)]
 class EntityTraitTest extends UnitTestCase {
@@ -89,6 +90,117 @@ class EntityTraitTest extends UnitTestCase {
     yield 'an unknown bundle' => ['missing', FALSE, 'The entity type "taxonomy_term" has no bundle "missing".'];
     yield 'no match in a bundle' => ['tags', TRUE, 'The "tags" "taxonomy_term" entity with the label "Jazz" does not exist.'];
     yield 'no match in any bundle' => [NULL, TRUE, 'The "taxonomy_term" entity with the label "Jazz" does not exist.'];
+  }
+
+  /**
+   * Tests that a step argument has every entity ID token replaced.
+   *
+   * @param string $argument
+   *   The raw step argument.
+   * @param array<string, array<int, string>> $lookups
+   *   The ids each lookup returns, keyed by '<entity_type>|<bundle>|<label>'.
+   * @param string $expected
+   *   The expected argument.
+   */
+  #[DataProvider('dataProviderTransformValue')]
+  public function testTransformValue(string $argument, array $lookups, string $expected): void {
+    $backend = $this->createBackend(TRUE);
+    $backend->expects($this->exactly(count($lookups)))->method('findEntityIds')->willReturnCallback(static fn(string $entity_type, array $conditions, ?string $bundle): array => $lookups[$entity_type . '|' . $bundle . '|' . $conditions['name']]);
+
+    $this->assertSame($expected, $this->createContext($backend)->entityTransformValue($argument));
+  }
+
+  public static function dataProviderTransformValue(): \Iterator {
+    yield 'token alone' => ['[id:user:jane]', ['user||jane' => ['12']], '12'];
+    yield 'token within a path' => ['/print/pdf/user/[id:user:jane]/debug', ['user||jane' => ['12']], '/print/pdf/user/12/debug'];
+    yield 'token with a bundle' => ['/print/pdf/taxonomy_term/[id:taxonomy_term.topics:Jazz]', ['taxonomy_term|topics|Jazz' => ['7']], '/print/pdf/taxonomy_term/7'];
+    yield 'the newest of several' => ['[id:node.page:Home]', ['node|page|Home' => ['3', '9', '12']], '12'];
+    yield 'a label with brackets' => ['/node/[id:node:[TEST] Page]/edit', ['node||[TEST] Page' => ['4']], '/node/4/edit'];
+    yield 'a label with nested brackets' => ['[id:node:[[TEST]] Page]', ['node||[[TEST]] Page' => ['5']], '5'];
+    yield 'a label with a colon and a dot' => ['[id:node:Part 1: v2.0]', ['node||Part 1: v2.0' => ['6']], '6'];
+    yield 'two tokens' => ['/compare/[id:node:A]/[id:node:B]', ['node||A' => ['1'], 'node||B' => ['2']], '/compare/1/2'];
+    yield 'an empty label' => ['[id:node:]', ['node||' => ['8']], '8'];
+    yield 'an uppercase entity type stays literal' => ['[id:Node:Home]', [], '[id:Node:Home]'];
+    yield 'unbalanced brackets stay literal' => ['[id:node:[TEST Page]', [], '[id:node:[TEST Page]'];
+    yield 'no token' => ['/plain/path', [], '/plain/path'];
+  }
+
+  public function testTransformTableResolvesEveryCell(): void {
+    $backend = $this->createBackend(TRUE);
+    $backend->method('findEntityIds')->willReturnCallback(static fn(string $entity_type, array $conditions): array => [$conditions['name'] === 'jane' ? '12' : '13']);
+
+    $table = new TableNode([
+      ['title', 'uid'],
+      ['First', '[id:user:jane]'],
+      ['Second', 'user [id:user:john]'],
+    ]);
+
+    $expected = [
+      ['title', 'uid'],
+      ['First', '12'],
+      ['Second', 'user 13'],
+    ];
+
+    $this->assertSame($expected, $this->createContext($backend)->entityTransformTable($table)->getRows());
+  }
+
+  public function testTransformTableWithoutTokensReturnsTheSameTable(): void {
+    $backend = $this->createBackend(TRUE);
+    $backend->expects($this->never())->method('findEntityIds');
+
+    $table = new TableNode([['title'], ['First']]);
+
+    $this->assertSame($table, $this->createContext($backend)->entityTransformTable($table));
+  }
+
+  /**
+   * Tests that a token whose entity cannot be resolved fails the step.
+   *
+   * @param string $argument
+   *   The raw step argument.
+   * @param bool $bundle_exists
+   *   Whether the bundle exists.
+   * @param string $expected_message
+   *   The expected exception message.
+   */
+  #[DataProvider('dataProviderTransformValueFails')]
+  public function testTransformValueFails(string $argument, bool $bundle_exists, string $expected_message): void {
+    $backend = $this->createBackend($bundle_exists);
+    $backend->method('findEntityIds')->willReturn([]);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $this->createContext($backend)->entityTransformValue($argument);
+  }
+
+  public static function dataProviderTransformValueFails(): \Iterator {
+    yield 'an unknown bundle' => ['[id:taxonomy_term.missing:Jazz]', FALSE, 'The entity type "taxonomy_term" has no bundle "missing".'];
+    yield 'no match in a bundle' => ['[id:taxonomy_term.tags:Jazz]', TRUE, 'The "tags" "taxonomy_term" entity with the label "Jazz" does not exist.'];
+    yield 'no match in any bundle' => ['/user/[id:user:jane]', TRUE, 'The "user" entity with the label "jane" does not exist.'];
+  }
+
+  public function testSkippedScenarioLeavesTokensUntouched(): void {
+    $backend = $this->createBackend(TRUE);
+    $backend->expects($this->never())->method('findEntityIds');
+
+    $context = $this->createContext($backend);
+    $context->entityBeforeScenario($this->createBeforeScenarioScope(['behat-steps-skip:EntityTrait']));
+
+    $this->assertSame('[id:user:jane]', $context->entityTransformValue('[id:user:jane]'));
+
+    $table = new TableNode([['uid'], ['[id:user:jane]']]);
+    $this->assertSame([['uid'], ['[id:user:jane]']], $context->entityTransformTable($table)->getRows());
+  }
+
+  public function testUnskippedScenarioResolvesTokens(): void {
+    $backend = $this->createBackend(TRUE);
+    $backend->method('findEntityIds')->willReturn(['12']);
+
+    $context = $this->createContext($backend);
+    $context->entityBeforeScenario($this->createBeforeScenarioScope());
+
+    $this->assertSame('12', $context->entityTransformValue('[id:user:jane]'));
   }
 
   /**

@@ -52,7 +52,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\DrushTrait](#drupaldrushtrait) | 4 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 5 | Manage Drupal ECK entities of an existing entity type and bundle. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 11 | Test Drupal email functionality with content verification. |
-| [Drupal\EntityTrait](#drupalentitytrait) | 2 | Create entities of a type that has no dedicated trait, and reference them. |
+| [Drupal\EntityTrait](#drupalentitytrait) | 3 | Create entities of a type that has no dedicated trait, and reference them. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 6 | Manage Drupal menus and menu links. |
@@ -2489,6 +2489,15 @@ Fill in an entity reference autocomplete field with an entity's label
 
 <br/>
 Get the id of the newest entity of a type with a label
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entitySubstituteIdTokens(string $value): string</code></summary>
+
+<br/>
+Replace every entity ID token in a string with the ID of its entity
 <br/><br/>
 
 </details>

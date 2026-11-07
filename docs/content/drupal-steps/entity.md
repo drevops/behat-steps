@@ -13,14 +13,42 @@ custom_edit_url: null
 >  Create entities of a type that has no dedicated trait, and reference them.
 >  - Create entities of any type from a table of field values.
 >  - Fill in an entity reference autocomplete field with an entity's label.
->  
+>  - Replace `[id:...]` tokens in step arguments and table cells with the ID
+>  of an entity looked up by its label.
+>  <br/><br/>
 >  Covers types such as `commerce_product` or `group`, where a dedicated trait
 >  would add vocabulary without adding behavior. Entities created here are
 >  removed after the scenario along with every other entity the scenario
 >  created.
 >  <br/><br/>
+>  Possible token formats:
+>  - `[id:ENTITY_TYPE:LABEL]`
+>  - `[id:ENTITY_TYPE.BUNDLE:LABEL]`
+>  
+>  with:
+>  - `ENTITY_TYPE`: the entity type ID, such as `node`, `user` or
+>  `taxonomy_term`.
+>  - `BUNDLE`: the bundle to restrict the lookup to, such as `article`.
+>  - `LABEL`: the label to match exactly, such as a title or a user name. It
+>  may hold balanced brackets, as in `[TEST] Page`, but no other token.
+>  <br/><br/>
+>  Examples:
+>  - `/print/pdf/user/[id:user:jane]` converted to `/print/pdf/user/12`
+>  - `[id:taxonomy_term.topics:Jazz]` converted to `7`
+>  
+>  When several entities share the label, the newest is used. A token whose
+>  entity does not exist fails the step.
+>  <br/><br/>
 >  Skip cleanup for 1 type with tag:
 >  `@behat-steps-entity-cleanup-skip:commerce_product`.
+>  <br/><br/>
+>  Skip token processing with tag: `@behat-steps-skip:EntityTrait`.
+
+## Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `entity.enabled` | boolean | `TRUE` | `@behat-steps-skip:EntityTrait` | If `TRUE`, replaces `[id:...]` tokens in step arguments and table cells with the ID of the newest entity with the token's label, though not in multiline text. If `FALSE`, tokens stay as written. |
 
 ## Steps
 
