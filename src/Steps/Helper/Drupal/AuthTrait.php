@@ -193,7 +193,7 @@ trait AuthTrait {
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
     $backend = $this->backendFor(UserCapabilityInterface::class);
-    $this->entityLifecycleParseCreatedFields($stub, $backend, ['role']);
+    $this->entityLifecycleParseSavedFields($stub, $backend, ['role']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
     $backend->createUser($stub);
