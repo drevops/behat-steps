@@ -111,7 +111,7 @@ class ColorFieldTypeHandler extends AbstractHandler {
    * Whether a value leaves the field or the delta unset.
    */
   protected function isEmptyValue(mixed $value): bool {
-    return $value === NULL || $value === '' || $value === [];
+    return in_array($value, [NULL, '', []], TRUE);
   }
 
 }
