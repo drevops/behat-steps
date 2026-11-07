@@ -57,6 +57,33 @@ trait ParagraphsTrait {
   }
 
   /**
+   * Create a paragraph of the given type with fields in a new wrapper paragraph.
+   *
+   * Each run appends a new wrapper paragraph, with no field values, to the
+   * field of the existing entity.
+   *
+   * @code
+   * Given the following fields for the "column" paragraph exist in the field "field_columns" of a new "row" paragraph in the field "field_rows" within the "landing_page" "node" entity with the value "My landing page" in the field "title":
+   *   | field_paragraph_title           | My paragraph title   |
+   *   | field_paragraph_longtext:value  | My paragraph message |
+   *   | field_paragraph_longtext:format | full_html            |
+   *   | ...                             | ...                  |
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Given('the following fields for the :paragraph_type paragraph exist in the field :wrapper_field of a new :wrapper_type paragraph in the field :parent_field within the :parent_bundle :parent_entity_type entity with the value :parent_lookup_value in the field :parent_lookup_field:')]
+  public function paragraphsAddWithFieldsInNewWrapper(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $wrapper_type, string $wrapper_field, string $paragraph_type, TableNode $fields): void {
+    $this->backendFor(ContentCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
+    $parent_entity = $this->paragraphsGetParentEntity($parent_entity_type, $parent_bundle, $parent_field, $parent_lookup_field, $parent_lookup_value);
+
+    $this->paragraphsAttachFromStubToNewWrapper($parent_entity, $parent_field, $wrapper_type, $wrapper_field, $paragraph_type, $this->paragraphsBuildStub($paragraph_type, $fields->getRowsHash()));
+  }
+
+  /**
    * Create a paragraphs item from a stub and attach it to an entity.
    *
    * The paragraphs item is created with the entity as its parent, then
@@ -104,6 +131,44 @@ trait ParagraphsTrait {
     $backend->updateEntity(new EntityStub($parent_type, $parent_entity->getBundle(), $parent_values));
 
     return $created;
+  }
+
+  /**
+   * Create a paragraphs item from a stub within a new wrapper paragraph.
+   *
+   * The wrapper is created with no field values and attached to the field of
+   * the entity, then the paragraphs item is attached to the field of the
+   * wrapper.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $parent_entity
+   *   The stub of the entity to attach the wrapper to, carrying its id under
+   *   the id key of its entity type.
+   * @param string $parent_field
+   *   Field name on the entity that references the wrapper.
+   * @param string $wrapper_type
+   *   Wrapper paragraphs item bundle name.
+   * @param string $wrapper_field
+   *   Field name on the wrapper that references the paragraphs item.
+   * @param string $paragraph_type
+   *   Paragraphs item bundle name.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   Stub with filled-in fields. Fields are merged with created
+   *   paragraphs item object.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created paragraphs item, carrying its 'id'.
+   *
+   * @throws \RuntimeException
+   *   When the wrapper bundle has no such field.
+   */
+  public function paragraphsAttachFromStubToNewWrapper(EntityStubInterface $parent_entity, string $parent_field, string $wrapper_type, string $wrapper_field, string $paragraph_type, EntityStubInterface $stub): EntityStubInterface {
+    // Validated before the wrapper is created, so a missing field leaves no
+    // empty wrapper in the entity.
+    $this->paragraphsValidateEntityHasField('paragraph', $wrapper_type, $wrapper_field);
+
+    $wrapper = $this->paragraphsAttachFromStubToEntity($parent_entity, $parent_field, $wrapper_type, new EntityStub('paragraph', $wrapper_type, []));
+
+    return $this->paragraphsAttachFromStubToEntity($wrapper, $wrapper_field, $paragraph_type, $stub);
   }
 
   /**

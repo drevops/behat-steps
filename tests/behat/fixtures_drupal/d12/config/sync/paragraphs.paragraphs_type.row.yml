@@ -1,0 +1,10 @@
+uuid: 014615ed-ead6-4b92-bd87-644eb878c549
+langcode: en
+status: true
+dependencies: {  }
+id: row
+label: row
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }
