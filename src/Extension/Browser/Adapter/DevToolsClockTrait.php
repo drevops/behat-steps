@@ -63,7 +63,8 @@ trait DevToolsClockTrait {
     // A fixed offset keeps the clock ticking on from the given time instead of
     // restarting at each load. The 'performance' clock is read rather than
     // 'Date', which an earlier script may already have replaced.
-    $browser_clock = $this->devToolsSend('Runtime.evaluate', ['expression' => 'performance.timeOrigin + performance.now()', 'returnByValue' => TRUE]);
+    $expression = ['expression' => 'performance.timeOrigin + performance.now()', 'returnByValue' => TRUE];
+    $browser_clock = $this->devToolsSend('Runtime.evaluate', $expression);
     $evaluated = $browser_clock['result'] ?? NULL;
     $browser_now = is_array($evaluated) ? ($evaluated['value'] ?? NULL) : NULL;
     $now = is_numeric($browser_now) ? (float) $browser_now : microtime(TRUE) * 1000;
