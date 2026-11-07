@@ -108,7 +108,7 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
     $backend = $this->backendFor(NodeCapabilityInterface::class);
-    $this->entityLifecycleParseCreatedFields($stub, $backend, ['author']);
+    $this->entityLifecycleParseSavedFields($stub, $backend, ['author']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
     $backend->createNode($stub);
@@ -159,7 +159,7 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
     $backend = $this->backendFor(TermCapabilityInterface::class);
-    $this->entityLifecycleParseCreatedFields($stub, $backend, ['vocabulary_machine_name']);
+    $this->entityLifecycleParseSavedFields($stub, $backend, ['vocabulary_machine_name']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
     $backend->createTerm($stub);
@@ -195,7 +195,7 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
     $backend = $this->backendFor(ContentCapabilityInterface::class);
-    $this->entityLifecycleParseCreatedFields($stub, $backend);
+    $this->entityLifecycleParseSavedFields($stub, $backend);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
     $backend->createEntity($stub);
@@ -239,6 +239,61 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleDispatchHooks(AfterLanguageCreateScope::class, $created);
 
     return $created;
+  }
+
+  /**
+   * Updates the fields of an existing entity.
+   *
+   * The values are raw Gherkin cells, parsed and expanded as on create. An
+   * empty value clears its field. The entity is not registered for cleanup.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The stub, carrying the entity's id under its id key and the values to
+   *   write.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The same stub, now holding the expanded values and flagged as saved.
+   *
+   * @throws \RuntimeException
+   *   When the id names no entity, a value names a field the entity does not
+   *   have, or a field is both cleared and given a column value.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can update content.
+   */
+  public function entityLifecycleUpdate(EntityStubInterface $stub): EntityStubInterface {
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
+
+    // The parser drops an empty field value, which on create leaves the field
+    // unset, so empty values are set aside and written back as no items.
+    $cleared = [];
+
+    foreach ($stub->getValues() as $name => $value) {
+      $is_empty = $value === NULL || (is_string($value) && trim($value) === '');
+
+      // A 'field:column' value is 1 column of a field, so it clears nothing.
+      if (!$is_empty || str_contains($name, ':')) {
+        continue;
+      }
+
+      // The clear is written back after the parse, so it would replace the
+      // column value without a word.
+      foreach (array_keys($stub->getValues()) as $other_name) {
+        if (str_starts_with($other_name, $name . ':')) {
+          throw new \RuntimeException(sprintf('The field "%s" cannot be both cleared and given a column value.', $name));
+        }
+      }
+
+      $cleared[] = $name;
+      $stub->removeValue($name);
+    }
+
+    $this->entityLifecycleParseSavedFields($stub, $backend);
+
+    foreach ($cleared as $name) {
+      $stub->setValue($name, []);
+    }
+
+    return $backend->updateEntity($stub);
   }
 
   /**
@@ -467,11 +522,11 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Expands a stub's values during creation, if the backend parses them.
+   * Expands a stub's values before a save, if the backend parses them.
    *
    * A backend that passes the values to the command line takes them as
-   * written, so they are left unparsed. Parsing them would fail a creation
-   * the backend can perform.
+   * written, so they are left unparsed. Parsing them would fail a save the
+   * backend can perform.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
@@ -480,7 +535,7 @@ trait EntityLifecycleTrait {
    * @param array<int, string> $ignored_properties
    *   Value names to leave untouched.
    */
-  protected function entityLifecycleParseCreatedFields(EntityStubInterface $stub, object $backend, array $ignored_properties = []): void {
+  protected function entityLifecycleParseSavedFields(EntityStubInterface $stub, object $backend, array $ignored_properties = []): void {
     if (!$backend instanceof EntityDefinitionCapabilityInterface) {
       return;
     }

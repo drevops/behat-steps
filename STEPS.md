@@ -5376,6 +5376,22 @@ Given the following page content exists:
 </details>
 
 <details>
+  <summary><code>@Given the :content_type content with the title :title has the following fields:</code></summary>
+
+<br/>
+Update the fields of a content with the specified title
+<br/><br/>
+
+```gherkin
+Given the "article" content with the title "Test article" has the following fields:
+  | body       | Updated body      |
+  | created    | [relative:-1 day] |
+  | field_tags |                   |
+```
+
+</details>
+
+<details>
   <summary><code>@When I visit the :content_type content page with the title :title</code></summary>
 
 <br/>

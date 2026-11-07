@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
+use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
@@ -43,6 +46,94 @@ class ContentTraitKernelTest extends StepTraitKernelTestBase {
     $this->installConfig(['system', 'user', 'node', 'filter']);
 
     NodeType::create(['type' => 'page', 'name' => 'Page'])->save();
+
+    FieldStorageConfig::create(['field_name' => 'field_keywords', 'entity_type' => 'node', 'type' => 'string', 'cardinality' => -1])->save();
+    FieldConfig::create(['field_name' => 'field_keywords', 'entity_type' => 'node', 'bundle' => 'page'])->save();
+  }
+
+  public function testUpdateWritesParsedValuesToTheNode(): void {
+    $node = $this->createNode('Shared', 1, ['old']);
+
+    $this->context->contentUpdate($this->context->contentGetNodeByTitle('page', 'Shared'), ['title' => 'Renamed', 'status' => '0', 'field_keywords' => 'first, second']);
+
+    $updated = $this->reloadNode($node);
+    $this->assertSame('Renamed', $updated->getTitle());
+    $this->assertFalse($updated->isPublished());
+    $this->assertSame([['value' => 'first'], ['value' => 'second']], $updated->get('field_keywords')->getValue(), 'The comma-separated cell was parsed into 2 deltas.');
+  }
+
+  #[DataProvider('dataProviderUpdateClearsFieldGivenEmptyValue')]
+  public function testUpdateClearsFieldGivenEmptyValue(?string $value): void {
+    $node = $this->createNode('Shared', 1, ['old']);
+
+    $this->context->contentUpdate(new EntityStub('node', NULL, ['nid' => $node->id()]), ['field_keywords' => $value]);
+
+    $updated = $this->reloadNode($node);
+    $this->assertTrue($updated->get('field_keywords')->isEmpty());
+    $this->assertSame('Shared', $updated->getTitle(), 'A field the values do not name is left unchanged.');
+  }
+
+  public static function dataProviderUpdateClearsFieldGivenEmptyValue(): array {
+    return [
+      'an empty string' => [''],
+      'whitespace' => ['  '],
+      'NULL' => [NULL],
+    ];
+  }
+
+  #[DataProvider('dataProviderUpdateFailsForUnknownField')]
+  public function testUpdateFailsForUnknownField(string $value, string $expected_message): void {
+    $node = $this->createNode('Shared', 1, ['old']);
+
+    try {
+      $this->context->contentUpdate(new EntityStub('node', 'page', ['nid' => $node->id()]), ['field_keywords' => 'new', 'field_missing' => $value]);
+      $this->fail('The update did not fail for a field the node does not have.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertStringContainsString($expected_message, $exception->getMessage());
+    }
+
+    $this->assertSame([['value' => 'old']], $this->reloadNode($node)->get('field_keywords')->getValue(), 'The node is left unchanged.');
+  }
+
+  public static function dataProviderUpdateFailsForUnknownField(): array {
+    return [
+      'a value to write' => ['value', 'The field "field_missing" does not exist on entity type "node".'],
+      'an empty value to clear' => ['', 'because it has no field "field_missing".'],
+    ];
+  }
+
+  public function testUpdateRejectsFieldBothClearedAndGivenColumnValue(): void {
+    $node = $this->createNode('Shared', 1, ['old']);
+
+    try {
+      $this->context->contentUpdate(new EntityStub('node', 'page', ['nid' => $node->id()]), ['field_keywords' => '', 'field_keywords:value' => 'new']);
+      $this->fail('The update did not fail for a field both cleared and given a column value.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame('The field "field_keywords" cannot be both cleared and given a column value.', $exception->getMessage());
+    }
+
+    $this->assertSame([['value' => 'old']], $this->reloadNode($node)->get('field_keywords')->getValue(), 'The node is left unchanged.');
+  }
+
+  public function testUpdateWithTitleChangesOnlyTheNewestNode(): void {
+    $older = $this->createNode('Shared', 1, ['old']);
+    $newest = $this->createNode('Shared', 1, ['old']);
+
+    $this->context->contentUpdateWithTitle('page', 'Shared', new TableNode([['field_keywords', 'new']]));
+
+    $this->assertSame([['value' => 'new']], $this->reloadNode($newest)->get('field_keywords')->getValue());
+    $this->assertSame([['value' => 'old']], $this->reloadNode($older)->get('field_keywords')->getValue());
+  }
+
+  public function testUpdateWithTitleRejectsMoreThan1ValueColumn(): void {
+    $this->createNode('Shared');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The table of fields must have 2 columns, a field name and a value, but it has 3.');
+
+    $this->context->contentUpdateWithTitle('page', 'Shared', new TableNode([['field_keywords', 'first', 'second']]));
   }
 
   public function testGetNidByTitleReturnsTheNodeCreatedLast(): void {
@@ -140,11 +231,28 @@ class ContentTraitKernelTest extends StepTraitKernelTestBase {
     $this->context->contentRebuildAccessGrants(new EntityStub('node', 'page', ['nid' => 999]));
   }
 
-  protected function createNode(string $title, int $status = 1): NodeInterface {
-    $node = Node::create(['type' => 'page', 'title' => $title, 'status' => $status]);
+  /**
+   * Creates a page node.
+   *
+   * @param string $title
+   *   The title.
+   * @param int $status
+   *   The published status.
+   * @param array<int, string> $keywords
+   *   The values of 'field_keywords'.
+   */
+  protected function createNode(string $title, int $status = 1, array $keywords = []): NodeInterface {
+    $node = Node::create(['type' => 'page', 'title' => $title, 'status' => $status, 'field_keywords' => $keywords]);
     $node->save();
 
     return $node;
+  }
+
+  protected function reloadNode(NodeInterface $node): NodeInterface {
+    $reloaded = \Drupal::entityTypeManager()->getStorage('node')->loadUnchanged($node->id());
+    $this->assertInstanceOf(NodeInterface::class, $reloaded);
+
+    return $reloaded;
   }
 
 }

@@ -92,6 +92,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Transpose',
     'Unselect',
     'Unset',
+    'Update',
     'Visit',
     'Wait',
     'Write',
