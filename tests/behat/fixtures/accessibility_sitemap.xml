@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This is a fixture document used to test AccessibilityTrait.
+
+It lists 2 clean pages under a host the tests do not run against, 1 of them
+twice, and an image location that is not a page.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.example.com/sites/default/files/accessibility_clean.html</loc>
+    <image:image>
+      <image:loc>https://www.example.com/sites/default/files/accessibility_violations.html</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.example.com/sites/default/files/accessibility_clean2.html</loc>
+  </url>
+  <url>
+    <loc>https://www.example.com/sites/default/files/accessibility_clean.html</loc>
+  </url>
+</urlset>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This is a fixture document used to test AccessibilityTrait.
+
+It lists a clean page and a page with violations.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.example.com/sites/default/files/accessibility_clean.html</loc>
+  </url>
+  <url>
+    <loc>https://www.example.com/sites/default/files/accessibility_violations.html</loc>
+  </url>
+</urlset>
