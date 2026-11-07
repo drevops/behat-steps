@@ -3,8 +3,7 @@
 /**
  * Reference configuration setting every option 'BehatStepsExtension' declares.
  *
- * The 'steps' node carries only the trait options a project almost always
- * sets.
+ * The 'steps' node carries example values for a selection of trait options.
  *
  * The suite in this repository runs from 'behat.php'. That file takes
  * precedence, so Behat never loads this one here.
@@ -85,9 +84,9 @@ $profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
       'footer' => '#footer',
     ],
     // Example values of the options the step traits declare, keyed by trait
-    // group. STEPS.md lists every group and option; the few below are the
-    // ones a project almost always sets.
+    // group. STEPS.md lists every group and option.
     'steps' => [
+      'accessibility' => ['sitemap_path' => '/sitemap.xml', 'sitemap_max_depth' => -1, 'sitemap_limit' => 0],
       'javascript' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
       'watchdog' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
       'wait' => ['ajax_timeout' => 5],

@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
+use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Driver\BrowserKitDriver;
+use Behat\Mink\Exception\ExpectationException;
+use Behat\Mink\Mink;
 use DrevOps\BehatSteps\Extension\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
+use DrevOps\BehatSteps\Tests\Unit\Steps\Web\Fixtures\RecordingSession;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -537,6 +544,454 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertSame('2', (string) $doc['failures']);
   }
 
+  public function testAssessPagesPassesWhenEveryPageIsClean(): void {
+    $sweep = static::createSweep();
+
+    $sweep->accessibilityAssessPages(['/', '/about', 'https://other.example.com/page'], 'wcag2a');
+
+    $this->assertSame(['http://nginx:8080/', 'http://nginx:8080/about', 'https://other.example.com/page'], $sweep->session->visited);
+    $this->assertCount(3, $sweep->testGetResults());
+    $this->assertSame([], $sweep->testGetSkippedPages());
+  }
+
+  public function testAssessPagesAssessesDuplicatePathsOnce(): void {
+    $sweep = static::createSweep();
+
+    $sweep->accessibilityAssessPages(['/', '/about', '/'], 'wcag2a');
+
+    $this->assertSame(['http://nginx:8080/', 'http://nginx:8080/about'], $sweep->session->visited);
+  }
+
+  public function testAssessPagesFailsOnAnEmptyList(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The list of pages to assess is empty.');
+
+    static::createSweep()->accessibilityAssessPages([], 'wcag2a');
+  }
+
+  public function testAssessPagesFailsOnViolationsAfterAssessingEveryPage(): void {
+    $sweep = static::createSweep(['http://nginx:8080/bad' => static::createRawViolation()]);
+
+    try {
+      $sweep->accessibilityAssessPages(['/bad', '/', '/contact'], 'wcag2a');
+      $this->fail('The sweep should fail on violations.');
+    }
+    catch (ExpectationException $exception) {
+      $this->assertStringContainsString('Accessibility gate failed on /bad (rules: wcag2a, threshold: any, fail_on_incomplete: no):', $exception->getMessage());
+      $this->assertStringContainsString('violation [critical] image-alt - Images must have alternate text', $exception->getMessage());
+      $this->assertStringNotContainsString('Accessibility gate failed on /contact', $exception->getMessage());
+      $this->assertStringNotContainsString('skipped', $exception->getMessage());
+    }
+
+    $this->assertSame(['http://nginx:8080/bad', 'http://nginx:8080/', 'http://nginx:8080/contact'], $sweep->session->visited);
+  }
+
+  public function testAssessPagesAppliesTheThresholdToEveryPage(): void {
+    $sweep = static::createSweep(['http://nginx:8080/bad' => static::createRawViolation('serious')]);
+    $sweep->setParameters(['steps' => ['accessibility' => ['failure_threshold' => 'critical']]]);
+
+    $sweep->accessibilityAssessPages(['/bad', '/'], 'wcag2a');
+
+    $this->assertCount(2, $sweep->testGetResults());
+  }
+
+  public function testAssessPagesInAutomaticModeLeavesTheOutcomeToTheGate(): void {
+    $sweep = static::createSweep(['http://nginx:8080/bad' => static::createRawViolation()]);
+    $sweep->testSetAutoMode(TRUE);
+
+    $sweep->accessibilityAssessPages(['/bad', '/'], 'wcag2a');
+
+    $this->assertCount(2, $sweep->testGetResults());
+    $this->assertSame('http://nginx:8080/', $sweep->testGetLastCheckedUrl());
+  }
+
+  public function testAssessPagesSkipsPagesItCannotAssess(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException('Engine failed.')]);
+    $sweep->session->failingUrls = ['http://nginx:8080/unreachable'];
+    $sweep->testSetAutoMode(TRUE);
+
+    $sweep->accessibilityAssessPages(['/broken', '/unreachable', '/', '/broken-again'], 'wcag2a');
+
+    $this->assertSame([
+      ['url' => 'http://nginx:8080/broken', 'reason' => 'Engine failed.'],
+      ['url' => 'http://nginx:8080/unreachable', 'reason' => 'Unable to reach "http://nginx:8080/unreachable".'],
+    ], $sweep->testGetSkippedPages());
+    $this->assertCount(2, $sweep->testGetResults());
+  }
+
+  public function testAssessPagesMarksSkippedLastPageAsChecked(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException('Engine failed.')]);
+    $sweep->testSetAutoMode(TRUE);
+
+    $sweep->accessibilityAssessPages(['/', '/broken'], 'wcag2a');
+
+    $this->assertSame('http://nginx:8080/broken', $sweep->testGetLastCheckedUrl());
+  }
+
+  public function testAssessPagesKeepsTheLastCheckedUrlWhenTheSessionCannotReportOne(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException('Engine failed.')]);
+    $sweep->testSetAutoMode(TRUE);
+    $sweep->session->failCurrentUrlAfter = 'http://nginx:8080/broken';
+
+    $sweep->accessibilityAssessPages(['/', '/broken'], 'wcag2a');
+
+    $this->assertSame('http://nginx:8080/', $sweep->testGetLastCheckedUrl());
+  }
+
+  public function testAssessPagesListsSkippedPagesWhenItFails(): void {
+    $sweep = static::createSweep([
+      'http://nginx:8080/broken' => new \RuntimeException('Engine failed.'),
+      'http://nginx:8080/bad' => static::createRawViolation(),
+    ]);
+
+    $this->expectException(ExpectationException::class);
+    $this->expectExceptionMessageMatches('/Accessibility gate failed on \/bad .*' . preg_quote(PHP_EOL . '  skipped "/broken": Engine failed.', '/') . '$/s');
+
+    $sweep->accessibilityAssessPages(['/broken', '/bad'], 'wcag2a');
+  }
+
+  public function testAssessPagesFailsWhenNoPageCouldBeAssessed(): void {
+    $sweep = static::createSweep([
+      'http://nginx:8080/broken' => new \RuntimeException('Engine failed.'),
+      'http://nginx:8080/also-broken' => new \RuntimeException('Engine timed out.'),
+    ]);
+    $sweep->testSetAutoMode(TRUE);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No page could be assessed:' . PHP_EOL . '  skipped "/broken": Engine failed.' . PHP_EOL . '  skipped "/also-broken": Engine timed out.');
+
+    $sweep->accessibilityAssessPages(['/broken', '/also-broken'], 'wcag2a');
+  }
+
+  public function testAssessPagesInTableReadsThePathColumn(): void {
+    $sweep = static::createSweep();
+
+    $sweep->accessibilityAssessPagesInTable(new TableNode([['label', 'path'], ['Home', ' / '], ['About', '/about']]));
+    $sweep->accessibilityAssessPagesInTableForTags('wcag2aa', new TableNode([['path'], ['/contact']]));
+
+    $this->assertSame(['http://nginx:8080/', 'http://nginx:8080/about', 'http://nginx:8080/contact'], $sweep->session->visited);
+    $this->assertSame(['wcag2a,wcag2aa', 'wcag2a,wcag2aa', 'wcag2aa'], array_column($sweep->testGetResults(), 'rules'));
+  }
+
+  #[DataProvider('dataProviderAssessPagesInTableRejectsTable')]
+  public function testAssessPagesInTableRejectsTable(array $rows, string $expected_message): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    static::createSweep()->accessibilityAssessPagesInTable(new TableNode($rows));
+  }
+
+  public static function dataProviderAssessPagesInTableRejectsTable(): array {
+    return [
+      'no path column' => [[['url'], ['/']], 'The table of pages has no "path" column.'],
+      'an empty path cell' => [[['path'], ['/'], ['  ']], 'The table of pages has an empty "path" cell.'],
+      'no rows' => [[['path']], 'The list of pages to assess is empty.'],
+    ];
+  }
+
+  /**
+   * Tests the paths a sitemap lists after following, parsing and filtering.
+   *
+   * @param array<string, string> $sitemaps
+   *   Sitemap bodies keyed by the absolute URL they are served from.
+   * @param int|null $max_depth
+   *   Deepest path depth to keep.
+   * @param int|null $limit
+   *   Most paths to return.
+   * @param list<string> $expected
+   *   The expected paths.
+   */
+  #[DataProvider('dataProviderGetSitemapPaths')]
+  public function testGetSitemapPaths(array $sitemaps, ?int $max_depth, ?int $limit, array $expected): void {
+    $sweep = static::createSweep();
+    $sweep->sitemaps = $sitemaps;
+
+    $this->assertSame($expected, $sweep->accessibilityGetSitemapPaths('/sitemap.xml', $max_depth, $limit));
+  }
+
+  public static function dataProviderGetSitemapPaths(): array {
+    $pages = static::createUrlset(['https://www.example.com/', 'https://www.example.com/about', 'https://www.example.com/about/team/', 'https://www.example.com/news?page=2#top', 'https://www.example.com/about']);
+
+    return [
+      'the path and query of every page in order' => [['http://nginx:8080/sitemap.xml' => $pages], NULL, NULL, ['/', '/about', '/about/team/', '/news?page=2']],
+      'pages up to a path depth' => [['http://nginx:8080/sitemap.xml' => $pages], 1, NULL, ['/', '/about', '/news?page=2']],
+      'pages at depth 0 only' => [['http://nginx:8080/sitemap.xml' => $pages], 0, NULL, ['/']],
+      'a limit applied after the depth filter' => [['http://nginx:8080/sitemap.xml' => $pages], 1, 2, ['/', '/about']],
+      'a limit alone' => [['http://nginx:8080/sitemap.xml' => $pages], NULL, 3, ['/', '/about', '/about/team/']],
+      'a sitemap without a namespace' => [['http://nginx:8080/sitemap.xml' => '<urlset><url><loc>https://www.example.com/plain</loc></url></urlset>'], NULL, NULL, ['/plain']],
+      'extension locations ignored' => [
+        ['http://nginx:8080/sitemap.xml' => '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"><url><loc>https://www.example.com/page</loc><image:image><image:loc>https://www.example.com/image.png</image:loc></image:image></url></urlset>'],
+        NULL,
+        NULL,
+        ['/page'],
+      ],
+      'empty and malformed locations dropped' => [['http://nginx:8080/sitemap.xml' => static::createUrlset(['', 'http:///broken', '/relative'])], NULL, NULL, ['/relative']],
+      'an index followed to every sitemap' => [
+        [
+          'http://nginx:8080/sitemap.xml' => static::createIndex(['https://www.example.com/sitemap.xml?page=1', 'https://www.example.com/sitemap.xml?page=2']),
+          'http://nginx:8080/sitemap.xml?page=1' => static::createUrlset(['https://www.example.com/one']),
+          'http://nginx:8080/sitemap.xml?page=2' => static::createUrlset(['https://www.example.com/two', 'https://www.example.com/one']),
+        ],
+        NULL,
+        NULL,
+        ['/one', '/two'],
+      ],
+      'an index listing itself read once' => [
+        [
+          'http://nginx:8080/sitemap.xml' => static::createIndex(['https://www.example.com/sitemap.xml', 'https://www.example.com/pages.xml']),
+          'http://nginx:8080/pages.xml' => static::createUrlset(['https://www.example.com/page']),
+        ],
+        NULL,
+        NULL,
+        ['/page'],
+      ],
+    ];
+  }
+
+  #[DataProvider('dataProviderGetSitemapPathsFails')]
+  public function testGetSitemapPathsFails(array $sitemaps, ?int $max_depth, string $expected_message): void {
+    $sweep = static::createSweep();
+    $sweep->sitemaps = $sitemaps;
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $sweep->accessibilityGetSitemapPaths('/sitemap.xml', $max_depth);
+  }
+
+  public static function dataProviderGetSitemapPathsFails(): array {
+    return [
+      'a missing sitemap' => [[], NULL, 'The sitemap "/sitemap.xml" returned HTTP status 404.'],
+      'an unreachable host' => [['http://nginx:8080/sitemap.xml' => FALSE], NULL, 'Unable to fetch the sitemap "/sitemap.xml": Could not resolve host'],
+      'an empty body' => [['http://nginx:8080/sitemap.xml' => " \n"], NULL, 'The sitemap "/sitemap.xml" is not valid XML.'],
+      'a body that is not XML' => [['http://nginx:8080/sitemap.xml' => '{"pages": []}'], NULL, 'The sitemap "/sitemap.xml" is not valid XML.'],
+      'another root element' => [['http://nginx:8080/sitemap.xml' => '<html><body/></html>'], NULL, 'The sitemap "/sitemap.xml" has the root element "html", but it should be "urlset" or "sitemapindex".'],
+      'a missing child sitemap' => [['http://nginx:8080/sitemap.xml' => static::createIndex(['https://www.example.com/gone.xml'])], NULL, 'The sitemap "/gone.xml" returned HTTP status 404.'],
+      'no pages' => [['http://nginx:8080/sitemap.xml' => static::createUrlset([])], NULL, 'The sitemap "/sitemap.xml" lists no pages.'],
+      'no pages within the depth' => [['http://nginx:8080/sitemap.xml' => static::createUrlset(['https://www.example.com/a/b'])], 1, 'The sitemap "/sitemap.xml" lists no pages with a path depth of at most 1.'],
+    ];
+  }
+
+  public function testGetSitemapPathsFetchesAsTheVisitor(): void {
+    $sweep = static::createSweep();
+    $sweep->sitemaps = ['https://cdn.example.com/sitemap.xml' => static::createUrlset(['https://www.example.com/page'])];
+
+    $this->assertSame(['/page'], $sweep->accessibilityGetSitemapPaths('https://cdn.example.com/sitemap.xml'));
+    $this->assertSame(['https://cdn.example.com/sitemap.xml'], $sweep->requests);
+  }
+
+  #[DataProvider('dataProviderAssessPagesInSitemapSteps')]
+  public function testAssessPagesInSitemapSteps(string $method, array $arguments, array $options, array $expected): void {
+    $sweep = static::createSweep();
+    $sweep->setParameters(['steps' => ['accessibility' => $options]]);
+    $sweep->sitemaps = [
+      'http://nginx:8080/sitemap.xml' => static::createUrlset(['https://www.example.com/', 'https://www.example.com/about', 'https://www.example.com/about/team']),
+      'http://nginx:8080/custom.xml' => static::createUrlset(['https://www.example.com/custom']),
+    ];
+
+    $sweep->{$method}(...$arguments);
+
+    $this->assertSame($expected, $sweep->session->visited);
+  }
+
+  public static function dataProviderAssessPagesInSitemapSteps(): array {
+    return [
+      'the default sitemap' => ['accessibilityAssessPagesInDefaultSitemap', [], [], ['http://nginx:8080/', 'http://nginx:8080/about', 'http://nginx:8080/about/team']],
+      'the configured sitemap, depth and limit' => ['accessibilityAssessPagesInDefaultSitemap', [], ['sitemap_path' => '/custom.xml', 'sitemap_max_depth' => 1, 'sitemap_limit' => 1], ['http://nginx:8080/custom']],
+      'a named sitemap with the configured depth' => ['accessibilityAssessPagesInSitemap', ['/sitemap.xml'], ['sitemap_max_depth' => 0], ['http://nginx:8080/']],
+      'a depth argument with the configured limit' => ['accessibilityAssessPagesInSitemapWithDepth', ['/sitemap.xml', '1'], ['sitemap_limit' => 1], ['http://nginx:8080/']],
+      'a depth argument overriding the configured depth' => ['accessibilityAssessPagesInSitemapWithDepth', ['/sitemap.xml', '2'], ['sitemap_max_depth' => 0], ['http://nginx:8080/', 'http://nginx:8080/about', 'http://nginx:8080/about/team']],
+      'depth and limit arguments' => ['accessibilityAssessPagesInSitemapWithDepthWithLimit', ['/sitemap.xml', '2', '2'], ['sitemap_limit' => 1], ['http://nginx:8080/', 'http://nginx:8080/about']],
+    ];
+  }
+
+  #[DataProvider('dataProviderAssessPagesInSitemapStepsRejectArgument')]
+  public function testAssessPagesInSitemapStepsRejectArgument(string $depth, string $count, string $expected_message): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    static::createSweep()->accessibilityAssessPagesInSitemapWithDepthWithLimit('/sitemap.xml', $depth, $count);
+  }
+
+  public static function dataProviderAssessPagesInSitemapStepsRejectArgument(): array {
+    return [
+      'a negative depth' => ['-1', '1', 'The depth must be 0 or greater, but "-1" was given.'],
+      'a depth that is not a number' => ['one', '1', 'The depth must be an integer, but "one" was given.'],
+      'a limit of 0' => ['1', '0', 'The count must be 1 or greater, but "0" was given.'],
+    ];
+  }
+
+  #[DataProvider('dataProviderGetSitemapOptions')]
+  public function testGetSitemapOptions(array $options, string $path, ?int $max_depth, ?int $limit): void {
+    $this->testObject->setParameters(['steps' => ['accessibility' => $options]]);
+
+    $this->assertSame($path, $this->testObject->accessibilityGetSitemapPath());
+    $this->assertSame($max_depth, $this->testObject->accessibilityGetSitemapMaxDepth());
+    $this->assertSame($limit, $this->testObject->accessibilityGetSitemapLimit());
+  }
+
+  public static function dataProviderGetSitemapOptions(): array {
+    return [
+      'the defaults' => [[], '/sitemap.xml', NULL, NULL],
+      'set values' => [['sitemap_path' => '/map.xml', 'sitemap_max_depth' => 0, 'sitemap_limit' => 1], '/map.xml', 0, 1],
+      'a negative depth and a limit below 1' => [['sitemap_max_depth' => -5, 'sitemap_limit' => -1], '/sitemap.xml', NULL, NULL],
+    ];
+  }
+
+  #[DataProvider('dataProviderGetPathDepth')]
+  public function testGetPathDepth(string $path, int $expected): void {
+    $this->assertSame($expected, $this->testObject->callGetPathDepth($path));
+  }
+
+  public static function dataProviderGetPathDepth(): array {
+    return [
+      'the root' => ['/', 0],
+      'an empty path' => ['', 0],
+      '1 segment' => ['/about', 1],
+      'a trailing slash' => ['/about/', 1],
+      '2 segments' => ['/about/team', 2],
+      'repeated slashes' => ['/about//team', 2],
+      'a query string' => ['/news?section=a/b', 1],
+    ];
+  }
+
+  public function testEnforceGateListsSkippedPages(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException('Engine failed.'), 'http://nginx:8080/bad' => static::createRawViolation()]);
+    $sweep->testSetAutoMode(TRUE);
+    $sweep->accessibilityAssessPages(['/broken', '/bad'], 'wcag2a');
+
+    $this->expectException(ExpectationException::class);
+    $this->expectExceptionMessage('Auto accessibility gate failed (threshold: any, fail_on_incomplete: no):' . PHP_EOL . '  violation [critical] image-alt on /bad' . PHP_EOL . '  skipped "/broken": Engine failed.');
+
+    $sweep->callEnforceGate();
+  }
+
+  public function testEnforceGateIgnoresSkippedPagesAlone(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException('Engine failed.')]);
+    $sweep->testSetAutoMode(TRUE);
+    $sweep->accessibilityAssessPages(['/broken', '/'], 'wcag2a');
+
+    $sweep->callEnforceGate();
+
+    $this->assertCount(1, $sweep->testGetSkippedPages());
+  }
+
+  public function testReportsListSkippedPages(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException('Engine <failed> & "stopped".')]);
+    $sweep->testSetAutoMode(TRUE);
+    $sweep->accessibilityAssessPages(['/broken', '/'], 'wcag2a');
+
+    $html = $sweep->accessibilityRenderHtmlSections();
+    $this->assertStringContainsString('<section class="page skipped"><h2>/broken</h2><p class="meta">Skipped: Engine &lt;failed&gt; &amp; &quot;stopped&quot;.</p></section>', $html);
+
+    $doc = simplexml_load_string($sweep->callRenderJunit());
+    $this->assertInstanceOf(\SimpleXMLElement::class, $doc);
+    $this->assertSame('Engine <failed> & "stopped".', (string) ($doc->xpath('//testcase[@classname="accessibility.skipped"]/skipped')[0]['message'] ?? ''));
+    $this->assertSame('/broken', (string) ($doc->xpath('//testsuite[@skipped="1"]')[0]['name'] ?? ''));
+    $this->assertSame((string) (count($doc->xpath('//testcase') ?: [])), (string) $doc['tests']);
+
+    $sweep->callAggregateCapture('/captured/dir');
+    $aggregate = AccessibilityTraitSweepTestImplementation::testGetAggregate();
+    $this->assertSame([['url' => '/broken', 'reason' => 'Engine <failed> & "stopped".']], $aggregate[0]['skipped']);
+
+    $report = static::renderSample($aggregate, '2026-01-02 03:04');
+    $this->assertStringContainsString('<h2>Pages not assessed</h2>', $report);
+    $this->assertStringContainsString('<tr class="bad"><td class="url">/broken</td><td>Engine &lt;failed&gt; &amp; &quot;stopped&quot;.</td><td class="muted">Feature &gt; Scenario</td></tr>', $report);
+  }
+
+  public function testRenderJunitKeepsSkippedReasonValidXml(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException("\x1B[31mEngine failed:\x1B[0m\nsession lost.\r\nRetry.")]);
+    $sweep->testSetAutoMode(TRUE);
+    $sweep->accessibilityAssessPages(['/broken', '/'], 'wcag2a');
+
+    $doc = simplexml_load_string($sweep->callRenderJunit());
+
+    $this->assertInstanceOf(\SimpleXMLElement::class, $doc, 'The rendered report is well-formed XML.');
+    $this->assertSame("[31mEngine failed:[0m\nsession lost.\r\nRetry.", (string) ($doc->xpath('//skipped')[0]['message'] ?? ''));
+  }
+
+  public function testAggregateOmitsSkippedSectionWithoutSkippedPages(): void {
+    $this->assertStringNotContainsString('Pages not assessed', static::renderSample(static::createSampleAggregate(), '2026-01-02 03:04'));
+  }
+
+  public function testAfterScenarioWritesReportsWhenEveryPageWasSkipped(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException('Engine failed.')]);
+    $sweep->setParameters(['steps' => ['accessibility' => ['report_dir' => static::$tmp . '/reports']]]);
+    $sweep->accessibilityBeforeScenario($this->createBeforeScenarioScope());
+
+    try {
+      $sweep->accessibilityAssessPages(['/broken'], 'wcag2a');
+    }
+    catch (\RuntimeException) {
+      // The sweep fails because no page could be assessed.
+    }
+
+    $sweep->accessibilityAfterScenario($this->createAfterScenarioScope());
+
+    $this->assertFileExists(static::$tmp . '/reports/feature__scenario.html');
+    $this->assertStringContainsString('skipped message="Engine failed."', (string) file_get_contents(static::$tmp . '/reports/junit-feature__scenario.xml'));
+  }
+
+  /**
+   * Creates a sweep test implementation over a recording session.
+   *
+   * @param array<string, array<string, mixed>|\Exception> $engine_results
+   *   Raw engine results or exceptions, keyed by the URL they answer for.
+   */
+  protected static function createSweep(array $engine_results = []): AccessibilityTraitSweepTestImplementation {
+    $sweep = new AccessibilityTraitSweepTestImplementation();
+    $sweep->session = new RecordingSession(new BrowserKitDriver(new HttpBrowser(new MockHttpClient())));
+    $sweep->engineResults = $engine_results;
+    $sweep->setMinkParameter('base_url', 'http://nginx:8080');
+
+    $mink = new Mink(['default' => $sweep->session]);
+    $mink->setDefaultSessionName('default');
+    $sweep->setMink($mink);
+
+    return $sweep;
+  }
+
+  /**
+   * Creates a raw engine result with 1 violation.
+   *
+   * @param string $impact
+   *   The impact of the violation.
+   *
+   * @return array<string, mixed>
+   *   A raw result in the default engine's shape.
+   */
+  protected static function createRawViolation(string $impact = 'critical'): array {
+    return [
+      'violations' => [['id' => 'image-alt', 'impact' => $impact, 'help' => 'Images must have alternate text', 'helpUrl' => 'https://example.com/image-alt', 'nodes' => [['target' => ['img'], 'html' => '<img>']]]],
+      'incomplete' => [],
+      'passes' => [],
+    ];
+  }
+
+  /**
+   * Creates a sitemap listing the given page locations.
+   *
+   * @param list<string> $locations
+   *   The text of each `loc` element.
+   */
+  protected static function createUrlset(array $locations): string {
+    $urls = array_map(static fn(string $location): string => sprintf('<url><loc>%s</loc></url>', $location), $locations);
+
+    return '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . implode('', $urls) . '</urlset>';
+  }
+
+  /**
+   * Creates a sitemap index listing the given sitemap locations.
+   *
+   * @param list<string> $locations
+   *   The text of each `loc` element.
+   */
+  protected static function createIndex(array $locations): string {
+    $sitemaps = array_map(static fn(string $location): string => sprintf('<sitemap><loc>%s</loc></sitemap>', $location), $locations);
+
+    return '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . implode('', $sitemaps) . '</sitemapindex>';
+  }
+
   /**
    * Clears the static state the trait keeps for the whole process.
    */
@@ -546,6 +1001,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     AccessibilityTraitTestImplementation::testSetAggregate([]);
     AccessibilityTraitTestImplementation::testSetAggregateReportDir(NULL);
     AccessibilityTraitRetryTestImplementation::testSetCachedJs(NULL);
+    AccessibilityTraitSweepTestImplementation::testSetAggregate([]);
   }
 
   /**
@@ -828,6 +1284,10 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
     return static::accessibilityAggregateFilename($time);
   }
 
+  public function callGetPathDepth(string $path): int {
+    return $this->accessibilityGetPathDepth($path);
+  }
+
   public function callAggregateCapture(array $results, string $feature, string $scenario, string $directory): void {
     $this->accessibilityResults = $results;
     $this->accessibilityFeatureName = $feature;
@@ -860,6 +1320,122 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
 
   public static function testSetCachedJs(?string $js): void {
     static::$accessibilityCachedJs = $js;
+  }
+
+}
+
+/**
+ * A test implementation that scripts the engine and the detached client.
+ */
+class AccessibilityTraitSweepTestImplementation extends WebRawContext {
+
+  use AccessibilityTrait;
+
+  /**
+   * The session the sweep visits pages through.
+   */
+  public RecordingSession $session;
+
+  /**
+   * Raw engine results or exceptions, keyed by the URL they answer for.
+   *
+   * @var array<string, array<string, mixed>|\Exception>
+   */
+  public array $engineResults = [];
+
+  /**
+   * Sitemap bodies keyed by URL, or FALSE for a URL whose host is unreachable.
+   *
+   * @var array<string, string|false>
+   */
+  public array $sitemaps = [];
+
+  /**
+   * URLs the detached client requested.
+   *
+   * @var list<string>
+   */
+  public array $requests = [];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function accessibilityRunEngine(string $rules): array {
+    $outcome = $this->engineResults[$this->getSession()->getCurrentUrl()] ?? ['violations' => [], 'incomplete' => [], 'passes' => [['id' => 'document-title']]];
+
+    if ($outcome instanceof \Exception) {
+      throw $outcome;
+    }
+
+    return $outcome;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function httpDetachedClient(array $options = []): AbstractBrowser {
+    $client = new MockHttpClient(function (string $method, string $url): MockResponse {
+      $this->requests[] = $url;
+      $body = $this->sitemaps[$url] ?? NULL;
+
+      if ($body === FALSE) {
+        return new MockResponse('', ['error' => 'Could not resolve host']);
+      }
+
+      return $body === NULL ? new MockResponse('Not found', ['http_code' => 404]) : new MockResponse($body);
+    });
+
+    return new HttpBrowser($client);
+  }
+
+  public function testSetAutoMode(bool $is_auto): void {
+    $this->accessibilityAutoMode = $is_auto;
+  }
+
+  /**
+   * Returns the results the scenario collected.
+   *
+   * @return array<int, array{url: string, rules: string, result: array<string, mixed>}>
+   *   The results the scenario collected.
+   */
+  public function testGetResults(): array {
+    return $this->accessibilityResults;
+  }
+
+  /**
+   * Returns the pages the scenario skipped.
+   *
+   * @return array<int, array{url: string, reason: string}>
+   *   The pages the scenario skipped.
+   */
+  public function testGetSkippedPages(): array {
+    return $this->accessibilitySkippedPages;
+  }
+
+  public function testGetLastCheckedUrl(): string {
+    return $this->accessibilityLastCheckedUrl;
+  }
+
+  public static function testSetAggregate(array $aggregate): void {
+    static::$accessibilityAggregate = $aggregate;
+  }
+
+  public static function testGetAggregate(): array {
+    return static::$accessibilityAggregate;
+  }
+
+  public function callEnforceGate(): void {
+    $this->accessibilityEnforceGate();
+  }
+
+  public function callRenderJunit(): string {
+    return $this->accessibilityRenderJunit();
+  }
+
+  public function callAggregateCapture(string $directory): void {
+    $this->accessibilityFeatureName = 'Feature';
+    $this->accessibilityScenarioName = 'Scenario';
+    $this->accessibilityAggregateCapture($directory);
   }
 
 }

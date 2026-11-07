@@ -56,8 +56,96 @@ custom_edit_url: null
 | `accessibility.fetch_timeout` | integer | `10` | - | The time, in seconds, an attempt to fetch the axe-core script over HTTP can go without receiving data before it fails. |
 | `accessibility.fetch_attempts` | integer | `3` | - | The number of attempts to fetch the axe-core script before the step fails, with a pause after each failed attempt that grows by half a second. A value below 1 counts as 1. |
 | `accessibility.report_dir` | string | `'.logs/test_results/accessibility'` | - | The directory each scenario's HTML and JUnit reports and the run's summary report are written to. A relative path resolves against the directory the run was launched from. |
+| `accessibility.sitemap_path` | string | `'/sitemap.xml'` | - | The path or URL of the XML sitemap `I assess the accessibility of the pages in the sitemap` reads. A path resolves against the base URL. |
+| `accessibility.sitemap_max_depth` | integer | `-1` | - | The deepest path depth the sitemap steps assess when the step names none, where `/` has a depth of 0 and `/about` a depth of 1. A negative value assesses pages at every depth. |
+| `accessibility.sitemap_limit` | integer | `0` | - | The most pages the sitemap steps assess when the step names no limit, counted in sitemap order after the depth filter. A value of 0 or less assesses every page. |
 
 ## Steps
+
+<details>
+  <summary><code>@When I assess the accessibility of the following pages:</code></summary>
+
+<br/>
+Assess the accessibility of each page in a table
+<br/><br/>
+
+```gherkin
+When I assess the accessibility of the following pages:
+  | path     |
+  | /        |
+  | /about   |
+  | /contact |
+```
+
+</details>
+
+<details>
+  <summary><code>@When I assess the accessibility of the following pages for the tags :tags:</code></summary>
+
+<br/>
+Assess the accessibility of each page in a table for given tags
+<br/><br/>
+
+```gherkin
+When I assess the accessibility of the following pages for the tags "wcag2a":
+  | path   |
+  | /      |
+  | /about |
+```
+
+</details>
+
+<details>
+  <summary><code>@When I assess the accessibility of the pages in the sitemap</code></summary>
+
+<br/>
+Assess the accessibility of the pages in the configured sitemap
+<br/><br/>
+
+```gherkin
+When I assess the accessibility of the pages in the sitemap
+```
+
+</details>
+
+<details>
+  <summary><code>@When I assess the accessibility of the pages in the sitemap :path</code></summary>
+
+<br/>
+Assess the accessibility of the pages in a sitemap
+<br/><br/>
+
+```gherkin
+When I assess the accessibility of the pages in the sitemap "/sitemap.xml"
+```
+
+</details>
+
+<details>
+  <summary><code>@When I assess the accessibility of the pages in the sitemap :path with a path depth of at most :depth</code></summary>
+
+<br/>
+Assess the accessibility of the pages in a sitemap up to a path depth
+<br/><br/>
+
+```gherkin
+When I assess the accessibility of the pages in the sitemap "/sitemap.xml" with a path depth of at most 1
+```
+
+</details>
+
+<details>
+  <summary><code>@When I assess the accessibility of the pages in the sitemap :path with a path depth of at most :depth and a limit of :count page(s)</code></summary>
+
+<br/>
+Assess the accessibility of a number of pages in a sitemap
+<br/><br/>
+
+```gherkin
+When I assess the accessibility of the pages in the sitemap "/sitemap.xml" with a path depth of at most 2 and a limit of 50 pages
+```
+
+</details>
 
 <details>
   <summary><code>@Then the page should pass accessibility checks</code></summary>

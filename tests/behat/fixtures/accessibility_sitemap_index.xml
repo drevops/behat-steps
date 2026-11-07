@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This is a fixture document used to test AccessibilityTrait.
+
+It is a sitemap index listing 2 sitemaps, so the pages come from both.
+-->
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://www.example.com/sites/default/files/accessibility_sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.example.com/sites/default/files/accessibility_sitemap_violations.xml</loc>
+  </sitemap>
+</sitemapindex>

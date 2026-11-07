@@ -589,7 +589,7 @@ A step that sends its own HTTP request picks 1 of 4 clients on `WebRawContext` b
 | --- | --- | --- |
 | Is the API response the REST, JSON and XML steps read | `httpRestSession()` | `RestTrait`, `JsonTrait`, `XmlTrait` |
 | Becomes the browser's page | `httpPageClient()` | None |
-| Belongs to the scenario's visitor, but isn't the page | `httpDetachedClient()` | `FileDownloadTrait`, the hreflang return-link check in `MetatagTrait` |
+| Belongs to the scenario's visitor, but isn't the page | `httpDetachedClient()` | `FileDownloadTrait`, the hreflang return-link check in `MetatagTrait`, the sitemap fetch in `AccessibilityTrait` |
 | Carries nothing of the scenario | `httpBareClient()` | The engine fetch in `AccessibilityTrait` |
 
 Never build a client of your own, whether that's cURL, `file_get_contents()` over HTTP or a `new HttpBrowser()`. It wouldn't get the connection settings a project declares on its `browserkit_http` session. A suite on a staging site with a self-signed certificate would then pass on the page and fail on the download. A trait calling any of the 4 carries `@phpstan-require-extends \DrevOps\BehatSteps\WebRawContext`.
@@ -633,7 +633,7 @@ Working on this repository makes it the root package, so its own flag applies. A
 
 The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations. So the suite runs from [behat.php](behat.php), and `BehatCliTrait` writes a `behat.php` for every nested run. Every step and hook in `src/` and in `tests/behat/bootstrap/` is declared with a PHP attribute. Behat 3.33 reads PHP configuration and attributes the same way. The suite's configuration and the generated one list every Mink session under `sessions` instead of using the browser driver name shorthand.
 
-[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, so the file stays complete as the extension grows. The same test holds the reference suite to the project's own `FeatureContext` and Mink's `MinkContext`. A project copying the file never registers a shipped context beside the context that extends it. Behat never loads it here, because `behat.php` takes precedence.
+[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, so the file stays complete as the extension grows. The test reads only the extension's own options, so a change that adds a trait option adds it to the file's `steps` node too, under its trait's group and with its default. The same test holds the reference suite to the project's own `FeatureContext` and Mink's `MinkContext`. A project copying the file never registers a shipped context beside the context that extends it. Behat never loads it here, because `behat.php` takes precedence.
 
 ## Reading tags
 

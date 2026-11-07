@@ -6,7 +6,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [AccessibilityTrait](#accessibilitytrait) | 21 | Assess accessibility of rendered pages. |
+| [AccessibilityTrait](#accessibilitytrait) | 26 | Assess accessibility of rendered pages. |
 | [BasicAuthTrait](#basicauthtrait) | 1 | Keep HTTP basic authentication applied across session resets. |
 | [CommandTrait](#commandtrait) | 2 | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | 4 | Verify and inspect browser cookies. |
@@ -101,6 +101,15 @@ Assert that an assessment result passes the effective failure threshold
 
 <br/>
 Run the engine, normalize the result, record it for the scenario
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityAssessPages(array $paths, string $rules): void</code></summary>
+
+<br/>
+Visit and assess each page, then check what was found
 <br/><br/>
 
 </details>
@@ -227,6 +236,42 @@ Return TRUE to print a 1-line per-page summary to the console
 
 <br/>
 Return the absolute directory used to write per-scenario reports
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityGetSitemapLimit(): ?int</code></summary>
+
+<br/>
+Return the most pages the sitemap steps assess by default
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityGetSitemapMaxDepth(): ?int</code></summary>
+
+<br/>
+Return the deepest path depth the sitemap steps assess by default
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityGetSitemapPath(): string</code></summary>
+
+<br/>
+Return the sitemap the sitemap step without a path reads
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityGetSitemapPaths(string $path, ?int $max_depth = NULL, ?int $limit = NULL): array</code></summary>
+
+<br/>
+Return the paths of the pages a sitemap lists
 <br/><br/>
 
 </details>

@@ -1,0 +1,31 @@
+<!--
+This is a fixture document used to test AccessibilityTrait.
+
+It replaces the accessibility engine with one that always fails, so the page
+cannot be assessed.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Broken Engine Page</title>
+  <script>
+    Object.defineProperty(window, 'axe', {
+      configurable: false,
+      get: function () {
+        return {
+          run: function () {
+            return Promise.reject('engine disabled by the fixture');
+          }
+        };
+      },
+      set: function () {}
+    });
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Broken Engine Page</h1>
+  </main>
+</body>
+</html>

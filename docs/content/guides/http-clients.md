@@ -12,7 +12,7 @@ Most steps read the page the Mink session holds. A few send HTTP requests of the
 
 - `FileDownloadTrait` downloads a file.
 - `MetatagTrait` fetches the hreflang alternates of a page.
-- `AccessibilityTrait` fetches its engine script.
+- `AccessibilityTrait` fetches its engine script and the XML sitemap its sitemap steps read.
 - `RestTrait` sends API requests, and the JSON and XML steps read their responses.
 
 Every one of those requests goes through 1 of 4 clients. This page covers which is which, where their settings come from and how to change them.
@@ -33,7 +33,7 @@ Each client starts from a different state, and its response goes to a different 
 | --- | --- | --- | --- | --- |
 | REST | `httpRestSession()` | A Mink session of its own, with no cookies and the `base_url` basic-auth credentials, or its own options when declared | Stays in the REST session for the REST, JSON and XML steps | `RestTrait`, `JsonTrait`, `XmlTrait` |
 | Page | `httpPageClient()` | The Mink session's own browser, with its cookies, history and credentials | Becomes the page | None |
-| Detached | `httpDetachedClient()` | A fresh browser holding the scenario's identity: the session's cookies, the headers steps set, the basic-auth credentials | Stays inside the step | `FileDownloadTrait`, and the hreflang return-link check in `MetatagTrait` |
+| Detached | `httpDetachedClient()` | A fresh browser holding the scenario's identity: the session's cookies, the headers steps set, the basic-auth credentials | Stays inside the step | `FileDownloadTrait`, the hreflang return-link check in `MetatagTrait` and the sitemap fetch in `AccessibilityTrait` |
 | Bare | `httpBareClient()` | A fresh browser with an empty cookie jar | Stays inside the step | The engine fetch in `AccessibilityTrait` |
 
 `httpRestSession()` returns a Mink session, and the other 3 return BrowserKit's `AbstractBrowser`. Each one sends a request with the same `request()` call, from a different starting state:
@@ -198,7 +198,7 @@ Each kind of content lives in its own place:
 - The page lives in the Mink session: the browser's DOM under JavaScript, the last response under BrowserKit. Page visits and the page client replace it, and page assertions read it.
 - The API response lives in the REST session. Only the next REST request replaces it, and only the REST, JSON and XML steps read it. A REST request never touches the page.
 - The downloaded file lives in `FileDownloadTrait`'s own state. Only the next download replaces it, and only the `the downloaded file ...` steps read it. A download never writes to the session.
-- The hreflang alternates and the accessibility engine live only inside the step that fetches them. They're discarded when that step ends.
+- The hreflang alternates, the XML sitemap and the accessibility engine live only inside the step that fetches them. They're discarded when that step ends.
 
 So a scenario can mix page steps and download steps freely:
 
