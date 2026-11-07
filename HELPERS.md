@@ -57,7 +57,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 6 | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | 5 | Enable and disable Drupal modules with automatic state restoration. |
-| [Drupal\ParagraphsTrait](#drupalparagraphstrait) | 4 | Manage Drupal paragraphs entities with structured field data. |
+| [Drupal\ParagraphsTrait](#drupalparagraphstrait) | 5 | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | 5 | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](#drupalredirecttrait) | 3 | Manage Drupal redirect entities provided by the contrib `redirect` module. |
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | 3 | Run Drupal Search API indexing and cron hooks. |
@@ -2699,6 +2699,15 @@ Enable or disable a module, restored after the scenario
 
 <br/>
 Create a paragraphs item from a stub and attach it to an entity
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function paragraphsAttachFromStubToNewWrapper(EntityStubInterface $parent_entity, string $parent_field, string $wrapper_type, string $wrapper_field, string $paragraph_type, EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Create a paragraphs item from a stub within a new wrapper paragraph
 <br/><br/>
 
 </details>

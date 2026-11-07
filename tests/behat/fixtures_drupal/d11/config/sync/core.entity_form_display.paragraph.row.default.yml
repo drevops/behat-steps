@@ -1,0 +1,29 @@
+uuid: 4ebdc63b-6c86-4661-b0ef-c4377a497d01
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.row.field_paragraph_columns
+    - paragraphs.paragraphs_type.row
+  module:
+    - paragraphs
+id: paragraph.row.default
+targetEntityType: paragraph
+bundle: row
+mode: default
+content:
+  field_paragraph_columns:
+    type: entity_reference_paragraphs
+    weight: 0
+    region: content
+    settings:
+      title: Column
+      title_plural: Columns
+      edit_mode: open
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true
