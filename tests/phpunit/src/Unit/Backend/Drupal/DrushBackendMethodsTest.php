@@ -192,7 +192,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   public static function dataProviderCreateUserSetsRemainingValues(): \Iterator {
     $base = ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co'];
-    $code = static fn(string $literal): string => '$account = ' . \Drupal::class . '::entityTypeManager()->getStorage(\'user\')->load(7); foreach (json_decode(' . $literal . ', TRUE) as $name => $value) { $account->set($name, $value); } $account->save();';
+    $code = static fn(string $literal): string => '$account = ' . \Drupal::class . "::entityTypeManager()->getStorage('user')->load(7); foreach (json_decode(" . $literal . ', TRUE) as $name => $value) { $account->set($name, $value); } $account->save();';
 
     yield 'base values only' => [$base, ['user:create'], NULL];
     yield 'a post-create alias value' => [$base + ['roles' => ['editor']], ['user:create', 'role:list', 'user:role:add'], NULL];
