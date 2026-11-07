@@ -589,7 +589,7 @@ A step that sends its own HTTP request picks 1 of 4 clients on `WebRawContext` b
 | --- | --- | --- |
 | Is the API response the REST, JSON and XML steps read | `httpRestSession()` | `RestTrait`, `JsonTrait`, `XmlTrait` |
 | Becomes the browser's page | `httpPageClient()` | None |
-| Belongs to the scenario's visitor, but isn't the page | `httpDetachedClient()` | `FileDownloadTrait`, the hreflang return-link check in `MetatagTrait` |
+| Belongs to the scenario's visitor, but isn't the page | `httpDetachedClient()` | `FileDownloadTrait`, the hreflang return-link check in `MetatagTrait`, the sitemap fetch in `AccessibilityTrait` |
 | Carries nothing of the scenario | `httpBareClient()` | The engine fetch in `AccessibilityTrait` |
 
 Never build a client of your own, whether that's cURL, `file_get_contents()` over HTTP or a `new HttpBrowser()`. It wouldn't get the connection settings a project declares on its `browserkit_http` session. A suite on a staging site with a self-signed certificate would then pass on the page and fail on the download. A trait calling any of the 4 carries `@phpstan-require-extends \DrevOps\BehatSteps\WebRawContext`.
