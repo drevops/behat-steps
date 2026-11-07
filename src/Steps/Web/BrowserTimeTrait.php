@@ -97,7 +97,7 @@ trait BrowserTimeTrait {
   }
 
   /**
-   * Set the browser timezone, keeping the real time.
+   * Set the browser timezone without changing the browser time.
    *
    * @code
    * Given the browser timezone is set to "America/New_York"
@@ -113,7 +113,7 @@ trait BrowserTimeTrait {
   }
 
   /**
-   * Reset the browser time and timezone to the real ones.
+   * Reset the browser timezone now, and the time from the next page load.
    *
    * @code
    * When the browser time is reset

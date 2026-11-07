@@ -63,7 +63,7 @@ Given the browser time is set to "2026-12-24 23:59:00" in the timezone "Australi
   <summary><code>@Given the browser timezone is set to :name</code></summary>
 
 <br/>
-Set the browser timezone, keeping the real time
+Set the browser timezone without changing the browser time
 <br/><br/>
 
 ```gherkin
@@ -76,7 +76,7 @@ Given the browser timezone is set to "America/New_York"
   <summary><code>@When the browser time is reset</code></summary>
 
 <br/>
-Reset the browser time and timezone to the real ones
+Reset the browser timezone now, and the time from the next page load
 <br/><br/>
 
 ```gherkin

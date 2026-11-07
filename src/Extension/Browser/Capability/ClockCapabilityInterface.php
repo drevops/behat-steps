@@ -30,6 +30,9 @@ interface ClockCapabilityInterface {
 
   /**
    * Restores the real time and the browser's own timezone.
+   *
+   * The timezone is restored at once. The document already loaded keeps the
+   * time set before, and the next document loaded reads the real time.
    */
   public function clockReset(): void;
 

@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Extension\Browser\Adapter;
 use DrevOps\BehatSteps\Extension\Browser\Adapter\DevToolsClockTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests overriding the browser clock and timezone over CDP.
@@ -14,22 +15,42 @@ use PHPUnit\Framework\Attributes\CoversTrait;
 #[CoversTrait(DevToolsClockTrait::class)]
 class DevToolsClockTraitTest extends UnitTestCase {
 
-  public function testSetTimeAddsScriptOffsetFromTheRealClock(): void {
+  public function testSetTimeAddsScriptOffsetFromTheBrowserClock(): void {
     $clock = new DevToolsClockTraitTestImplementation(new \stdClass());
+    $clock->testSetBrowserClock(['result' => ['type' => 'number', 'value' => 1000000.4]]);
+
+    $clock->clockSetTime(1798156740);
+
+    $this->assertSame(['Runtime.evaluate', 'Page.addScriptToEvaluateOnNewDocument'], array_column($clock->commands, 0));
+    $this->assertSame(['expression' => 'performance.timeOrigin + performance.now()', 'returnByValue' => TRUE], $clock->commands[0][1]);
+    $this->assertSame(1798156740000 - 1000000, $this->readOffset($clock->commands[1][1]));
+  }
+
+  /**
+   * Tests that the offset falls back to the clock of this process.
+   *
+   * @param array<string, mixed> $browser_clock
+   *   The result the browser returns for the clock expression.
+   */
+  #[DataProvider('dataProviderSetTimeFallsBackToTheProcessClock')]
+  public function testSetTimeFallsBackToTheProcessClock(array $browser_clock): void {
+    $clock = new DevToolsClockTraitTestImplementation(new \stdClass());
+    $clock->testSetBrowserClock($browser_clock);
 
     $before = (int) round(microtime(TRUE) * 1000);
     $clock->clockSetTime(1798156740);
     $after = (int) round(microtime(TRUE) * 1000);
 
-    $this->assertCount(1, $clock->commands);
-    [$method, $params] = $clock->commands[0];
-    $this->assertSame('Page.addScriptToEvaluateOnNewDocument', $method);
-    $this->assertIsString($params['source']);
-    $this->assertSame(1, preg_match('/const offset = (-?\d+);/', $params['source'], $matches));
-
-    $offset = (int) ($matches[1] ?? '');
+    $offset = $this->readOffset($clock->commands[1][1]);
     $this->assertGreaterThanOrEqual(1798156740000 - $after, $offset);
     $this->assertLessThanOrEqual(1798156740000 - $before, $offset);
+  }
+
+  public static function dataProviderSetTimeFallsBackToTheProcessClock(): \Iterator {
+    yield 'no result' => [[]];
+    yield 'scalar result' => [['result' => 'unexpected']];
+    yield 'no value' => [['result' => ['type' => 'undefined']]];
+    yield 'value not a number' => [['result' => ['type' => 'string', 'value' => 'soon']]];
   }
 
   public function testSetTimeReplacesTheScriptAddedBefore(): void {
@@ -38,8 +59,8 @@ class DevToolsClockTraitTest extends UnitTestCase {
     $clock->clockSetTime(1798156740);
     $clock->clockSetTime(1798160400);
 
-    $this->assertSame(['Page.addScriptToEvaluateOnNewDocument', 'Page.removeScriptToEvaluateOnNewDocument', 'Page.addScriptToEvaluateOnNewDocument'], array_column($clock->commands, 0));
-    $this->assertSame(['identifier' => '1'], $clock->commands[1][1]);
+    $this->assertSame(['Runtime.evaluate', 'Page.addScriptToEvaluateOnNewDocument', 'Page.removeScriptToEvaluateOnNewDocument', 'Runtime.evaluate', 'Page.addScriptToEvaluateOnNewDocument'], array_column($clock->commands, 0));
+    $this->assertSame(['identifier' => 'script-1'], $clock->commands[2][1]);
   }
 
   public function testResetRemovesScriptAddedThroughAnotherAdapterOnTheSameConnection(): void {
@@ -50,7 +71,7 @@ class DevToolsClockTraitTest extends UnitTestCase {
     $clock->clockReset();
 
     $this->assertSame([
-      ['Page.removeScriptToEvaluateOnNewDocument', ['identifier' => '1']],
+      ['Page.removeScriptToEvaluateOnNewDocument', ['identifier' => 'script-1']],
       ['Emulation.setTimezoneOverride', ['timezoneId' => '']],
     ], $clock->commands);
   }
@@ -71,7 +92,7 @@ class DevToolsClockTraitTest extends UnitTestCase {
     $clock->clockReset();
     $clock->clockReset();
 
-    $this->assertSame(['Page.addScriptToEvaluateOnNewDocument', 'Page.removeScriptToEvaluateOnNewDocument', 'Emulation.setTimezoneOverride', 'Emulation.setTimezoneOverride'], array_column($clock->commands, 0));
+    $this->assertSame(['Runtime.evaluate', 'Page.addScriptToEvaluateOnNewDocument', 'Page.removeScriptToEvaluateOnNewDocument', 'Emulation.setTimezoneOverride', 'Emulation.setTimezoneOverride'], array_column($clock->commands, 0));
   }
 
   public function testSetTimezoneOverridesTheTimezone(): void {
@@ -84,7 +105,7 @@ class DevToolsClockTraitTest extends UnitTestCase {
 
   public function testSetTimeFailsWithoutScriptIdentifier(): void {
     $clock = new DevToolsClockTraitTestImplementation(new \stdClass());
-    $clock->testSetResult([]);
+    $clock->testSetScriptResult([]);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The browser did not return an identifier for the clock script.');
@@ -92,12 +113,30 @@ class DevToolsClockTraitTest extends UnitTestCase {
     $clock->clockSetTime(1798156740);
   }
 
+  /**
+   * Reads the offset the clock script was built with.
+   *
+   * @param array<string, mixed> $params
+   *   The parameters of the command that added the script.
+   *
+   * @return int
+   *   The offset, in milliseconds.
+   */
+  protected function readOffset(array $params): int {
+    $source = $params['source'] ?? NULL;
+    $this->assertIsString($source);
+    $this->assertSame(1, preg_match('/const offset = (-?\d+);/', $source, $matches));
+
+    return (int) ($matches[1] ?? '');
+  }
+
 }
 
 /**
  * Test implementation of DevToolsClockTrait.
  *
- * Records each CDP command and answers an added script with an identifier.
+ * Records each CDP command, answers the clock expression with a set result
+ * and an added script with a fresh identifier.
  */
 class DevToolsClockTraitTestImplementation {
 
@@ -111,11 +150,23 @@ class DevToolsClockTraitTestImplementation {
   public array $commands = [];
 
   /**
+   * The result the clock expression returns.
+   *
+   * @var array<string, mixed>
+   */
+  protected array $browserClock = ['result' => ['type' => 'number', 'value' => 0]];
+
+  /**
    * The result an added script returns, or NULL for a fresh identifier.
    *
    * @var array<string, mixed>|null
    */
-  protected ?array $result = NULL;
+  protected ?array $scriptResult = NULL;
+
+  /**
+   * The number of scripts added.
+   */
+  protected int $scripts = 0;
 
   /**
    * Constructs an implementation sending through the given connection.
@@ -125,8 +176,12 @@ class DevToolsClockTraitTestImplementation {
    */
   public function __construct(protected object $connection) {}
 
-  public function testSetResult(array $result): void {
-    $this->result = $result;
+  public function testSetBrowserClock(array $browser_clock): void {
+    $this->browserClock = $browser_clock;
+  }
+
+  public function testSetScriptResult(array $result): void {
+    $this->scriptResult = $result;
   }
 
   /**
@@ -142,11 +197,15 @@ class DevToolsClockTraitTestImplementation {
   protected function devToolsSend(string $method, array $params): array {
     $this->commands[] = [$method, $params];
 
+    if ($method === 'Runtime.evaluate') {
+      return $this->browserClock;
+    }
+
     if ($method !== 'Page.addScriptToEvaluateOnNewDocument') {
       return [];
     }
 
-    return $this->result ?? ['identifier' => (string) count($this->commands)];
+    return $this->scriptResult ?? ['identifier' => 'script-' . ++$this->scripts];
   }
 
 }
