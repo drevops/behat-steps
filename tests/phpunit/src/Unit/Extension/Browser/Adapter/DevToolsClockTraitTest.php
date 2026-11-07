@@ -25,10 +25,9 @@ class DevToolsClockTraitTest extends UnitTestCase {
     [$method, $params] = $clock->commands[0];
     $this->assertSame('Page.addScriptToEvaluateOnNewDocument', $method);
     $this->assertIsString($params['source']);
-    $this->assertMatchesRegularExpression('/const offset = (-?\d+);/', $params['source']);
+    $this->assertSame(1, preg_match('/const offset = (-?\d+);/', $params['source'], $matches));
 
-    preg_match('/const offset = (-?\d+);/', $params['source'], $matches);
-    $offset = (int) $matches[1];
+    $offset = (int) ($matches[1] ?? '');
     $this->assertGreaterThanOrEqual(1798156740000 - $after, $offset);
     $this->assertLessThanOrEqual(1798156740000 - $before, $offset);
   }
