@@ -110,8 +110,14 @@ class ChromeAdapter extends BrowserAdapterBase implements ClockCapabilityInterfa
 
   /**
    * {@inheritdoc}
+   *
+   * The native return type stays 'object': a narrower one would load the
+   * browser driver's classes with this adapter, which must load without them.
+   *
+   * @return \DMore\ChromeDriver\ChromePage
+   *   The page connection.
    */
-  protected function devToolsConnection(): ChromePage {
+  protected function devToolsConnection(): object {
     $page = (new \ReflectionProperty(ChromeDriver::class, self::PAGE_PROPERTY))->getValue($this->driver);
 
     if (!$page instanceof ChromePage) {

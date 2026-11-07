@@ -23,6 +23,7 @@ use DrevOps\BehatSteps\Tests\Unit\Extension\Browser\Fixtures\AnyDriverAdapter;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\BrowserKit\AbstractBrowser;
 use WebDriver\Session;
 
 /**
@@ -185,6 +186,49 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     $this->skipWithoutDriver(ChromeDriver::class);
 
     $this->assertTrue((new \ReflectionClass(ChromeDriver::class))->hasProperty(ChromeAdapter::PAGE_PROPERTY), sprintf('%s still declares $%s.', ChromeDriver::class, ChromeAdapter::PAGE_PROPERTY));
+  }
+
+  /**
+   * Tests that no adapter signature names a class of a browser driver package.
+   *
+   * PHP loads a class named in an overriding method's signature when it loads
+   * the adapter, to check the override. A browser driver package that is
+   * absent, or that raises a deprecation as it loads, would then fail every
+   * scenario through the resolver.
+   *
+   * @param class-string $adapter
+   *   The adapter class to read.
+   */
+  #[DataProvider('dataProviderAdapterSignaturesNameNoDriverPackageClass')]
+  public function testAdapterSignaturesNameNoDriverPackageClass(string $adapter): void {
+    $allowed = ['DrevOps\\BehatSteps\\', DriverInterface::class, AbstractBrowser::class];
+    $violations = [];
+
+    foreach ((new \ReflectionClass($adapter))->getMethods() as $method) {
+      $types = array_map(static fn(\ReflectionParameter $parameter): ?\ReflectionType => $parameter->getType(), $method->getParameters());
+      $types[] = $method->getReturnType();
+
+      foreach ($types as $type) {
+        if (!$type instanceof \ReflectionNamedType || $type->isBuiltin()) {
+          continue;
+        }
+
+        $name = $type->getName();
+        $is_allowed = array_filter($allowed, static fn(string $prefix): bool => str_starts_with($name, $prefix)) !== [];
+
+        if (!$is_allowed) {
+          $violations[] = sprintf('%s() names %s', $method->getName(), $name);
+        }
+      }
+    }
+
+    $this->assertSame([], $violations);
+  }
+
+  public static function dataProviderAdapterSignaturesNameNoDriverPackageClass(): \Iterator {
+    yield 'browserkit' => [BrowserKitAdapter::class];
+    yield 'selenium2' => [Selenium2Adapter::class];
+    yield 'chrome' => [ChromeAdapter::class];
   }
 
   /**

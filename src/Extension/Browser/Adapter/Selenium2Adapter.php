@@ -13,7 +13,6 @@ use DrevOps\BehatSteps\Extension\Browser\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\KeyboardCapabilityInterface;
 use WebDriver\Exception\UnknownCommand;
-use WebDriver\Session;
 
 /**
  * Capabilities of the Selenium2 browser driver.
@@ -96,8 +95,14 @@ class Selenium2Adapter extends BrowserAdapterBase implements ClockCapabilityInte
 
   /**
    * {@inheritdoc}
+   *
+   * The native return type stays 'object': a narrower one would load the
+   * browser driver's classes with this adapter, which must load without them.
+   *
+   * @return \WebDriver\Session
+   *   The WebDriver session.
    */
-  protected function devToolsConnection(): Session {
+  protected function devToolsConnection(): object {
     /** @var \Behat\Mink\Driver\Selenium2Driver $driver */
     $driver = $this->driver;
 
