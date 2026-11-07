@@ -192,7 +192,7 @@ class MetatagTraitTest extends UnitTestCase {
   /**
    * Tests that a malformed properties table is rejected.
    *
-   * @param array<int, array<int, string>> $rows
+   * @param array<int, list<string>> $rows
    *   The table rows, the header first.
    * @param string $expected_message
    *   The message the parse is expected to fail with.
