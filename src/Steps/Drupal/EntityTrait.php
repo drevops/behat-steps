@@ -235,7 +235,7 @@ trait EntityTrait {
    * @return string
    *   The argument with every entity ID token resolved.
    */
-  #[Transform('#(.*\[id:[a-z0-9_]+(?:\.[a-z0-9_]+)?:.*\].*)#')]
+  #[Transform('#(.*\[id:[a-z0-9_]+(?:\.[a-z0-9_]+)?:.*\].*)#s')]
   public function entityTransformValue(string $argument): string {
     if (!$this->entityEnabled) {
       return $argument;

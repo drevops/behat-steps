@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
+use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
@@ -123,6 +124,20 @@ class EntityTraitTest extends UnitTestCase {
     yield 'an uppercase entity type stays literal' => ['[id:Node:Home]', [], '[id:Node:Home]'];
     yield 'unbalanced brackets stay literal' => ['[id:node:[TEST Page]', [], '[id:node:[TEST Page]'];
     yield 'no token' => ['/plain/path', [], '/plain/path'];
+  }
+
+  public function testTransformValuePatternCapturesEveryLine(): void {
+    $attributes = (new \ReflectionMethod(EntityTraitTestImplementation::class, 'entityTransformValue'))->getAttributes(Transform::class);
+    $pattern = $attributes[0]->getArguments()[0];
+    $argument = "First line\n/user/[id:user:jane]\nLast line";
+
+    $this->assertSame(1, preg_match($pattern, $argument, $matches));
+    $this->assertSame($argument, $matches[1]);
+
+    $backend = $this->createBackend(TRUE);
+    $backend->method('findEntityIds')->willReturn(['12']);
+
+    $this->assertSame("First line\n/user/12\nLast line", $this->createContext($backend)->entityTransformValue($matches[1]));
   }
 
   public function testTransformTableResolvesEveryCell(): void {
