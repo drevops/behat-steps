@@ -21,6 +21,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * - Assert canonical URL, robots directives and indexability.
  * - Assert hreflang alternates are valid and reciprocal.
  * - Assert Open Graph and Twitter Card completeness.
+ * - Assert schema.org JSON-LD items and their properties.
  *
  * @title Meta tags
  *
@@ -29,6 +30,16 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 trait MetatagTrait {
 
   use StringTrait;
+
+  /**
+   * The JSON-LD property value that stands for the URL of the page.
+   */
+  protected const string METATAG_JSON_LD_CURRENT_URL = '[current_url]';
+
+  /**
+   * The JSON-LD property value that asserts the property is not empty.
+   */
+  protected const string METATAG_JSON_LD_NOT_EMPTY = '[not_empty]';
 
   /**
    * Assert that a meta tag with specific attributes and values exists.
@@ -341,6 +352,68 @@ trait MetatagTrait {
   #[Then('the following Twitter Card tags should exist:')]
   public function metatagAssertTwitterCardTagsExist(TableNode $table): void {
     $this->metatagAssertMetaSetExists($this->metatagTablePropertyNames($table), 'Twitter Card');
+  }
+
+  /**
+   * Assert that a schema.org JSON-LD item of a type exists on the page.
+   *
+   * Every `<script type="application/ld+json">` block on the page is read.
+   * An item counts when it sits at the top level of a block, directly or in
+   * its `@graph`, and its `@context` names schema.org.
+   *
+   * @code
+   * Then a "WebSite" JSON-LD item should exist
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Then('a :schema_type JSON-LD item should exist')]
+  public function metatagAssertJsonLdItemExists(string $schema_type): void {
+    if ($this->metatagGetJsonLdItems($schema_type) === []) {
+      throw new ExpectationException($this->metatagFormatJsonLdItemNotFound($schema_type), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that no schema.org JSON-LD item of a type exists on the page.
+   *
+   * @code
+   * Then a "NewsArticle" JSON-LD item should not exist
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Then('a :schema_type JSON-LD item should not exist')]
+  public function metatagAssertJsonLdItemNotExists(string $schema_type): void {
+    if ($this->metatagGetJsonLdItems($schema_type) !== []) {
+      throw new ExpectationException(sprintf('The schema.org JSON-LD item of the type "%s" exists on the page, but it should not.', $schema_type), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a schema.org JSON-LD item of a type has the listed properties.
+   *
+   * The table lists a property and its expected value per row. A dot path
+   * reaches a nested property, and a numeric segment indexes a list, as in
+   * `partOfSeries.name` or `author.0.name`. A plain value asserts equality,
+   * `[current_url]` stands for the URL of the page and `[not_empty]` asserts
+   * the property exists and is not empty.
+   *
+   * When several items have the type, 1 of them has to match every row.
+   *
+   * @code
+   * Then a "PodcastEpisode" JSON-LD item with the following properties should exist:
+   *   | property          | value         |
+   *   | url               | [current_url] |
+   *   | name              | [not_empty]   |
+   *   | partOfSeries.name | My podcast    |
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Then('a :schema_type JSON-LD item with the following properties should exist:')]
+  public function metatagAssertJsonLdItemExistsWithProperties(string $schema_type, TableNode $table): void {
+    $this->metatagAssertJsonLdItemHasProperties($schema_type, $this->metatagParseJsonLdPropertyTable($table));
   }
 
   /**
@@ -745,6 +818,295 @@ trait MetatagTrait {
    */
   public function metatagGetRequiredTwitterCardTags(): array {
     return ['twitter:card', 'twitter:title', 'twitter:description'];
+  }
+
+  /**
+   * Get the schema.org JSON-LD items on the page.
+   *
+   * Every `<script type="application/ld+json">` block is read in document
+   * order. The items of a block are the members of its `@graph`, the members
+   * of a list, or the block's object itself. An item counts when its own
+   * `@context`, or the `@context` of its block, names schema.org.
+   *
+   * @param string|null $schema_type
+   *   The `@type` an item must carry, or NULL for every item.
+   *
+   * @return array<int, array<int|string, mixed>>
+   *   The decoded items, or an empty array when none matches.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When a block is not valid JSON or holds no object or list.
+   */
+  public function metatagGetJsonLdItems(?string $schema_type = NULL): array {
+    $items = [];
+    $scripts = $this->getSession()->getPage()->findAll('css', 'script[type="application/ld+json"]');
+
+    foreach ($scripts as $index => $script) {
+      $data = json_decode(trim($script->getHtml()), TRUE);
+
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        throw new ExpectationException(sprintf('The JSON-LD script at the position "%d" is not valid JSON: %s.', $index + 1, json_last_error_msg()), $this->getSession()->getDriver());
+      }
+
+      if (!is_array($data)) {
+        throw new ExpectationException(sprintf('The JSON-LD script at the position "%d" holds no JSON object or list.', $index + 1), $this->getSession()->getDriver());
+      }
+
+      array_push($items, ...$this->metatagExtractJsonLdItems($data));
+    }
+
+    if ($schema_type === NULL) {
+      return $items;
+    }
+
+    return array_values(array_filter($items, fn(array $item): bool => in_array($schema_type, $this->metatagGetJsonLdItemTypes($item), TRUE)));
+  }
+
+  /**
+   * Assert that a schema.org JSON-LD item of a type has the given properties.
+   *
+   * The assertion passes when any item of the type matches every property.
+   *
+   * @param string $schema_type
+   *   The `@type` of the item.
+   * @param array<int|string, string> $properties
+   *   The expected values, keyed by a property name or a dot path. A value of
+   *   `[current_url]` stands for the URL of the page, and `[not_empty]`
+   *   asserts the property exists and is not empty.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no item of the type exists, or none has every property.
+   */
+  public function metatagAssertJsonLdItemHasProperties(string $schema_type, array $properties): void {
+    $items = $this->metatagGetJsonLdItems($schema_type);
+
+    if ($items === []) {
+      throw new ExpectationException($this->metatagFormatJsonLdItemNotFound($schema_type), $this->getSession()->getDriver());
+    }
+
+    $current_url = $this->getSession()->getCurrentUrl();
+    $lines = [];
+
+    foreach ($items as $index => $item) {
+      $mismatches = $this->metatagCompareJsonLdItem($item, $properties, $current_url);
+
+      if ($mismatches === []) {
+        return;
+      }
+
+      foreach ($mismatches as $mismatch) {
+        $lines[] = sprintf('- Item %d: %s', $index + 1, $mismatch);
+      }
+    }
+
+    throw new ExpectationException(sprintf('No schema.org JSON-LD item of the type "%s" has the expected properties:', $schema_type) . PHP_EOL . implode(PHP_EOL, $lines), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Extract the top-level schema.org items from a decoded JSON-LD block.
+   *
+   * @param array<int|string, mixed> $data
+   *   The decoded block, or a list or a graph inside it.
+   * @param mixed $context
+   *   The `@context` of the enclosing object, or NULL at the top of a block.
+   *
+   * @return array<int, array<int|string, mixed>>
+   *   The items whose `@context` names schema.org.
+   */
+  protected function metatagExtractJsonLdItems(array $data, mixed $context = NULL): array {
+    if (array_is_list($data)) {
+      $items = [];
+
+      foreach ($data as $member) {
+        if (is_array($member)) {
+          array_push($items, ...$this->metatagExtractJsonLdItems($member, $context));
+        }
+      }
+
+      return $items;
+    }
+
+    $context = $data['@context'] ?? $context;
+
+    if (isset($data['@graph']) && is_array($data['@graph'])) {
+      return $this->metatagExtractJsonLdItems($data['@graph'], $context);
+    }
+
+    return $this->metatagIsSchemaOrgContext($context) ? [$data] : [];
+  }
+
+  /**
+   * Determine whether a JSON-LD `@context` names schema.org.
+   *
+   * @param mixed $context
+   *   A context URL, a list of contexts or a context object with `@vocab`.
+   *
+   * @return bool
+   *   TRUE when the context, a member of it or its `@vocab` is the schema.org
+   *   URL, over HTTP or HTTPS and with or without a trailing slash.
+   */
+  protected function metatagIsSchemaOrgContext(mixed $context): bool {
+    if (is_string($context)) {
+      return preg_match('#^https?://schema\.org/?$#i', $context) === 1;
+    }
+
+    if (!is_array($context)) {
+      return FALSE;
+    }
+
+    if (!array_is_list($context)) {
+      return $this->metatagIsSchemaOrgContext($context['@vocab'] ?? NULL);
+    }
+
+    foreach ($context as $member) {
+      if ($this->metatagIsSchemaOrgContext($member)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Get the types a JSON-LD item declares.
+   *
+   * @param array<int|string, mixed> $item
+   *   The decoded item.
+   *
+   * @return array<int, string>
+   *   The values of `@type`, which may be a string or a list of strings.
+   */
+  protected function metatagGetJsonLdItemTypes(array $item): array {
+    $types = $item['@type'] ?? [];
+
+    return array_values(array_filter(is_array($types) ? $types : [$types], is_string(...)));
+  }
+
+  /**
+   * Format the failure message for a missing JSON-LD item.
+   *
+   * @param string $schema_type
+   *   The `@type` that no item carries.
+   *
+   * @return string
+   *   The message, listing the types the page does carry.
+   */
+  protected function metatagFormatJsonLdItemNotFound(string $schema_type): string {
+    $types = array_unique(array_merge(...array_map($this->metatagGetJsonLdItemTypes(...), $this->metatagGetJsonLdItems())));
+    $quoted = array_map(static fn(string $type): string => sprintf('"%s"', $type), $types);
+
+    return sprintf('No schema.org JSON-LD item of the type "%s" was found on the page. Found types: %s.', $schema_type, $quoted === [] ? '(none)' : implode(', ', $quoted));
+  }
+
+  /**
+   * Compare a JSON-LD item against expected property values.
+   *
+   * @param array<int|string, mixed> $item
+   *   The decoded item.
+   * @param array<int|string, string> $properties
+   *   The expected values, keyed by a property name or a dot path.
+   * @param string $current_url
+   *   The URL `[current_url]` stands for.
+   *
+   * @return array<int, string>
+   *   A description of each property that does not match, or an empty array
+   *   when every property matches.
+   */
+  protected function metatagCompareJsonLdItem(array $item, array $properties, string $current_url): array {
+    $mismatches = [];
+
+    foreach ($properties as $path => $expected) {
+      $mismatch = $this->metatagCompareJsonLdProperty($item, (string) $path, $expected === self::METATAG_JSON_LD_CURRENT_URL ? $current_url : $expected);
+
+      if ($mismatch !== NULL) {
+        $mismatches[] = $mismatch;
+      }
+    }
+
+    return $mismatches;
+  }
+
+  /**
+   * Compare 1 property of a JSON-LD item against an expected value.
+   *
+   * @param array<int|string, mixed> $item
+   *   The decoded item.
+   * @param string $path
+   *   The property name, or a dot path whose numeric segments index a list.
+   * @param string $expected
+   *   The expected value, or `[not_empty]`.
+   *
+   * @return string|null
+   *   A description of the mismatch, or NULL when the property matches.
+   */
+  protected function metatagCompareJsonLdProperty(array $item, string $path, string $expected): ?string {
+    $value = $item;
+
+    foreach (explode('.', $path) as $segment) {
+      if (!is_array($value) || !array_key_exists($segment, $value)) {
+        return sprintf('the property "%s" does not exist.', $path);
+      }
+
+      $value = $value[$segment];
+    }
+
+    if ($expected === self::METATAG_JSON_LD_NOT_EMPTY) {
+      $is_empty = $value === NULL || $value === [] || (is_string($value) && trim($value) === '');
+
+      return $is_empty ? sprintf('the property "%s" is empty, but it should not be.', $path) : NULL;
+    }
+
+    if (is_array($value)) {
+      return sprintf('the property "%s" holds an object or a list, but it should have the value "%s".', $path, $expected);
+    }
+
+    // JSON writes null in lowercase, which stringFormatValue() does not.
+    $actual = $value === NULL ? 'null' : $this->stringFormatValue($value);
+
+    return $actual === $expected ? NULL : sprintf('the property "%s" has the value "%s", but it should have the value "%s".', $path, $actual, $expected);
+  }
+
+  /**
+   * Parse a `property | value` table into expected JSON-LD property values.
+   *
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   The table, with a "property" and a "value" column.
+   *
+   * @return array<string, string>
+   *   The expected values, keyed by property.
+   *
+   * @throws \RuntimeException
+   *   When a column is missing, a property is empty or repeated, or the table
+   *   lists no property.
+   */
+  protected function metatagParseJsonLdPropertyTable(TableNode $table): array {
+    $header = $table->getRow(0);
+
+    if (!in_array('property', $header, TRUE) || !in_array('value', $header, TRUE)) {
+      throw new \RuntimeException('The properties table must contain "property" and "value" columns.');
+    }
+
+    $properties = [];
+
+    foreach ($table->getHash() as $row) {
+      $property = trim((string) $row['property']);
+
+      if ($property === '') {
+        throw new \RuntimeException('The properties table has a row with an empty property.');
+      }
+
+      if (array_key_exists($property, $properties)) {
+        throw new \RuntimeException(sprintf('The property "%s" appears more than once in the properties table.', $property));
+      }
+
+      $properties[$property] = (string) $row['value'];
+    }
+
+    if ($properties === []) {
+      throw new \RuntimeException('The properties table must list at least 1 property.');
+    }
+
+    return $properties;
   }
 
 }

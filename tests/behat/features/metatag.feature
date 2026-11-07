@@ -427,3 +427,205 @@ Feature: Check that MetatagTrait works
       """
       The following required Twitter Card meta tags are missing or empty: twitter:card.
       """
+
+  @phpserver @jsonld
+  Scenario: Assert "Then a :schema_type JSON-LD item should exist" finds the items of every block shape
+    When I visit "http://cli:8888/metatags_jsonld.html"
+    Then a "PodcastEpisode" JSON-LD item should exist
+    And a "WebSite" JSON-LD item should exist
+    And a "NewsArticle" JSON-LD item should exist
+    And a "Person" JSON-LD item should exist
+
+  @phpserver @jsonld
+  Scenario: Assert "Then a :schema_type JSON-LD item should not exist" skips nested items, other vocabularies and absent types
+    When I visit "http://cli:8888/metatags_jsonld.html"
+    Then a "PodcastSeries" JSON-LD item should not exist
+    And a "Event" JSON-LD item should not exist
+    And a "Recipe" JSON-LD item should not exist
+
+  @phpserver @jsonld
+  Scenario: Assert "Then a :schema_type JSON-LD item with the following properties should exist:" works as expected
+    When I visit "http://cli:8888/metatags_jsonld.html"
+    Then a "PodcastEpisode" JSON-LD item with the following properties should exist:
+      | property            | value                  |
+      | url                 | [current_url]          |
+      | @id                 | [current_url]          |
+      | name                | Episode   one & <more> |
+      | duration            | [not_empty]            |
+      | partOfSeries        | [not_empty]            |
+      | partOfSeries.name   | Café radio             |
+      | episodeNumber       | 3                      |
+      | isAccessibleForFree | true                   |
+      | keywords.1          | testing                |
+    And a "NewsArticle" JSON-LD item with the following properties should exist:
+      | property | value         |
+      | headline | Breaking news |
+
+  @phpserver @jsonld
+  Scenario: Assert "Then a :schema_type JSON-LD item with the following properties should exist:" matches any item of the type
+    When I visit "http://cli:8888/metatags_jsonld.html"
+    Then a "Person" JSON-LD item with the following properties should exist:
+      | property | value |
+      | name     | John  |
+
+  @test-trait:MetatagTrait
+  Scenario: Assert that "Then a :schema_type JSON-LD item should exist" fails when no item has the type
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/metatags_jsonld.html"
+      Then a "Recipe" JSON-LD item should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No schema.org JSON-LD item of the type "Recipe" was found on the page. Found types: "PodcastEpisode", "WebSite", "Article", "NewsArticle", "Person".
+      """
+
+  @test-trait:MetatagTrait
+  Scenario: Assert that "Then a :schema_type JSON-LD item should exist" fails on a page without JSON-LD
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/metatags.html"
+      Then a "WebSite" JSON-LD item should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No schema.org JSON-LD item of the type "WebSite" was found on the page. Found types: (none).
+      """
+
+  @test-trait:MetatagTrait
+  Scenario: Assert that "Then a :schema_type JSON-LD item should not exist" fails when an item has the type
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/metatags_jsonld.html"
+      Then a "WebSite" JSON-LD item should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The schema.org JSON-LD item of the type "WebSite" exists on the page, but it should not.
+      """
+
+  @test-trait:MetatagTrait
+  Scenario Outline: Assert that "Then a :schema_type JSON-LD item should exist" fails on a malformed JSON-LD block
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/<page>"
+      Then a "WebSite" JSON-LD item should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      <message>
+      """
+    Examples:
+      | page                         | message                                                                       |
+      | metatags_jsonld_invalid.html | The JSON-LD script at the position "2" is not valid JSON: Syntax error.       |
+      | metatags_jsonld_scalar.html  | The JSON-LD script at the position "1" holds no JSON object or list.          |
+
+  @test-trait:MetatagTrait
+  Scenario Outline: Assert that "Then a :schema_type JSON-LD item with the following properties should exist:" fails when a property does not match
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/metatags_jsonld.html"
+      Then a "PodcastEpisode" JSON-LD item with the following properties should exist:
+        | property   | value      |
+        | <property> | <expected> |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      <message>
+      """
+    Examples:
+      | property          | expected      | message                                                                                                           |
+      | transcript        | [not_empty]   | - Item 1: the property "transcript" does not exist.                                                              |
+      | name.first        | Episode       | - Item 1: the property "name.first" does not exist.                                                              |
+      | keywords.5        | behat         | - Item 1: the property "keywords.5" does not exist.                                                              |
+      | description       | [not_empty]   | - Item 1: the property "description" is empty, but it should not be.                                             |
+      | duration          | PT1H          | - Item 1: the property "duration" has the value "PT42M", but it should have the value "PT1H".                    |
+      | partOfSeries      | Café radio    | - Item 1: the property "partOfSeries" holds an object or a list, but it should have the value "Café radio".      |
+      | partOfSeries.name | [current_url] | - Item 1: the property "partOfSeries.name" has the value "Café radio", but it should have the value "http://cli:8888/metatags_jsonld.html". |
+
+  @test-trait:MetatagTrait
+  Scenario: Assert that "Then a :schema_type JSON-LD item with the following properties should exist:" lists the mismatches of every item
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/metatags_jsonld.html"
+      Then a "Person" JSON-LD item with the following properties should exist:
+        | property | value |
+        | name     | Joan  |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No schema.org JSON-LD item of the type "Person" has the expected properties:
+      """
+    And the output should contain:
+      """
+      - Item 1: the property "name" has the value "Jane", but it should have the value "Joan".
+      """
+    And the output should contain:
+      """
+      - Item 2: the property "name" has the value "John", but it should have the value "Joan".
+      """
+
+  @test-trait:MetatagTrait
+  Scenario: Assert that "Then a :schema_type JSON-LD item with the following properties should exist:" fails when no item has the type
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/metatags_jsonld.html"
+      Then a "Recipe" JSON-LD item with the following properties should exist:
+        | property | value       |
+        | name     | [not_empty] |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No schema.org JSON-LD item of the type "Recipe" was found on the page.
+      """
+
+  @test-trait:MetatagTrait
+  Scenario Outline: Assert that "Then a :schema_type JSON-LD item with the following properties should exist:" fails on a malformed properties table
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/metatags_jsonld.html"
+      Then a "WebSite" JSON-LD item with the following properties should exist:
+        | <header> | value        |
+        | <first>  | Example site |
+        | <second> | Example site |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      <message>
+      """
+    Examples:
+      | header   | first | second | message                                                               |
+      | name     | name  | url    | The properties table must contain "property" and "value" columns.     |
+      | property |       | name   | The properties table has a row with an empty property.                |
+      | property | name  | name   | The property "name" appears more than once in the properties table.   |
+
+  @test-trait:MetatagTrait
+  Scenario: Assert that "Then a :schema_type JSON-LD item with the following properties should exist:" fails on a properties table without rows
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/metatags_jsonld.html"
+      Then a "WebSite" JSON-LD item with the following properties should exist:
+        | property | value |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The properties table must list at least 1 property.
+      """
