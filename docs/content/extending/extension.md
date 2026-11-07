@@ -93,7 +93,7 @@ The container builds the 3 registries and 2 authenticators from the classes that
 | `behat_steps.backend_registry.class` | `BackendRegistry` | `BackendRegistryInterface` | An empty array, followed by 1 `registerBackend()` call for each backend the extension registers |
 | `behat_steps.scenario_tag_registry.class` | `ScenarioTagRegistry` | `ScenarioTagRegistryInterface` | Nothing |
 | `behat_steps.user_registry.class` | `UserRegistry` | `UserRegistryInterface` | Nothing |
-| `behat_steps.authenticator.class` | `Authenticator` | `AuthenticatorInterface`, and optionally `FastLogoutInterface` | `@mink`, `@behat_steps.user_registry`, `@behat_steps.backend_registry`, `@behat_steps.basic_authenticator`, `%mink.parameters%` and `%behat_steps.parameters%` |
+| `behat_steps.authenticator.class` | `Authenticator` | `AuthenticatorInterface`, and optionally `FastLogoutInterface` and `UrlLoginInterface` | `@mink`, `@behat_steps.user_registry`, `@behat_steps.backend_registry`, `@behat_steps.basic_authenticator`, `%mink.parameters%` and `%behat_steps.parameters%` |
 | `behat_steps.basic_authenticator.class` | `BasicAuthenticator` | `BasicAuthenticatorInterface` | `@mink` and `%mink.parameters%` |
 
 Set the parameter in `process()`:
@@ -113,6 +113,8 @@ Only the class changes. The container builds yours with the arguments and calls 
 
 - With it, `AuthTrait` calls `fastLogout()`. The shipped `Authenticator::fastLogout()` resets the browser session, so the site runs no logout hook. The method also logs out of the first backend in the scenario's order that provides authentication, when the scenario already reached that backend.
 - Without it, `AuthTrait` calls `logout()` only while a user is still logged in.
+
+`UrlLoginInterface` lets `AuthTrait::authLoginWithUrl()` log a user in by visiting a URL. The `When I log in through the one-time login link for the user :name` step calls it. The shipped `Authenticator::loginWithUrl()` resets the session, visits the URL and confirms that a user is logged in. It then records the user as the current user and logs in on the backend, as `login()` does. With an authenticator that lacks the interface, `authLoginWithUrl()` throws a `\RuntimeException` that names the authenticator class.
 
 ## Replace option resolution
 
