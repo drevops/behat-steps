@@ -204,7 +204,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     $allowed = ['DrevOps\\BehatSteps\\', DriverInterface::class, AbstractBrowser::class];
     $violations = [];
 
-    foreach ((new \ReflectionClass($adapter))->getMethods() as $method) {
+    foreach (static::reflect($adapter)->getMethods() as $method) {
       $types = array_map(static fn(\ReflectionParameter $parameter): ?\ReflectionType => $parameter->getType(), $method->getParameters());
       $types[] = $method->getReturnType();
 
@@ -214,7 +214,8 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
         }
 
         $name = $type->getName();
-        $is_allowed = array_filter($allowed, static fn(string $prefix): bool => str_starts_with($name, $prefix)) !== [];
+        // A class in the global namespace, such as '\WeakMap', is PHP's own.
+        $is_allowed = !str_contains($name, '\\') || array_filter($allowed, static fn(string $prefix): bool => str_starts_with($name, $prefix)) !== [];
 
         if (!$is_allowed) {
           $violations[] = sprintf('%s() names %s', $method->getName(), $name);
