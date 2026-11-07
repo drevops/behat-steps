@@ -26,6 +26,20 @@ interface EntityDefinitionCapabilityInterface {
   public function getEntityIdKey(string $entity_type): string;
 
   /**
+   * Returns the key an entity type stores its label under.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   *
+   * @return string
+   *   The label key, such as 'title' for a node or 'name' for a user.
+   *
+   * @throws \RuntimeException
+   *   When the entity type is unknown or declares no label key.
+   */
+  public function getEntityLabelKey(string $entity_type): string;
+
+  /**
    * Whether an entity type has a bundle.
    *
    * @param string $entity_type

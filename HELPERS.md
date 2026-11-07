@@ -52,6 +52,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\DrushTrait](#drupaldrushtrait) | 4 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 5 | Manage Drupal ECK entities of an existing entity type and bundle. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 11 | Test Drupal email functionality with content verification. |
+| [Drupal\EntityTrait](#drupalentitytrait) | 3 | Create entities of a type that has no dedicated trait, and reference them. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 6 | Manage Drupal menus and menu links. |
@@ -2374,6 +2375,39 @@ Get the collected emails sent to an address
 
 <br/>
 Get the collected emails with a subject
+<br/><br/>
+
+</details>
+
+## Drupal\EntityTrait
+
+[Source](src/Steps/Drupal/EntityTrait.php), [Steps](STEPS.md#drupalentitytrait)
+
+> Create entities of a type that has no dedicated trait, and reference them.
+
+<details>
+  <summary><code>public function entityFillAutocompleteField(string $field, string $entity_type, string $label, ?string $bundle = NULL): void</code></summary>
+
+<br/>
+Fill in an entity reference autocomplete field with an entity's label
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityFindIdByLabel(string $entity_type, string $label, ?string $bundle = NULL): ?string</code></summary>
+
+<br/>
+Find the id of the newest entity of a type with a label
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityGetIdByLabel(string $entity_type, string $label, ?string $bundle = NULL): string</code></summary>
+
+<br/>
+Get the id of the newest entity of a type with a label
 <br/><br/>
 
 </details>

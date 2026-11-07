@@ -51,7 +51,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\DrushTrait](#drupaldrushtrait) | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | Manage Drupal ECK entities of an existing entity type and bundle. |
 | [Drupal\EmailTrait](#drupalemailtrait) | Test Drupal email functionality with content verification. |
-| [Drupal\EntityTrait](#drupalentitytrait) | Create entities of a type that has no dedicated trait. |
+| [Drupal\EntityTrait](#drupalentitytrait) | Create entities of a type that has no dedicated trait, and reference them. |
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\LanguageTrait](#drupallanguagetrait) | Create the languages a scenario needs. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
@@ -5990,8 +5990,9 @@ Then the file "report.xlsx" should be attached to the email with a subject conta
 
 [Source](src/Steps/Drupal/EntityTrait.php), [Example](tests/behat/features/drupal_entity.feature)
 
->  Create entities of a type that has no dedicated trait.
+>  Create entities of a type that has no dedicated trait, and reference them.
 >  - Create entities of any type from a table of field values.
+>  - Fill in an entity reference autocomplete field with an entity's label.
 >  
 >  Covers types such as `commerce_product` or `group`, where a dedicated trait
 >  would add vocabulary without adding behavior. Entities created here are
@@ -6014,6 +6015,33 @@ Given the following "commerce_product" entities exist:
   | title | type    | status |
   | TNT   | product | 1      |
   | Anvil | product | 1      |
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the entity reference field :field with the :entity_type entity with the label :label</code></summary>
+
+<br/>
+Fill in an entity reference autocomplete field with an entity's label
+<br/><br/>
+
+```gherkin
+When I fill in the entity reference field "Authored by" with the "user" entity with the label "jane"
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the entity reference field :field with the :bundle :entity_type entity with the label :label</code></summary>
+
+<br/>
+Fill in an entity reference autocomplete field with a bundle entity
+<br/><br/>
+
+```gherkin
+When I fill in the entity reference field "Program" with the "program" "node" entity with the label "Morning show"
+When I fill in the entity reference field "Tags" with the "tags" "taxonomy_term" entity with the label "Jazz"
 ```
 
 </details>

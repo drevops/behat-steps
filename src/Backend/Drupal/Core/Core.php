@@ -1207,6 +1207,22 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * A user declares no label key and stores its label under 'name'.
+   */
+  public function getEntityLabelKey(string $entity_type): string {
+    $definition = $this->loadEntityTypeDefinition($entity_type);
+    $label_key = $entity_type === 'user' ? 'name' : $definition->getKey('label');
+
+    if (!is_string($label_key) || $label_key === '') {
+      throw new \RuntimeException(sprintf('The entity type "%s" declares no label key.', $entity_type));
+    }
+
+    return $label_key;
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function bundleExists(string $entity_type, string $bundle): bool {
     return array_key_exists($bundle, $this->getBundleInfo($entity_type));

@@ -52,7 +52,7 @@ You can find a step in 3 ways:
 | [Drush](drush.md) | `Drupal\DrushTrait` | Run Drush commands and assert their output. |
 | [ECK entities](eck.md) | `Drupal\EckTrait` | Manage Drupal ECK entities of an existing entity type and bundle. |
 | [Email](email.md) | `Drupal\EmailTrait` | Test Drupal email functionality with content verification. |
-| [Entities](entity.md) | `Drupal\EntityTrait` | Create entities of a type that has no dedicated trait. |
+| [Entities](entity.md) | `Drupal\EntityTrait` | Create entities of a type that has no dedicated trait, and reference them. |
 | [Files](file.md) | `Drupal\FileTrait` | Manage Drupal file entities with upload and storage operations. |
 | [Languages](language.md) | `Drupal\LanguageTrait` | Create the languages a scenario needs. |
 | [Media](media.md) | `Drupal\MediaTrait` | Manage Drupal media entities with type-specific field handling. |
