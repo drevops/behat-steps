@@ -98,9 +98,13 @@ class ColorFieldTypeHandler extends AbstractHandler {
       throw new \RuntimeException(sprintf('Color field value must be a string or an array. Got %s.', get_debug_type($value)));
     }
 
-    foreach (array_keys($value) as $key) {
+    foreach ($value as $key => $sub_value) {
       if ($key !== self::PROPERTY_COLOR && $key !== self::PROPERTY_OPACITY) {
         throw new \RuntimeException(sprintf('Invalid color sub-field key "%s". Use "color" and "opacity".', $key));
+      }
+
+      if ($sub_value !== NULL && !is_scalar($sub_value)) {
+        throw new \RuntimeException(sprintf('The color sub-field "%s" must be a string, a number or NULL. Got %s.', $key, get_debug_type($sub_value)));
       }
     }
 
