@@ -72,6 +72,29 @@ class CoreEntityDefinitionMethodsKernelTest extends KernelTestBase {
     $this->core->getEntityIdKey('nonexistent_type');
   }
 
+  #[DataProvider('dataProviderGetEntityLabelKey')]
+  public function testGetEntityLabelKey(string $entity_type, string $expected): void {
+    $this->assertSame($expected, $this->core->getEntityLabelKey($entity_type));
+  }
+
+  public static function dataProviderGetEntityLabelKey(): \Iterator {
+    yield 'a user, which declares no label key' => ['user', 'name'];
+    yield 'a test entity' => ['entity_test', 'name'];
+  }
+
+  #[DataProvider('dataProviderGetEntityLabelKeyRejects')]
+  public function testGetEntityLabelKeyRejects(string $entity_type, string $expected_message): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $this->core->getEntityLabelKey($entity_type);
+  }
+
+  public static function dataProviderGetEntityLabelKeyRejects(): \Iterator {
+    yield 'an entity type without a label key' => ['entity_test_no_label', 'The entity type "entity_test_no_label" declares no label key.'];
+    yield 'an unknown entity type' => ['nonexistent_type', 'Unknown entity type "nonexistent_type".'];
+  }
+
   /**
    * Tests that a bundle is reported as existing only on its entity type.
    *

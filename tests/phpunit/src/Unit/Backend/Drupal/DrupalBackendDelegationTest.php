@@ -171,6 +171,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'duplicateConfigEntity' => ['duplicateConfigEntity', [$config_entity, ['id' => 'footer_copy']], 'duplicateConfigEntity'];
     yield 'findEntityIds' => ['findEntityIds', ['node', ['title' => 'Shared'], 'page'], 'findEntityIds'];
     yield 'getEntityIdKey' => ['getEntityIdKey', ['node'], 'getEntityIdKey'];
+    yield 'getEntityLabelKey' => ['getEntityLabelKey', ['node'], 'getEntityLabelKey'];
     yield 'getEntityFieldTypes' => ['getEntityFieldTypes', ['node', 'article'], 'getEntityFieldTypes'];
     yield 'parseEntityFields' => ['parseEntityFields', [$node, ['author']], 'parseEntityFields'];
     yield 'registerFieldHandler' => ['registerFieldHandler', ['rating', 'Acme\RatingHandler'], 'registerFieldHandler'];

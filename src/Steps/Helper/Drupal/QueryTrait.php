@@ -124,6 +124,29 @@ trait QueryTrait {
   }
 
   /**
+   * Find the id of the newest entity of a type with a label.
+   *
+   * @param string $entity_type
+   *   The entity type id. Its ids must be serial, as content entity ids are.
+   * @param string $label
+   *   The label to match exactly.
+   * @param string|null $bundle
+   *   Bundle to restrict the query to, or NULL for every bundle.
+   *
+   * @return string|null
+   *   The id of the entity created last with the label, or NULL when no
+   *   entity has it.
+   *
+   * @throws \RuntimeException
+   *   When the entity type is unknown or has no label field.
+   */
+  public function queryFindNewestEntityIdByLabel(string $entity_type, string $label, ?string $bundle = NULL): ?string {
+    $label_key = $this->backendFor(EntityLookupCapabilityInterface::class)->getEntityLabelKey($entity_type);
+
+    return $this->queryFindNewestEntityId($entity_type, [$label_key => $label], $bundle);
+  }
+
+  /**
    * Load the ids of the nodes of a content type matching the conditions.
    *
    * @param string $content_type

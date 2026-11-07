@@ -380,6 +380,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function getEntityLabelKey(string $entity_type): string {
+    return $this->getCore()->getEntityLabelKey($entity_type);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getEntityFieldTypes(string $entity_type, ?string $bundle = NULL): array {
     return $this->getCore()->getEntityFieldTypes($entity_type, $bundle);
   }

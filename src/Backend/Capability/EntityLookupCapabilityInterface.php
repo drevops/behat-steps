@@ -32,4 +32,18 @@ interface EntityLookupCapabilityInterface {
    */
   public function findEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array;
 
+  /**
+   * Returns the field a lookup matches an entity's label on.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   *
+   * @return string
+   *   The field name, such as 'title' or 'name', to key a condition by.
+   *
+   * @throws \RuntimeException
+   *   When the entity type is unknown or has no label field.
+   */
+  public function getEntityLabelKey(string $entity_type): string;
+
 }
