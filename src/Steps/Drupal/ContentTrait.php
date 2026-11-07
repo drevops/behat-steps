@@ -143,6 +143,32 @@ trait ContentTrait {
   }
 
   /**
+   * Update the fields of a content with the specified title.
+   *
+   * Each row is a base property or a field and its value, written as in the
+   * create steps. An empty value clears the field.
+   *
+   * @code
+   * Given the "article" content with the title "Test article" has the following fields:
+   *   | body       | Updated body      |
+   *   | created    | [relative:-1 day] |
+   *   | field_tags |                   |
+   * @endcode
+   *
+   * @actor:system
+   */
+  #[Given('the :content_type content with the title :title has the following fields:')]
+  public function contentUpdateWithTitle(string $content_type, string $title, TableNode $fields): void {
+    $records = $this->tableTransposeVertical($fields);
+
+    if (count($records) > 1) {
+      throw new \RuntimeException(sprintf('The table of fields must have 2 columns, a field name and a value, but it has %d.', count($records) + 1));
+    }
+
+    $this->contentUpdate($this->contentGetNodeByTitle($content_type, $title), $records[0]);
+  }
+
+  /**
    * Visit a page of a type with a specified title.
    *
    * @code
@@ -432,6 +458,30 @@ trait ContentTrait {
    */
   public function contentCreate(string $content_type, array $values): EntityStubInterface {
     return $this->entityLifecycleCreateNode(new EntityStub('node', $content_type, $values));
+  }
+
+  /**
+   * Update the fields of a node.
+   *
+   * The values are written as on create, fixture file paths included. An
+   * empty value clears its field.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $node
+   *   The node stub, carrying its 'nid'.
+   * @param array<string, mixed> $values
+   *   The base properties and field values, keyed by name.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the updated node.
+   *
+   * @throws \RuntimeException
+   *   When the node does not exist, or a value names a field it does not have.
+   */
+  public function contentUpdate(EntityStubInterface $node, array $values): EntityStubInterface {
+    $stub = new EntityStub('node', $this->contentGetType($node), ['nid' => $this->queryGetEntityId($node, 'nid')] + $values);
+    $this->fixtureFileExpandEntityFields('node', $stub);
+
+    return $this->entityLifecycleUpdate($stub);
   }
 
   /**

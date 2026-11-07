@@ -47,7 +47,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\CacheTrait](#drupalcachetrait) | 2 | Invalidate Drupal caches and run cron from within a scenario. |
 | [Drupal\ConfigTrait](#drupalconfigtrait) | 3 | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | 4 | Manage Drupal content blocks. |
-| [Drupal\ContentTrait](#drupalcontenttrait) | 8 | Manage Drupal content with workflow and moderation support. |
+| [Drupal\ContentTrait](#drupalcontenttrait) | 9 | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | 3 | Order items in the Drupal Draggable Views. |
 | [Drupal\DrushTrait](#drupaldrushtrait) | 4 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 5 | Manage Drupal ECK entities of an existing entity type and bundle. |
@@ -68,7 +68,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 3 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 4 | Manage Drupal webforms. |
 | [Drupal\AuthTrait](#drupalauthtrait) | 7 | Creates users and roles, logs them in, and removes them afterwards. |
-| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 7 | Creates Drupal entities and removes them when the scenario ends. |
+| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 8 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 6 | Finds the entities a step reads, asserts on or deletes. |
 | [Drupal\StaticCacheTrait](#drupalstaticcachetrait) | 1 | Clears the static caches a scenario left behind. |
@@ -2185,6 +2185,15 @@ Set the path alias of a node, replacing any existing alias
 </details>
 
 <details>
+  <summary><code>public function contentUpdate(EntityStubInterface $node, array $values): EntityStubInterface</code></summary>
+
+<br/>
+Update the fields of a node
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function contentVisitActionPageWithTitle(string $content_type, string $title, string $rel = 'canonical'): void</code></summary>
 
 <br/>
@@ -3296,6 +3305,15 @@ Expands a stub's raw Gherkin values into the storage field shape
 
 <br/>
 Registers an entity created outside the create pipeline for cleanup
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityLifecycleUpdate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Updates the fields of an existing entity
 <br/><br/>
 
 </details>

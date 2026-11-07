@@ -297,6 +297,124 @@ Feature: Check that ContentTrait works
     And I should see "[TEST] V-Page 2"
     And I should see "[TEST] V-Page 3"
 
+  Scenario: Assert "Given the :content_type content with the title :title has the following fields:" works as expected
+    Given the following page content exists:
+      | title                 | field_description      |
+      | [TEST] Page to update | [TEST] Old description |
+    And the "page" content with the title "[TEST] Page to update" has the following fields:
+      | title             | [TEST] Updated page    |
+      | field_description | [TEST] New description |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content page with the title "[TEST] Updated page"
+    Then I should see "[TEST] New description"
+    And I should not see "[TEST] Old description"
+    And the "page" content with the title "[TEST] Page to update" should not exist
+
+  Scenario: Assert "Given the :content_type content with the title :title has the following fields:" clears a field given an empty value
+    Given the following page content exists:
+      | title                | field_description          |
+      | [TEST] Page to clear | [TEST] Cleared description |
+    And the "page" content with the title "[TEST] Page to clear" has the following fields:
+      | field_description |  |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content page with the title "[TEST] Page to clear"
+    Then I should see "[TEST] Page to clear"
+    And I should not see "[TEST] Cleared description"
+
+  Scenario: Assert "Given the :content_type content with the title :title has the following fields:" expands a relative date token
+    Given the following article content exists:
+      | title                      |
+      | [TEST] Article to backdate |
+    And the "article" content with the title "[TEST] Article to backdate" has the following fields:
+      | created | [relative:-10 years] |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "article" content edit page with the title "[TEST] Article to backdate"
+    Then the response should contain "2014-07-"
+
+  Scenario: Assert "Given the :content_type content with the title :title has the following fields:" resolves a fixture file
+    Given the following article content exists:
+      | title                         |
+      | [TEST] Article to attach file |
+    And the "article" content with the title "[TEST] Article to attach file" has the following fields:
+      | field_file | text.txt |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "article" content edit page with the title "[TEST] Article to attach file"
+    Then the response should contain ".txt"
+
+  Scenario: Assert "Given the :content_type content with the title :title has the following fields:" updates the most recently created content when titles are duplicated
+    Given the following page content exists:
+      | title                       | field_description        |
+      | [TEST] Duplicate page title | [TEST] Older description |
+      | [TEST] Duplicate page title | [TEST] Newer description |
+    And the "page" content with the title "[TEST] Duplicate page title" has the following fields:
+      | field_description | [TEST] Updated description |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content page with the title "[TEST] Duplicate page title"
+    Then I should see "[TEST] Updated description"
+    And I should not see "[TEST] Newer description"
+
+  @test-trait:Drupal\ContentTrait
+  Scenario: Assert negative "Given the :content_type content with the title :title has the following fields:" works as expected for non-existing content type
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the "non_existing" content with the title "[TEST] Page title" has the following fields:
+        | field_description | [TEST] Description |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The content type "non_existing" does not exist.
+      """
+
+  @test-trait:Drupal\ContentTrait
+  Scenario: Assert negative "Given the :content_type content with the title :title has the following fields:" works as expected for non-existing content
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the "page" content with the title "[TEST] Non-existing" has the following fields:
+        | field_description | [TEST] Description |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find "page" content with title "[TEST] Non-existing".
+      """
+
+  @test-trait:Drupal\ContentTrait
+  Scenario: Assert negative "Given the :content_type content with the title :title has the following fields:" works as expected for a field the content does not have
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following page content exists:
+        | title              |
+        | [TEST] Page fields |
+      And the "page" content with the title "[TEST] Page fields" has the following fields:
+        | field_missing | [TEST] Value |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The field "field_missing" does not exist on entity type "node".
+      """
+
+  @test-trait:Drupal\ContentTrait
+  Scenario: Assert negative "Given the :content_type content with the title :title has the following fields:" works as expected for a table with more than 2 columns
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following page content exists:
+        | title              |
+        | [TEST] Page fields |
+      And the "page" content with the title "[TEST] Page fields" has the following fields:
+        | field_description | [TEST] First | [TEST] Second |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The table of fields must have 2 columns, a field name and a value, but it has 3.
+      """
+
   Scenario: Create a node with a column a configured creation alias resolves
     Given the following page content exists:
       | headline                  |
