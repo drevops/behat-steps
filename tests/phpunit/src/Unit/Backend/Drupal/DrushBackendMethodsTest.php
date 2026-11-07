@@ -223,10 +223,21 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->assertSame($values, json_decode($literal, TRUE));
   }
 
-  public function testCreateUserDeletesTheUserWhenValuesFail(): void {
+  /**
+   * Tests that 'createUser()' deletes the user when the values fail to set.
+   *
+   * @param array<string, int> $failures
+   *   Failure counts keyed by the command that fails.
+   * @param array<int, string> $expected_commands
+   *   The commands expected, in order.
+   * @param string $expected_message
+   *   The expected exception message.
+   */
+  #[DataProvider('dataProviderCreateUserDeletesTheUserWhenValuesFail')]
+  public function testCreateUserDeletesTheUserWhenValuesFail(array $failures, array $expected_commands, string $expected_message): void {
     $backend = $this->createBackend();
     $backend->drushResponse = "User ID   :   7\n";
-    $backend->drushFailures = ['php:eval' => 1];
+    $backend->drushFailures = $failures;
     $backend->registerCreationAlias(new LoginAlias());
 
     $user = new EntityStub('user', NULL, ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co', 'timezone' => 'UTC', 'field_missing' => 'x', 'roles' => ['editor']]);
@@ -236,12 +247,20 @@ class DrushBackendMethodsTest extends UnitTestCase {
       $this->fail('Expected a RuntimeException.');
     }
     catch (\RuntimeException $exception) {
-      $this->assertSame('Drush could not set "timezone", "field_missing" on the user "bob", so the user was deleted. Drush command "php:eval" exited with code 1.', $exception->getMessage());
-      $this->assertInstanceOf(\RuntimeException::class, $exception->getPrevious());
+      $previous = $exception->getPrevious();
+
+      $this->assertSame($expected_message, $exception->getMessage());
+      $this->assertInstanceOf(\RuntimeException::class, $previous);
+      $this->assertSame('Drush command "php:eval" exited with code 1.', $previous->getMessage());
     }
 
-    $this->assertSame(['user:create', 'php:eval', 'user:cancel'], array_column($backend->invocations, 'command'));
+    $this->assertSame($expected_commands, array_column($backend->invocations, 'command'));
     $this->assertSame(['bob'], $backend->invocations[2]['arguments']);
+  }
+
+  public static function dataProviderCreateUserDeletesTheUserWhenValuesFail(): \Iterator {
+    yield 'the user is deleted' => [['php:eval' => 1], ['user:create', 'php:eval', 'user:cancel'], 'Drush could not set "timezone", "field_missing" on the user "bob", so the user was deleted. Drush command "php:eval" exited with code 1.'];
+    yield 'the delete fails too' => [['php:eval' => 1, 'user:cancel' => 1], ['user:create', 'php:eval', 'user:cancel', 'user:information'], 'Drush could not set "timezone", "field_missing" on the user "bob", and could not delete the user either. Drush command "php:eval" exited with code 1. Drush command "user:cancel" exited with code 1.'];
   }
 
   /**

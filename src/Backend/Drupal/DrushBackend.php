@@ -579,7 +579,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   The names of the values, for the failure message.
    *
    * @throws \RuntimeException
-   *   When Drush fails to set the values. The account is deleted first.
+   *   When Drush fails to set the values. The account is deleted first, and
+   *   the message says so when the delete fails as well.
    */
   protected function setUserValues(EntityStubInterface $stub, int $uid, string $encoded, array $names): void {
     // 'var_export()' writes the JSON as a single-quoted PHP literal, so no
@@ -590,9 +591,16 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       $this->drush('php:eval', [$code]);
     }
     catch (\RuntimeException $exception) {
-      $this->deleteUser($stub);
+      $quoted = implode('", "', $names);
 
-      throw new \RuntimeException(sprintf('Drush could not set "%s" on the user "%s", so the user was deleted. %s', implode('", "', $names), $stub->getValue('name'), $exception->getMessage()), 0, $exception);
+      try {
+        $this->deleteUser($stub);
+      }
+      catch (\RuntimeException $cleanup_exception) {
+        throw new \RuntimeException(sprintf('Drush could not set "%s" on the user "%s", and could not delete the user either. %s %s', $quoted, $stub->getValue('name'), $exception->getMessage(), $cleanup_exception->getMessage()), 0, $exception);
+      }
+
+      throw new \RuntimeException(sprintf('Drush could not set "%s" on the user "%s", so the user was deleted. %s', $quoted, $stub->getValue('name'), $exception->getMessage()), 0, $exception);
     }
   }
 
