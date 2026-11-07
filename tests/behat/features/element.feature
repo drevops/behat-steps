@@ -880,32 +880,28 @@ Feature: Check that ElementTrait works
   @javascript @phpserver
   Scenario: Assert "When I click on the element :selector with the text :text" clicks the element with the exact text
     Given I visit "http://cli:8888/elements_relative.html"
-    Then the element "#details-new p" should not be displayed
     When I click on the element "summary" with the text "Add new"
-    Then the element "#details-new p" should be displayed
-    And the element "#details-existing p" should not be displayed
+    Then I should see "Clicked details-new"
     When I click on the element "summary" with the text "Expand for existing (3 items)"
-    Then the element "#details-existing p" should be displayed
+    Then I should see "Clicked details-existing"
 
   @javascript @phpserver
   Scenario: Assert "When I click on the element :selector with the text :text" matches text with quotes
     Given I visit "http://cli:8888/elements_relative.html"
     When I click on the element "summary" with the text "Editor's pick"
-    Then the element "#details-apostrophe p" should be displayed
+    Then I should see "Clicked details-apostrophe"
     When I click on the element "summary" with the text 'The "featured" pick'
-    Then the element "#details-double-quote p" should be displayed
+    Then I should see "Clicked details-double-quote"
 
   @javascript @phpserver
   Scenario: Assert "When I click on the element :selector with a text containing :partial_text" clicks the first element containing the text
     Given I visit "http://cli:8888/elements_relative.html"
     When I click on the element "summary" with a text containing "for existing"
-    Then the element "#details-existing p" should be displayed
-    And the element "#details-new p" should not be displayed
+    Then I should see "Clicked details-existing"
     When I click on the element "summary" with a text containing "pick"
-    Then the element "#details-apostrophe p" should be displayed
-    And the element "#details-double-quote p" should not be displayed
+    Then I should see "Clicked details-apostrophe"
     When I click on the element "summary" with a text containing '"featured"'
-    Then the element "#details-double-quote p" should be displayed
+    Then I should see "Clicked details-double-quote"
 
   @test-trait:ElementTrait
   Scenario Outline: Assert clicking on an element by its text fails when no element matches

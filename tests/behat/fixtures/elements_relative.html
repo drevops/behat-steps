@@ -508,21 +508,22 @@ JS-based assertions.
 <!-- Elements for clicking an element by its text -->
 <div id="text-click-container">
   <details id="details-new">
-    <summary>Add new</summary>
+    <summary onclick="document.getElementById('text-click-result').textContent = 'Clicked details-new'">Add new</summary>
     <p>New item form</p>
   </details>
   <details id="details-existing">
-    <summary>Expand for existing <span class="summary">(3 items)</span></summary>
+    <summary onclick="document.getElementById('text-click-result').textContent = 'Clicked details-existing'">Expand for existing <span class="summary">(3 items)</span></summary>
     <p>Existing items list</p>
   </details>
   <details id="details-apostrophe">
-    <summary>Editor's pick</summary>
+    <summary onclick="document.getElementById('text-click-result').textContent = 'Clicked details-apostrophe'">Editor's pick</summary>
     <p>Editor pick content</p>
   </details>
   <details id="details-double-quote">
-    <summary>The "featured" pick</summary>
+    <summary onclick="document.getElementById('text-click-result').textContent = 'Clicked details-double-quote'">The "featured" pick</summary>
     <p>Featured pick content</p>
   </details>
+  <div id="text-click-result"></div>
 </div>
 
 <!-- A positioned ancestor below the fold, so the 'offsetTop' of its child
