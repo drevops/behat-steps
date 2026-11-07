@@ -530,7 +530,7 @@ Every create and delete on a capability interface follows 1 contract, so teardow
 
 ### Which backend serves a capability
 
-A capability sits at the root of `src/Backend` when any backend may provide it, and under `Backend\Drupal` when only a Drupal backend can. 1 rule decides, per capability, whether the Drush backend declares it. The Drush backend declares a capability when a Drush command serves every method of it in full, and never runs `php:eval` to fill a gap. A capability no second backend serves in full stays with the in-process backend. The capabilities the following table marks in-process are therefore exactly what a second backend has to implement itself.
+A capability sits at the root of `src/Backend` when any backend may provide it, and under `Backend\Drupal` when only a Drupal backend can. 1 rule decides, per capability, whether the Drush backend declares it. The Drush backend declares a capability when a Drush command serves every method of it in full, and never runs `php:eval` to fill a gap. `createUser()` is the 1 exception. `user:create` takes only a name, a password and an email, so the backend sets every other value through `php:eval` after the account exists. No field handler runs on those values. A capability no second backend serves in full stays with the in-process backend. The capabilities the following table marks in-process are therefore exactly what a second backend has to implement itself.
 
 | Capability | Drush | Why |
 | --- | --- | --- |
@@ -566,7 +566,7 @@ A capability sits at the root of `src/Backend` when any backend may provide it, 
 | `SearchIndex` | yes | `search-api:index` |
 | `State` | yes | `state:get`, `state:set` and `state:delete`; no command separates a stored NULL from an absent key, which the Drush backend documents on `stateExists()` |
 | `Term` | in-process | No command creates a term |
-| `User` | yes | `user:create`, `user:cancel`, `user:role:add`, `role:list`, `user:information`, `user:login` and `user:password` |
+| `User` | yes | `user:create`, `user:cancel`, `user:role:add`, `role:list`, `user:information`, `user:login` and `user:password`; `php:eval` sets every value `user:create` has no option for |
 | `UserActivity` | in-process | No `user:` command sets the access or login time |
 | `Workflow` | in-process | No command reads a workflow or moves an entity through it |
 

@@ -442,6 +442,33 @@ Feature: Check that UserTrait works
       | drush_label_user | drush_label_user@myexample.com | Content editor |
     Then the user "drush_label_user" should have the role "content_editor" assigned
 
+  @backend:drush
+  Scenario: Assert "Given the following users exist:" sets the values 'user:create' has no option for over Drush
+    Given the following users exist:
+      | name              | mail                            | status | timezone         | roles          |
+      | drush_values_user | drush_values_user@myexample.com | 0      | Australia/Sydney | content_editor |
+    Then the user "drush_values_user" should be blocked
+    And the user "drush_values_user" should have the role "content_editor" assigned
+    When I run the drush command "user:information" with the arguments "drush_values_user --fields=timezone --format=string"
+    Then the drush output should contain "Australia/Sydney"
+
+  @test-trait:Drupal\UserTrait
+  Scenario: Assert "Given the following users exist:" deletes the user when Drush cannot set a value
+    Given a configuration listing the backends "drupal, drush, blackbox"
+    And some behat configuration
+    And scenario steps tagged with "@backend:drush":
+      """
+      Given the following users exist:
+        | name           | mail                         | field_missing |
+        | drush_bad_user | drush_bad_user@myexample.com | value         |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Drush could not set "field_missing" on the user "drush_bad_user", so the user was deleted.
+      """
+    And the user with the email "drush_bad_user@myexample.com" should not exist
+
   @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing single role
     Given some behat configuration

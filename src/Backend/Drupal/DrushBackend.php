@@ -507,9 +507,34 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
   /**
    * {@inheritdoc}
+   *
+   * 'user:create' takes only a name, a password and an email, so every other
+   * value is set through 'php:eval' once the account exists. Those values
+   * are stored as given, because no field handler runs outside the in-process
+   * backend. A value named after a registered user alias is left to the
+   * alias. When setting the values fails, the account is deleted.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries a 'uid' value, a value cannot be encoded, Drush
+   *   reports no user id, or the values cannot be set.
    */
   public function createUser(EntityStubInterface $stub): EntityStubInterface {
     $this->applyPreCreateAliases($stub, 'user');
+
+    if ($stub->hasValue('uid')) {
+      throw new \RuntimeException(sprintf('Cannot create the user "%s" with a "uid" value: "drush user:create" assigns the id.', $stub->getValue('name')));
+    }
+
+    $values = array_diff_key($stub->getValues(), array_flip(['name', 'pass', 'mail']), $this->getCreationAliases('user'));
+
+    // Encoded before 'user:create', so a value that cannot be encoded leaves
+    // no account behind.
+    try {
+      $encoded = json_encode($values, JSON_THROW_ON_ERROR);
+    }
+    catch (\JsonException $exception) {
+      throw new \RuntimeException(sprintf('Cannot pass the values of the user "%s" to Drush: %s.', $stub->getValue('name'), $exception->getMessage()), 0, $exception);
+    }
 
     $arguments = [(string) $stub->getValue('name')];
     $options = [
@@ -526,6 +551,10 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
     $stub->setValue('uid', $uid);
 
+    if ($values !== []) {
+      $this->setUserValues($stub, $uid, $encoded, array_keys($values));
+    }
+
     // The stub stays unsaved, because Drush runs in another process and
     // returns no account object. The placeholder carries only the id the
     // post-create aliases read.
@@ -535,6 +564,36 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $this->applyPostCreateAliases($stub, $account, 'user');
 
     return $stub;
+  }
+
+  /**
+   * Sets values on a saved account through 'php:eval'.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The stub of the account, carrying its 'uid' value.
+   * @param int $uid
+   *   The id of the account.
+   * @param string $encoded
+   *   The values to set, as a JSON object keyed by field name.
+   * @param array<int, string> $names
+   *   The names of the values, for the failure message.
+   *
+   * @throws \RuntimeException
+   *   When Drush fails to set the values. The account is deleted first.
+   */
+  protected function setUserValues(EntityStubInterface $stub, int $uid, string $encoded, array $names): void {
+    // 'var_export()' writes the JSON as a single-quoted PHP literal, so no
+    // value can end the string early.
+    $code = sprintf('$account = ' . \Drupal::class . '::entityTypeManager()->getStorage(\'user\')->load(%d); foreach (json_decode(%s, TRUE) as $name => $value) { $account->set($name, $value); } $account->save();', $uid, var_export($encoded, TRUE));
+
+    try {
+      $this->drush('php:eval', [$code]);
+    }
+    catch (\RuntimeException $exception) {
+      $this->deleteUser($stub);
+
+      throw new \RuntimeException(sprintf('Drush could not set "%s" on the user "%s", so the user was deleted. %s', implode('", "', $names), $stub->getValue('name'), $exception->getMessage()), 0, $exception);
+    }
   }
 
   /**
