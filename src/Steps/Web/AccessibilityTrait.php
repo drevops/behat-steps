@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Web;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\AfterSuite;
@@ -14,6 +15,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeSuite;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
+use Behat\Step\When;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use DrevOps\BehatSteps\Extension\Config\Option;
@@ -109,7 +111,7 @@ trait AccessibilityTrait {
    * Populated as each scenario finalizes and consumed once by the static
    * `@AfterSuite` renderer. URLs are stored already formatted for display.
    *
-   * @var array<int, array{feature: string, scenario: string, threshold: string, fail_on_incomplete: bool, impacts: array<int, string>, results: array<int, array{url: string, rules: string, result: array<string, mixed>}>}>
+   * @var array<int, array{feature: string, scenario: string, threshold: string, fail_on_incomplete: bool, impacts: array<int, string>, results: array<int, array{url: string, rules: string, result: array<string, mixed>}>, skipped: array<int, array{url: string, reason: string}>}>
    */
   protected static array $accessibilityAggregate = [];
 
@@ -171,6 +173,13 @@ trait AccessibilityTrait {
   protected bool $accessibilityGated = FALSE;
 
   /**
+   * Pages a sweep could not visit or assess during the current scenario.
+   *
+   * @var array<int, array{url: string, reason: string}>
+   */
+  protected array $accessibilitySkippedPages = [];
+
+  /**
    * Capture the working directory, then clear the suite-level aggregate.
    */
   #[BeforeSuite]
@@ -185,6 +194,7 @@ trait AccessibilityTrait {
   #[BeforeScenario]
   public function accessibilityBeforeScenario(BeforeScenarioScope $scope): void {
     $this->accessibilityResults = [];
+    $this->accessibilitySkippedPages = [];
     $this->accessibilityAutoMode = FALSE;
     $this->accessibilityLastCheckedUrl = '';
     $this->accessibilityScenarioThreshold = NULL;
@@ -269,7 +279,7 @@ trait AccessibilityTrait {
       return;
     }
 
-    if ($this->accessibilityResults === []) {
+    if ($this->accessibilityResults === [] && $this->accessibilitySkippedPages === []) {
       return;
     }
 
@@ -298,6 +308,123 @@ trait AccessibilityTrait {
   #[AfterSuite]
   public static function accessibilityAfterSuite(AfterSuiteScope $scope): void {
     static::accessibilityWriteAggregateReport();
+  }
+
+  /**
+   * Assess the accessibility of each page in a table.
+   *
+   * Every page is assessed before any check runs, and a page that can't be
+   * visited or assessed is reported as skipped. In automatic mode the
+   * scenario's gate decides the outcome; otherwise the failure threshold is
+   * applied to every assessed page at the end of the step.
+   *
+   * @code
+   * When I assess the accessibility of the following pages:
+   *   | path     |
+   *   | /        |
+   *   | /about   |
+   *   | /contact |
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[When('I assess the accessibility of the following pages:')]
+  public function accessibilityAssessPagesInTable(TableNode $table): void {
+    $this->accessibilityAssessPages($this->accessibilityParsePaths($table), $this->accessibilityGetDefaultRules());
+  }
+
+  /**
+   * Assess the accessibility of each page in a table for given tags.
+   *
+   * @code
+   * When I assess the accessibility of the following pages for the tags "wcag2a":
+   *   | path   |
+   *   | /      |
+   *   | /about |
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[When('I assess the accessibility of the following pages for the tags :tags:')]
+  public function accessibilityAssessPagesInTableForTags(string $tags, TableNode $table): void {
+    $this->accessibilityAssessPages($this->accessibilityParsePaths($table), $tags);
+  }
+
+  /**
+   * Assess the accessibility of the pages in the configured sitemap.
+   *
+   * The sitemap path, the path depth and the page limit come from the
+   * `sitemap_path`, `sitemap_max_depth` and `sitemap_limit` options.
+   *
+   * @code
+   * When I assess the accessibility of the pages in the sitemap
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[When('I assess the accessibility of the pages in the sitemap')]
+  public function accessibilityAssessPagesInDefaultSitemap(): void {
+    $paths = $this->accessibilityGetSitemapPaths($this->accessibilityGetSitemapPath(), $this->accessibilityGetSitemapMaxDepth(), $this->accessibilityGetSitemapLimit());
+
+    $this->accessibilityAssessPages($paths, $this->accessibilityGetDefaultRules());
+  }
+
+  /**
+   * Assess the accessibility of the pages in a sitemap.
+   *
+   * A sitemap index is followed to every sitemap it lists. Each page's path
+   * is resolved against the base URL, whatever host the sitemap names.
+   *
+   * @code
+   * When I assess the accessibility of the pages in the sitemap "/sitemap.xml"
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[When('I assess the accessibility of the pages in the sitemap :path')]
+  public function accessibilityAssessPagesInSitemap(string $path): void {
+    $paths = $this->accessibilityGetSitemapPaths($path, $this->accessibilityGetSitemapMaxDepth(), $this->accessibilityGetSitemapLimit());
+
+    $this->accessibilityAssessPages($paths, $this->accessibilityGetDefaultRules());
+  }
+
+  /**
+   * Assess the accessibility of the pages in a sitemap up to a path depth.
+   *
+   * The path `/` has a depth of 0 and `/about` a depth of 1.
+   *
+   * @code
+   * When I assess the accessibility of the pages in the sitemap "/sitemap.xml" with a path depth of at most 1
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[When('I assess the accessibility of the pages in the sitemap :path with a path depth of at most :depth')]
+  public function accessibilityAssessPagesInSitemapWithDepth(string $path, string $depth): void {
+    $max_depth = $this->stringParseInteger($depth, 'depth', 0);
+    $paths = $this->accessibilityGetSitemapPaths($path, $max_depth, $this->accessibilityGetSitemapLimit());
+
+    $this->accessibilityAssessPages($paths, $this->accessibilityGetDefaultRules());
+  }
+
+  /**
+   * Assess the accessibility of a number of pages in a sitemap.
+   *
+   * The limit applies after the depth filter, in sitemap order.
+   *
+   * @code
+   * When I assess the accessibility of the pages in the sitemap "/sitemap.xml" with a path depth of at most 2 and a limit of 50 pages
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[When('I assess the accessibility of the pages in the sitemap :path with a path depth of at most :depth and a limit of :count page(s)')]
+  public function accessibilityAssessPagesInSitemapWithDepthWithLimit(string $path, string $depth, string $count): void {
+    $max_depth = $this->stringParseInteger($depth, 'depth', 0);
+    $limit = $this->stringParseInteger($count, 'count', 1);
+    $paths = $this->accessibilityGetSitemapPaths($path, $max_depth, $limit);
+
+    $this->accessibilityAssessPages($paths, $this->accessibilityGetDefaultRules());
   }
 
   /**
@@ -346,13 +473,9 @@ trait AccessibilityTrait {
    *   incomplete finding the scenario fails on.
    */
   public function accessibilityAssertResultPasses(array $result, string $rules): void {
-    $threshold = $this->accessibilityEffectiveThreshold();
-    $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
+    $findings = $this->accessibilityFilterFindings($result);
 
-    $violations = $this->accessibilityFilterViolations($result['violations'] ?? [], $threshold);
-    $incomplete = $check_incomplete ? ($result['incomplete'] ?? []) : [];
-
-    if ($violations === [] && $incomplete === []) {
+    if ($findings['violations'] === [] && $findings['incomplete'] === []) {
       return;
     }
 
@@ -360,13 +483,49 @@ trait AccessibilityTrait {
       $this->accessibilityFormatGateMessage(
         $this->getSession()->getCurrentUrl(),
         $rules,
-        $threshold,
-        $check_incomplete,
-        $violations,
-        $incomplete
+        $this->accessibilityEffectiveThreshold(),
+        $this->accessibilityEffectiveFailOnIncomplete(),
+        $findings['violations'],
+        $findings['incomplete']
       ),
       $this->getSession()->getDriver()
     );
+  }
+
+  /**
+   * Assert that every result of a sweep passes the effective threshold.
+   *
+   * @param array<int, array{url: string, rules: string, result: array<string, mixed>}> $results
+   *   The results the sweep assessed.
+   * @param array<int, array{url: string, reason: string}> $skipped
+   *   The pages the sweep skipped, listed in the failure message.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When a result holds a violation at or above the threshold, or an
+   *   incomplete finding the scenario fails on.
+   */
+  protected function accessibilityAssertResultsPass(array $results, array $skipped): void {
+    $messages = [];
+
+    foreach ($results as $result) {
+      $findings = $this->accessibilityFilterFindings($result['result']);
+
+      if ($findings['violations'] === [] && $findings['incomplete'] === []) {
+        continue;
+      }
+
+      $messages[] = $this->accessibilityFormatGateMessage($result['url'], $result['rules'], $this->accessibilityEffectiveThreshold(), $this->accessibilityEffectiveFailOnIncomplete(), $findings['violations'], $findings['incomplete']);
+    }
+
+    if ($messages === []) {
+      return;
+    }
+
+    if ($skipped !== []) {
+      $messages[] = $this->accessibilityFormatSkippedPages($skipped);
+    }
+
+    throw new ExpectationException(implode(PHP_EOL, $messages), $this->getSession()->getDriver());
   }
 
   /**
@@ -376,28 +535,65 @@ trait AccessibilityTrait {
    *   If a violation at or above the threshold was collected.
    */
   protected function accessibilityEnforceGate(): void {
-    $threshold = $this->accessibilityEffectiveThreshold();
-    $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
     $messages = [];
 
     foreach ($this->accessibilityResults as $result) {
       $display_url = $this->accessibilityFormatUrl((string) $result['url']);
+      $findings = $this->accessibilityFilterFindings($result['result']);
 
-      foreach ($this->accessibilityFilterViolations($result['result']['violations'] ?? [], $threshold) as $violation) {
+      foreach ($findings['violations'] as $violation) {
         $messages[] = sprintf('  violation [%s] %s on %s', $violation['impact'] ?? 'unknown', $violation['id'] ?? '', $display_url);
       }
 
-      if ($check_incomplete) {
-        foreach ($result['result']['incomplete'] ?? [] as $issue) {
-          $messages[] = sprintf('  incomplete [%s] %s on %s', $issue['impact'] ?? 'unknown', $issue['id'] ?? '', $display_url);
-        }
+      foreach ($findings['incomplete'] as $issue) {
+        $messages[] = sprintf('  incomplete [%s] %s on %s', $issue['impact'] ?? 'unknown', $issue['id'] ?? '', $display_url);
       }
     }
 
-    if ($messages !== []) {
-      $message = sprintf('Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):' . PHP_EOL . '%s', $threshold, $check_incomplete ? 'yes' : 'no', implode(PHP_EOL, $messages));
-      throw new ExpectationException($message, $this->getSession()->getDriver());
+    if ($messages === []) {
+      return;
     }
+
+    if ($this->accessibilitySkippedPages !== []) {
+      $messages[] = $this->accessibilityFormatSkippedPages($this->accessibilitySkippedPages);
+    }
+
+    $message = sprintf('Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):' . PHP_EOL . '%s', $this->accessibilityEffectiveThreshold(), $this->accessibilityEffectiveFailOnIncomplete() ? 'yes' : 'no', implode(PHP_EOL, $messages));
+
+    throw new ExpectationException($message, $this->getSession()->getDriver());
+  }
+
+  /**
+   * Keep the findings of a result that fail the current scenario.
+   *
+   * @param array<string, mixed> $result
+   *   A normalized result, as returned by accessibilityAssess().
+   *
+   * @return array{violations: array<int, array<string, mixed>>, incomplete: array<int, array<string, mixed>>}
+   *   The violations at or above the effective threshold, and the incomplete
+   *   findings when the scenario fails on them.
+   */
+  protected function accessibilityFilterFindings(array $result): array {
+    return [
+      'violations' => $this->accessibilityFilterViolations($result['violations'] ?? [], $this->accessibilityEffectiveThreshold()),
+      'incomplete' => $this->accessibilityEffectiveFailOnIncomplete() ? array_values($result['incomplete'] ?? []) : [],
+    ];
+  }
+
+  /**
+   * Format the pages a sweep skipped, 1 line per page.
+   *
+   * @param array<int, array{url: string, reason: string}> $skipped
+   *   The skipped pages, with the reason each could not be assessed.
+   */
+  protected function accessibilityFormatSkippedPages(array $skipped): string {
+    $lines = [];
+
+    foreach ($skipped as $page) {
+      $lines[] = sprintf('  skipped "%s": %s', $this->accessibilityFormatUrl($page['url']), $page['reason']);
+    }
+
+    return implode(PHP_EOL, $lines);
   }
 
   /**
@@ -564,6 +760,39 @@ trait AccessibilityTrait {
    */
   public function accessibilityGetDefaultRules(): string {
     return $this->getOptionString('accessibility', 'default_rules');
+  }
+
+  /**
+   * Return the sitemap the sitemap step without a path reads.
+   *
+   * Default: `/sitemap.xml`.
+   */
+  public function accessibilityGetSitemapPath(): string {
+    return $this->getOptionString('accessibility', 'sitemap_path');
+  }
+
+  /**
+   * Return the deepest path depth the sitemap steps assess by default.
+   *
+   * Default: NULL, so pages at every depth are assessed. A negative option
+   * value maps to NULL.
+   */
+  public function accessibilityGetSitemapMaxDepth(): ?int {
+    $depth = $this->getOptionInt('accessibility', 'sitemap_max_depth');
+
+    return $depth < 0 ? NULL : $depth;
+  }
+
+  /**
+   * Return the most pages the sitemap steps assess by default.
+   *
+   * Default: NULL, so every page is assessed. An option value below 1 maps
+   * to NULL.
+   */
+  public function accessibilityGetSitemapLimit(): ?int {
+    $limit = $this->getOptionInt('accessibility', 'sitemap_limit');
+
+    return $limit < 1 ? NULL : $limit;
   }
 
   /**
@@ -860,6 +1089,311 @@ trait AccessibilityTrait {
   }
 
   /**
+   * Visit and assess each page, then check what was found.
+   *
+   * Duplicate paths are assessed once. A page that throws while it is
+   * visited or assessed is recorded as skipped, with the exception message
+   * as the reason, and the next page is assessed.
+   *
+   * In automatic mode the scenario's gate checks the results. Otherwise the
+   * failure threshold is applied to every page this call assessed, after
+   * the last one.
+   *
+   * @param array<int, string> $paths
+   *   Paths or absolute URLs, resolved against the base URL.
+   * @param string $rules
+   *   Engine-specific rule identifier.
+   *
+   * @throws \RuntimeException
+   *   When no path is given, or no page could be assessed.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   Outside automatic mode, when an assessed page holds a violation at or
+   *   above the threshold, or an incomplete finding the scenario fails on.
+   */
+  public function accessibilityAssessPages(array $paths, string $rules): void {
+    $paths = array_values(array_unique($paths));
+
+    if ($paths === []) {
+      throw new \RuntimeException('The list of pages to assess is empty.');
+    }
+
+    $results = [];
+    $skipped = [];
+
+    foreach ($paths as $path) {
+      $url = $this->locatePath($path);
+
+      try {
+        $this->getSession()->visit($url);
+        $result = $this->accessibilityAssess($rules);
+        $results[] = ['url' => $this->accessibilityLastCheckedUrl, 'rules' => $rules, 'result' => $result];
+      }
+      catch (\Exception $exception) {
+        $skipped[] = ['url' => $url, 'reason' => $exception->getMessage()];
+      }
+    }
+
+    $this->accessibilitySkippedPages = [...$this->accessibilitySkippedPages, ...$skipped];
+
+    try {
+      // A skipped last page stays open, and automatic mode would otherwise
+      // assess it again after this step.
+      $this->accessibilityLastCheckedUrl = $this->getSession()->getCurrentUrl();
+    }
+    catch (\Exception) {
+      // Automatic mode skips a session that cannot report its URL.
+    }
+
+    if ($results === []) {
+      throw new \RuntimeException('No page could be assessed:' . PHP_EOL . $this->accessibilityFormatSkippedPages($skipped));
+    }
+
+    if ($this->accessibilityAutoMode) {
+      return;
+    }
+
+    $this->accessibilityAssertResultsPass($results, $skipped);
+  }
+
+  /**
+   * Parse the paths from the "path" column of a table of pages.
+   *
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   The table, with a "path" header.
+   *
+   * @return array<int, string>
+   *   The paths, in table order.
+   */
+  protected function accessibilityParsePaths(TableNode $table): array {
+    if (!in_array('path', $table->getRow(0), TRUE)) {
+      throw new \RuntimeException('The table of pages has no "path" column.');
+    }
+
+    $paths = array_map(trim(...), array_column($table->getHash(), 'path'));
+
+    if (in_array('', $paths, TRUE)) {
+      throw new \RuntimeException('The table of pages has an empty "path" cell.');
+    }
+
+    return $paths;
+  }
+
+  /**
+   * Return the paths of the pages a sitemap lists.
+   *
+   * The sitemap is fetched as the scenario's visitor, with the session's
+   * cookies and the site's basic-auth credentials. A sitemap index is
+   * followed to every sitemap it lists, and a sitemap is never returned as a
+   * page.
+   *
+   * Each location keeps its path and query string and drops its scheme, host
+   * and fragment, so it resolves against the base URL. Paths are
+   * de-duplicated in sitemap order, filtered by depth, then cut to the limit.
+   *
+   * @param string $path
+   *   Path or absolute URL of the sitemap.
+   * @param int|null $max_depth
+   *   Deepest path depth to keep, where `/` is 0 and `/about` is 1, or NULL
+   *   for every depth.
+   * @param int|null $limit
+   *   Most paths to return, or NULL for every path.
+   *
+   * @return array<int, string>
+   *   Page paths, in sitemap order.
+   *
+   * @throws \RuntimeException
+   *   When a sitemap can't be fetched or read, or it lists no page to keep.
+   */
+  public function accessibilityGetSitemapPaths(string $path, ?int $max_depth = NULL, ?int $limit = NULL): array {
+    $paths = [];
+    $pending = [$path];
+    $visited = [];
+
+    while ($pending !== []) {
+      $sitemap = array_shift($pending);
+
+      // An index that lists itself, directly or through another index, is
+      // read once.
+      if (isset($visited[$sitemap])) {
+        continue;
+      }
+
+      $visited[$sitemap] = TRUE;
+      $parsed = $this->accessibilityParseSitemap($this->accessibilityFetchSitemap($sitemap), $sitemap);
+
+      if ($parsed['is_index']) {
+        $pending = [...$pending, ...$parsed['locations']];
+        continue;
+      }
+
+      $paths = [...$paths, ...$parsed['locations']];
+    }
+
+    $paths = $this->accessibilityFilterSitemapPaths($paths, $max_depth, $limit);
+
+    if ($paths === []) {
+      throw new \RuntimeException($max_depth === NULL ? sprintf('The sitemap "%s" lists no pages.', $path) : sprintf('The sitemap "%s" lists no pages with a path depth of at most %d.', $path, $max_depth));
+    }
+
+    return $paths;
+  }
+
+  /**
+   * Fetch a sitemap through the detached HTTP client.
+   *
+   * @param string $path
+   *   Path or absolute URL of the sitemap.
+   *
+   * @return string
+   *   The response body.
+   *
+   * @throws \RuntimeException
+   *   When the request fails or the response status is 400 or above.
+   */
+  protected function accessibilityFetchSitemap(string $path): string {
+    $browser = $this->httpDetachedClient();
+    $browser->setMaxRedirects(10);
+
+    try {
+      $browser->request('GET', $this->locatePath($path));
+    }
+    catch (TransportExceptionInterface $exception) {
+      throw new \RuntimeException(sprintf('Unable to fetch the sitemap "%s": %s.', $path, $exception->getMessage()), 0, $exception);
+    }
+
+    $response = $browser->getInternalResponse();
+
+    if ($response->getStatusCode() >= 400) {
+      throw new \RuntimeException(sprintf('The sitemap "%s" returned HTTP status %d.', $path, $response->getStatusCode()));
+    }
+
+    return $response->getContent();
+  }
+
+  /**
+   * Parse a sitemap or a sitemap index into the paths it lists.
+   *
+   * Only `loc` elements in the root element's namespace are read, so the
+   * `image:loc` and `video:loc` of sitemap extensions are ignored.
+   *
+   * @param string $xml
+   *   The sitemap document.
+   * @param string $path
+   *   Path of the sitemap, for failure messages.
+   *
+   * @return array{is_index: bool, locations: array<int, string>}
+   *   Whether the document is a sitemap index, and the path of each page or
+   *   sitemap it lists.
+   *
+   * @throws \RuntimeException
+   *   When the document isn't XML, or its root is neither `urlset` nor
+   *   `sitemapindex`.
+   */
+  protected function accessibilityParseSitemap(string $xml, string $path): array {
+    $document = new \DOMDocument();
+    $previous = libxml_use_internal_errors(TRUE);
+    $is_loaded = trim($xml) !== '' && $document->loadXML($xml, LIBXML_NONET);
+    libxml_clear_errors();
+    libxml_use_internal_errors($previous);
+
+    $root = $document->documentElement;
+
+    if (!$is_loaded || !$root instanceof \DOMElement) {
+      throw new \RuntimeException(sprintf('The sitemap "%s" is not valid XML.', $path));
+    }
+
+    $entries = ['urlset' => 'url', 'sitemapindex' => 'sitemap'];
+
+    if (!isset($entries[$root->localName])) {
+      throw new \RuntimeException(sprintf('The sitemap "%s" has the root element "%s", but it should be "urlset" or "sitemapindex".', $path, $root->localName));
+    }
+
+    $xpath = new \DOMXPath($document);
+    $prefix = '';
+
+    if ($root->namespaceURI !== NULL) {
+      $xpath->registerNamespace('sitemap', $root->namespaceURI);
+      $prefix = 'sitemap:';
+    }
+
+    $locations = [];
+
+    foreach ($xpath->query(sprintf('/%1$s%2$s/%1$s%3$s/%1$sloc', $prefix, $root->localName, $entries[$root->localName])) ?: [] as $node) {
+      $location = $this->accessibilityExtractSitemapPath(trim((string) $node->nodeValue));
+
+      if ($location !== NULL) {
+        $locations[] = $location;
+      }
+    }
+
+    return ['is_index' => $root->localName === 'sitemapindex', 'locations' => $locations];
+  }
+
+  /**
+   * Extract the path and query string from a sitemap location.
+   *
+   * @param string $location
+   *   The text of a `loc` element.
+   *
+   * @return string|null
+   *   The path with its query string, or NULL for an empty or malformed
+   *   location.
+   */
+  protected function accessibilityExtractSitemapPath(string $location): ?string {
+    $parts = $location === '' ? FALSE : parse_url($location);
+
+    if ($parts === FALSE) {
+      return NULL;
+    }
+
+    $path = '/' . ltrim($parts['path'] ?? '', '/');
+
+    return isset($parts['query']) ? $path . '?' . $parts['query'] : $path;
+  }
+
+  /**
+   * De-duplicate sitemap paths, filter them by depth and cut them to a limit.
+   *
+   * @param array<int, string> $paths
+   *   Paths in sitemap order.
+   * @param int|null $max_depth
+   *   Deepest path depth to keep, or NULL for every depth.
+   * @param int|null $limit
+   *   Most paths to return, or NULL for every path.
+   *
+   * @return array<int, string>
+   *   The kept paths, in sitemap order.
+   */
+  protected function accessibilityFilterSitemapPaths(array $paths, ?int $max_depth, ?int $limit): array {
+    $filtered = [];
+
+    foreach (array_unique($paths) as $path) {
+      if ($max_depth !== NULL && $this->accessibilityGetPathDepth($path) > $max_depth) {
+        continue;
+      }
+
+      $filtered[] = $path;
+    }
+
+    return $limit === NULL ? $filtered : array_slice($filtered, 0, max(0, $limit));
+  }
+
+  /**
+   * Return the number of non-empty segments in the path of a URL.
+   *
+   * @param string $path
+   *   A path, with or without a query string.
+   *
+   * @return int
+   *   0 for `/`, 1 for `/about` and `/about/`, 2 for `/about/team`.
+   */
+  protected function accessibilityGetPathDepth(string $path): int {
+    $segments = explode('/', (string) parse_url($path, PHP_URL_PATH));
+
+    return count(array_filter($segments, static fn(string $segment): bool => $segment !== ''));
+  }
+
+  /**
    * Build the human-readable error message for 1 assessed page.
    *
    * @param string $url
@@ -1050,6 +1584,10 @@ HTML;
       $body_sections[] = $section;
     }
 
+    foreach ($this->accessibilitySkippedPages as $skipped) {
+      $body_sections[] = sprintf('<section class="page skipped"><h2>%s</h2><p class="meta">Skipped: %s</p></section>', htmlspecialchars($this->accessibilityFormatUrl($skipped['url']), ENT_QUOTES), htmlspecialchars($skipped['reason'], ENT_QUOTES));
+    }
+
     return implode("\n", $body_sections);
   }
 
@@ -1109,8 +1647,9 @@ HTML;
    * report.
    *
    * A violation emits 1 `<testcase>` per affected node and a passed rule
-   * emits 1 `<testcase>` with no node. `tests` counts every case and
-   * `failures` counts the cases carrying a `<failure>`.
+   * emits 1 `<testcase>` with no node. A page a sweep skipped emits 1
+   * `<testcase>` holding a `<skipped>` element with the reason. `tests`
+   * counts every case and `failures` counts the cases carrying a `<failure>`.
    */
   protected function accessibilityRenderJunit(): string {
     $threshold = $this->accessibilityEffectiveThreshold();
@@ -1164,6 +1703,12 @@ HTML;
       $suites_xml .= sprintf('<testsuite name="%s" tests="%d" failures="%d" errors="0">%s</testsuite>', htmlspecialchars((string) $url, ENT_XML1 | ENT_QUOTES), $tests, $failures, $cases_xml);
     }
 
+    foreach ($this->accessibilitySkippedPages as $skipped) {
+      $url = htmlspecialchars($this->accessibilityFormatUrl($skipped['url']), ENT_XML1 | ENT_QUOTES);
+      $total_tests++;
+      $suites_xml .= sprintf('<testsuite name="%1$s" tests="1" failures="0" errors="0" skipped="1"><testcase classname="accessibility.skipped" name="%1$s"><skipped message="%2$s"/></testcase></testsuite>', $url, htmlspecialchars($skipped['reason'], ENT_XML1 | ENT_QUOTES));
+    }
+
     return sprintf(
       '<?xml version="1.0" encoding="UTF-8"?><testsuites name="%s" tests="%d" failures="%d">%s</testsuites>',
       htmlspecialchars($this->accessibilityFeatureName . ' > ' . $this->accessibilityScenarioName, ENT_XML1 | ENT_QUOTES),
@@ -1208,6 +1753,12 @@ HTML;
       ];
     }
 
+    $skipped = [];
+
+    foreach ($this->accessibilitySkippedPages as $page) {
+      $skipped[] = ['url' => $this->accessibilityFormatUrl($page['url']), 'reason' => $page['reason']];
+    }
+
     self::$accessibilityAggregate[] = [
       'feature' => $this->accessibilityFeatureName,
       'scenario' => $this->accessibilityScenarioName,
@@ -1217,6 +1768,7 @@ HTML;
       // impact list the scenario was gated under is stored with its results.
       'impacts' => $this->accessibilityGetImpacts(),
       'results' => $results,
+      'skipped' => $skipped,
     ];
   }
 
@@ -1387,7 +1939,8 @@ HTML;
    *
    * @return array<string, mixed>
    *   Render-ready data: `generated`, `page_count`, `scenario_count`,
-   *   `total_violations`, `totals`, `pages`, `rules`, and `scenarios`.
+   *   `total_violations`, `totals`, `pages`, `rules`, `skipped`, and
+   *   `scenarios`.
    */
   protected static function accessibilityAggregateData(array $aggregate, string $generated): array {
     $deduped = static::accessibilityAggregatePages($aggregate);
@@ -1430,6 +1983,21 @@ HTML;
       ];
     }
 
+    $skipped = [];
+
+    foreach ($aggregate as $entry) {
+      $feature = (string) ($entry['feature'] ?? '');
+      $scenario = (string) ($entry['scenario'] ?? '');
+
+      foreach ($entry['skipped'] ?? [] as $page) {
+        $skipped[] = [
+          'url' => (string) ($page['url'] ?? ''),
+          'reason' => (string) ($page['reason'] ?? ''),
+          'scenario' => $feature !== '' ? $feature . ' > ' . $scenario : $scenario,
+        ];
+      }
+    }
+
     $scenarios = [];
 
     foreach ($aggregate as $entry) {
@@ -1470,6 +2038,7 @@ HTML;
       'totals' => $totals,
       'pages' => $pages,
       'rules' => $rules,
+      'skipped' => $skipped,
       'scenarios' => $scenarios,
     ];
   }
@@ -1576,6 +2145,16 @@ HTML;
       . '<table><thead><tr><th>URL</th><th>Violations by type</th><th>Incomplete</th><th>Passes</th><th>Seen in scenarios</th></tr></thead><tbody>'
       . implode('', $rows) . '</tbody></table></section>';
 
+    $skipped_rows = [];
+
+    foreach ($data['skipped'] ?? [] as $page) {
+      $skipped_rows[] = sprintf('<tr class="bad"><td class="url">%s</td><td>%s</td><td class="muted">%s</td></tr>', htmlspecialchars((string) ($page['url'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($page['reason'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($page['scenario'] ?? ''), ENT_QUOTES));
+    }
+
+    $skipped_section = $skipped_rows === [] ? '' : '<section><h2>Pages not assessed</h2><p class="meta">Pages a sweep could not visit or assess, with the reason.</p>'
+      . '<table><thead><tr><th>URL</th><th>Reason</th><th>Scenario</th></tr></thead><tbody>'
+      . implode('', $skipped_rows) . '</tbody></table></section>';
+
     if (($data['rules'] ?? []) === []) {
       $rules_section = '<section><h2>Violations by rule</h2><p class="meta">No violations found.</p></section>';
     }
@@ -1612,7 +2191,7 @@ HTML;
     $scenarios_section = '<section><h2>Per-scenario detail</h2><p class="meta">Every page each scenario assessed, in order, with its full findings embedded.</p>' . implode('', $detail) . '</section>';
 
     $generated = htmlspecialchars((string) ($data['generated'] ?? ''), ENT_QUOTES);
-    $body = $cards . $pages_section . $rules_section . $scenarios_section;
+    $body = $cards . $pages_section . $skipped_section . $rules_section . $scenarios_section;
 
     return <<<HTML
 <!doctype html>
@@ -1702,6 +2281,9 @@ HTML;
       new Option('fetch_timeout', default: 10, description: 'The time, in seconds, an attempt to fetch the axe-core script over HTTP can go without receiving data before it fails.'),
       new Option('fetch_attempts', default: 3, description: 'The number of attempts to fetch the axe-core script before the step fails, with a pause after each failed attempt that grows by half a second. A value below 1 counts as 1.'),
       new Option('report_dir', default: '.logs/test_results/accessibility', description: "The directory each scenario's HTML and JUnit reports and the run's summary report are written to. A relative path resolves against the directory the run was launched from."),
+      new Option('sitemap_path', default: '/sitemap.xml', description: 'The path or URL of the XML sitemap `I assess the accessibility of the pages in the sitemap` reads. A path resolves against the base URL.'),
+      new Option('sitemap_max_depth', default: -1, description: 'The deepest path depth the sitemap steps assess when the step names none, where `/` has a depth of 0 and `/about` a depth of 1. A negative value assesses pages at every depth.'),
+      new Option('sitemap_limit', default: 0, description: 'The most pages the sitemap steps assess when the step names no limit, counted in sitemap order after the depth filter. A value of 0 or less assesses every page.'),
     ];
   }
 
