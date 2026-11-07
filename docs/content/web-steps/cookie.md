@@ -1,7 +1,7 @@
 ---
 title: "Cookies - Web steps"
 sidebar_label: "Cookies"
-sidebar_position: 3
+sidebar_position: 4
 description: "Verify and inspect browser cookies."
 custom_edit_url: null
 ---

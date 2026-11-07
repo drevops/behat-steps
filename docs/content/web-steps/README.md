@@ -38,6 +38,7 @@ You can find a step in 3 ways:
 | --- | --- | --- |
 | [Accessibility](accessibility.md) | `AccessibilityTrait` | Assess accessibility of rendered pages. |
 | [Basic authentication](basic-auth.md) | `BasicAuthTrait` | Keep HTTP basic authentication applied across session resets. |
+| [Browser time](browser-time.md) | `BrowserTimeTrait` | Set the time and the timezone a page's JavaScript reads in the browser. |
 | [Cookies](cookie.md) | `CookieTrait` | Verify and inspect browser cookies. |
 | [CSV files](csv.md) | `CsvTrait` | Assert the columns, rows and values of CSV files. |
 | [Dropzone uploads](dropzone.md) | `DropzoneTrait` | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
