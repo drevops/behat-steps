@@ -6,12 +6,11 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\BrowserKitDriver;
-use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Mink;
-use Behat\Mink\Session;
 use DrevOps\BehatSteps\Extension\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
+use DrevOps\BehatSteps\Tests\Unit\Steps\Web\Fixtures\RecordingSession;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -1426,60 +1425,6 @@ class AccessibilityTraitSweepTestImplementation extends WebRawContext {
     $this->accessibilityFeatureName = 'Feature';
     $this->accessibilityScenarioName = 'Scenario';
     $this->accessibilityAggregateCapture($directory);
-  }
-
-}
-
-/**
- * A session that records each visit and reports the last visited URL.
- */
-class RecordingSession extends Session {
-
-  /**
-   * URLs visited, in order.
-   *
-   * @var list<string>
-   */
-  public array $visited = [];
-
-  /**
-   * URLs whose visit fails.
-   *
-   * @var list<string>
-   */
-  public array $failingUrls = [];
-
-  /**
-   * A URL after whose visit the session can no longer report its URL.
-   */
-  public string $failCurrentUrlAfter = '';
-
-  /**
-   * The URL of the last successful visit.
-   */
-  protected string $currentUrl = 'about:blank';
-
-  /**
-   * {@inheritdoc}
-   */
-  public function visit(string $url): void {
-    if (in_array($url, $this->failingUrls, TRUE)) {
-      throw new DriverException(sprintf('Unable to reach "%s".', $url));
-    }
-
-    $this->visited[] = $url;
-    $this->currentUrl = $url;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCurrentUrl(): string {
-    if ($this->failCurrentUrlAfter !== '' && $this->currentUrl === $this->failCurrentUrlAfter) {
-      throw new DriverException('The session has no URL.');
-    }
-
-    return $this->currentUrl;
   }
 
 }
