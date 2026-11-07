@@ -103,6 +103,20 @@ class ContentTraitKernelTest extends StepTraitKernelTestBase {
     ];
   }
 
+  public function testUpdateRejectsFieldBothClearedAndGivenColumnValue(): void {
+    $node = $this->createNode('Shared', 1, ['old']);
+
+    try {
+      $this->context->contentUpdate(new EntityStub('node', 'page', ['nid' => $node->id()]), ['field_keywords' => '', 'field_keywords:value' => 'new']);
+      $this->fail('The update did not fail for a field both cleared and given a column value.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame('The field "field_keywords" cannot be both cleared and given a column value.', $exception->getMessage());
+    }
+
+    $this->assertSame([['value' => 'old']], $this->reloadNode($node)->get('field_keywords')->getValue(), 'The node is left unchanged.');
+  }
+
   public function testUpdateWithTitleChangesOnlyTheNewestNode(): void {
     $older = $this->createNode('Shared', 1, ['old']);
     $newest = $this->createNode('Shared', 1, ['old']);

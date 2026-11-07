@@ -255,8 +255,8 @@ trait EntityLifecycleTrait {
    *   The same stub, now holding the expanded values and flagged as saved.
    *
    * @throws \RuntimeException
-   *   When the id names no entity, or a value names a field the entity does
-   *   not have.
+   *   When the id names no entity, a value names a field the entity does not
+   *   have, or a field is both cleared and given a column value.
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's order can update content.
    */
@@ -273,6 +273,14 @@ trait EntityLifecycleTrait {
       // A 'field:column' value is 1 column of a field, so it clears nothing.
       if (!$is_empty || str_contains($name, ':')) {
         continue;
+      }
+
+      // The clear is written back after the parse, so it would replace the
+      // column value without a word.
+      foreach (array_keys($stub->getValues()) as $other_name) {
+        if (str_starts_with($other_name, $name . ':')) {
+          throw new \RuntimeException(sprintf('The field "%s" cannot be both cleared and given a column value.', $name));
+        }
       }
 
       $cleared[] = $name;
