@@ -16,6 +16,7 @@ custom_edit_url: null
 >  - Assert canonical URL, robots directives and indexability.
 >  - Assert hreflang alternates are valid and reciprocal.
 >  - Assert Open Graph and Twitter Card completeness.
+>  - Assert schema.org JSON-LD items and their properties.
 
 ## Steps
 
@@ -236,6 +237,49 @@ Assert the listed Twitter Card meta tags are present and non-empty
 Then the following Twitter Card tags should exist:
   | twitter:card  |
   | twitter:title |
+```
+
+</details>
+
+<details>
+  <summary><code>@Then a :schema_type JSON-LD item should exist</code></summary>
+
+<br/>
+Assert that a schema.org JSON-LD item of a type exists on the page
+<br/><br/>
+
+```gherkin
+Then a "WebSite" JSON-LD item should exist
+```
+
+</details>
+
+<details>
+  <summary><code>@Then a :schema_type JSON-LD item should not exist</code></summary>
+
+<br/>
+Assert that no schema.org JSON-LD item of a type exists on the page
+<br/><br/>
+
+```gherkin
+Then a "NewsArticle" JSON-LD item should not exist
+```
+
+</details>
+
+<details>
+  <summary><code>@Then a :schema_type JSON-LD item with the following properties should exist:</code></summary>
+
+<br/>
+Assert that a schema.org JSON-LD item of a type has the listed properties
+<br/><br/>
+
+```gherkin
+Then a "PodcastEpisode" JSON-LD item with the following properties should exist:
+  | property          | value         |
+  | url               | [current_url] |
+  | name              | [not_empty]   |
+  | partOfSeries.name | My podcast    |
 ```
 
 </details>

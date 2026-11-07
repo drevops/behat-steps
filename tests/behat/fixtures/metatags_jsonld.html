@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON-LD Testing Page</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "PodcastEpisode",
+        "@id": "http://cli:8888/metatags_jsonld.html",
+        "url": "http://cli:8888/metatags_jsonld.html",
+        "name": "Episode   one & <more>",
+        "description": "",
+        "duration": "PT42M",
+        "episodeNumber": 3,
+        "isAccessibleForFree": true,
+        "keywords": ["behat", "testing"],
+        "partOfSeries": {
+          "@type": "PodcastSeries",
+          "name": "Café radio"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "name": "Example site"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org/",
+    "@type": ["Article", "NewsArticle"],
+    "headline": "Breaking news"
+  }
+  </script>
+</head>
+<body>
+  <h1>JSON-LD Testing Page</h1>
+  <script type="application/ld+json">
+  [
+    {
+      "@context": {"@vocab": "https://schema.org/"},
+      "@type": "Person",
+      "name": "Jane"
+    },
+    {
+      "@context": ["https://schema.org", {"name": "https://schema.org/name"}],
+      "@type": "Person",
+      "name": "John"
+    }
+  ]
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://example.com/vocabulary",
+    "@type": "Event",
+    "name": "Not a schema.org item"
+  }
+  </script>
+</body>
+</html>

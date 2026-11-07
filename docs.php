@@ -2491,6 +2491,7 @@ function kind_placeholders(): array {
     'paragraph_type',
     'parent_bundle',
     'parent_entity_type',
+    'schema_type',
     'seconds',
     'tolerance',
     'vocabulary',
