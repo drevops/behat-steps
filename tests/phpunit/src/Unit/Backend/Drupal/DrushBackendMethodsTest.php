@@ -566,6 +566,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
     yield 'cacheInvalidateTags' => ['cacheInvalidateTags', [['node_list']], 'cache:tags'];
     yield 'cacheDeletePagePath' => ['cacheDeletePagePath', ['page', '/about'], 'cache:clear'];
     yield 'getOneTimeLoginUrl' => ['getOneTimeLoginUrl', [new EntityStub('user', NULL, ['uid' => 7])], 'user:login', 'http://default/user/reset/7/1/hash/login'];
+    yield 'getOneTimeLoginDirectUrl' => ['getOneTimeLoginDirectUrl', [new EntityStub('user', NULL, ['uid' => 7])], 'user:login', 'http://default/user/reset/7/1/hash/login'];
     yield 'queueCountItems' => ['queueCountItems', ['behat_test'], 'queue:list', '{"behat_test":{"queue":"behat_test","items":3,"class":"DatabaseQueue"}}'];
     yield 'queueDelete' => ['queueDelete', ['behat_test'], 'queue:delete'];
     yield 'queueProcess' => ['queueProcess', ['behat_test', 2, 30], 'queue:run', 'Processed 2 items from the behat_test queue in 0.01 sec.'];
@@ -1008,6 +1009,32 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->expectExceptionMessage('Cannot resolve a user from the stub: neither the saved entity, a "uid" value nor a "name" value is set.');
 
     $backend->getOneTimeLoginUrl(new EntityStub('user'));
+  }
+
+  #[DataProvider('dataProviderGetOneTimeLoginDirectUrl')]
+  public function testGetOneTimeLoginDirectUrl(string $link, string $expected): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}', 'user:login' => $link];
+
+    $this->assertSame($expected, $backend->getOneTimeLoginDirectUrl(new EntityStub('user', NULL, ['uid' => 7])));
+    $this->assertSame('user:login', $backend->invocations[1]['command']);
+    $this->assertSame(['uid' => '7', 'no-browser' => NULL], $backend->invocations[1]['options']);
+  }
+
+  public static function dataProviderGetOneTimeLoginDirectUrl(): \Iterator {
+    yield 'a link ending in /login' => ["http://default/sub/user/reset/7/1700000000/abc-DEF_1/login\n", '/sub/user/reset/7/1700000000/abc-DEF_1/login'];
+    yield 'a link without /login' => ['http://default/user/reset/7/1700000000/abc', '/user/reset/7/1700000000/abc/login'];
+  }
+
+  public function testGetOneTimeLoginDirectUrlRejectsOutputWithoutLink(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}'];
+    $backend->drushResponse = 'Drush printed a warning.';
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Drush did not print a one-time login link. Output: Drush printed a warning.');
+
+    $backend->getOneTimeLoginDirectUrl(new EntityStub('user', NULL, ['uid' => 7]));
   }
 
   public function testGetOneTimeLoginUrlRejectsOutputWithoutLink(): void {

@@ -27,6 +27,7 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
  * - Create user accounts
  * - Create user roles
  * - Visit user profile pages for editing and deletion.
+ * - Log in through a one-time login link.
  * - Assert user roles.
  * - Assert user account status (active/inactive).
  *
@@ -443,6 +444,27 @@ trait UserTrait {
   }
 
   /**
+   * Log in as a user through their one-time login link.
+   *
+   * The link logs the user in without the confirmation page the password
+   * reset link shows, and the browser lands where the site redirects a
+   * one-time login. Later steps act as the user, as after
+   * `Given I am logged in as the user :name`.
+   *
+   * @code
+   * When I log in through the one-time login link for the user "test_user"
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[When('I log in through the one-time login link for the user :name')]
+  public function userLoginThroughOneTimeLink(string $name): void {
+    $this->backendFor(UserCapabilityInterface::class);
+
+    $this->userLoginThroughOneTimeLinkForUser($this->userGetLoginStub($name));
+  }
+
+  /**
    * Assert that a user has roles assigned.
    *
    * @code
@@ -836,6 +858,51 @@ trait UserTrait {
     $path = $this->backendFor(UserCapabilityInterface::class)->getOneTimeLoginUrl($user);
 
     $this->visitPath($path);
+  }
+
+  /**
+   * Log in as a user through their one-time login link.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
+   *   The user stub, carrying its 'uid' and 'name'. It becomes the current
+   *   user.
+   *
+   * @throws \RuntimeException
+   *   When the user does not exist, or the authenticator cannot log in
+   *   through a URL.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the link does not log the user in.
+   */
+  public function userLoginThroughOneTimeLinkForUser(EntityStubInterface $user): void {
+    $path = $this->backendFor(UserCapabilityInterface::class)->getOneTimeLoginDirectUrl($user);
+
+    $this->authLoginWithUrl($user, $path);
+  }
+
+  /**
+   * Return the stub to log a user in as.
+   *
+   * @param string $name
+   *   The user name.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub the scenario registered when it created the user, or a stub
+   *   carrying the 'uid' and 'name' of an existing user.
+   *
+   * @throws \RuntimeException
+   *   When no user with the specified name exists.
+   */
+  protected function userGetLoginStub(string $name): EntityStubInterface {
+    $user = $this->userGetByName($name);
+    $registered = $this->authGetUserRegistry()->getUsers()[$name] ?? NULL;
+
+    if ($registered instanceof EntityStubInterface) {
+      return $registered;
+    }
+
+    $user->setValue('name', $name);
+
+    return $user;
   }
 
   /**

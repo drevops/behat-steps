@@ -604,6 +604,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function getOneTimeLoginDirectUrl(EntityStubInterface $stub): string {
+    return $this->getCore()->getOneTimeLoginDirectUrl($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getUserRoles(EntityStubInterface $stub): array {
     return $this->getCore()->getUserRoles($stub);
   }

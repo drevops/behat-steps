@@ -63,10 +63,10 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\StateTrait](#drupalstatetrait) | 3 | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | 6 | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | 2 | Configure Drupal Testmode module for controlled testing scenarios. |
-| [Drupal\UserTrait](#drupalusertrait) | 14 | Manage Drupal users with role and permission assignments. |
+| [Drupal\UserTrait](#drupalusertrait) | 15 | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 3 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 4 | Manage Drupal webforms. |
-| [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
+| [Drupal\AuthTrait](#drupalauthtrait) | 7 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 7 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 5 | Finds the entities a step reads, asserts on or deletes. |
@@ -2982,6 +2982,15 @@ Load multiple users with specified conditions
 </details>
 
 <details>
+  <summary><code>public function userLoginThroughOneTimeLinkForUser(EntityStubInterface $user): void</code></summary>
+
+<br/>
+Log in as a user through their one-time login link
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function userParseRoles(string $roles): array</code></summary>
 
 <br/>
@@ -3130,6 +3139,15 @@ Determines whether a user is logged in for this session
 
 <br/>
 Logs the given user in
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authLoginWithUrl(EntityStubInterface $user, string $path): void</code></summary>
+
+<br/>
+Logs the given user in by visiting a URL that logs them in
 <br/><br/>
 
 </details>

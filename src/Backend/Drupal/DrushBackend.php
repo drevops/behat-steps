@@ -642,6 +642,31 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * A stub without an id is resolved by its 'name' value.
    */
   public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
+    return $this->readOneTimeLoginPath($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * A stub without an id is resolved by its 'name' value.
+   */
+  public function getOneTimeLoginDirectUrl(EntityStubInterface $stub): string {
+    return $this->readOneTimeLoginPath($stub) . '/login';
+  }
+
+  /**
+   * Reads the path of a user's one-time login page from 'user:login'.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The user stub.
+   *
+   * @return string
+   *   The path of the link Drush prints, without a trailing '/login' segment.
+   *
+   * @throws \RuntimeException
+   *   When Drush prints no one-time login link.
+   */
+  protected function readOneTimeLoginPath(EntityStubInterface $stub): string {
     [$key, $value] = $this->resolveUserIdentifier($stub);
     $options = [$key => $value];
 

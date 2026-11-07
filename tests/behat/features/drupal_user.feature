@@ -372,6 +372,50 @@ Feature: Check that UserTrait works
       Current user is not logged in.
       """
 
+  Scenario: Assert "When I log in through the one-time login link for the user :name" works
+    When I log in through the one-time login link for the user "authenticated_user"
+    Then the response status code should be 200
+    And the url should match "/user/\d+/edit"
+    And I should see "You have used a one-time login link."
+    When I visit my own profile page
+    Then I should see "authenticated_user"
+
+  Scenario: Assert "When I log in through the one-time login link for the user :name" replaces the logged-in user
+    Given I am logged in as the user "administrator_user"
+    When I log in through the one-time login link for the user "authenticated_user"
+    And I visit my own profile page
+    Then I should see "authenticated_user"
+    And I should not see "administrator_user"
+
+  @test-trait:Drupal\UserTrait
+  Scenario: Assert "When I log in through the one-time login link for the user :name" fails for non-existing user
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I log in through the one-time login link for the user "non_existing"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The user "non_existing" does not exist.
+      """
+
+  @test-trait:Drupal\UserTrait
+  Scenario: Assert "When I log in through the one-time login link for the user :name" fails for blocked user
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following users exist:
+        | name         | mail                     | status |
+        | blocked_user | blocked_user@example.com | 0      |
+      When I log in through the one-time login link for the user "blocked_user"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The user "blocked_user" is not logged in after visiting the URL "
+      """
+
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" works
     Given the following users exist:
       | name           | roles                         |
@@ -629,3 +673,9 @@ Feature: Check that UserTrait works
     Given I am logged in as the user "authenticated_user"
     When I visit the password reset link for the user "authenticated_user"
     Then the response status code should be 200
+
+  @backend:drush
+  Scenario: Assert "When I log in through the one-time login link for the user :name" works over Drush
+    When I log in through the one-time login link for the user "authenticated_user"
+    Then the url should match "/user/\d+/edit"
+    And I should see "You have used a one-time login link."

@@ -9,6 +9,7 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
+use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use DrevOps\BehatSteps\Backend\BackendInterface;
@@ -19,6 +20,7 @@ use DrevOps\BehatSteps\Extension\Auth\Authenticator;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\BasicAuthenticator;
 use DrevOps\BehatSteps\Extension\Auth\FastLogoutInterface;
+use DrevOps\BehatSteps\Extension\Auth\UrlLoginInterface;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Extension\Registry\UserRegistry;
 use DrevOps\BehatSteps\Extension\Registry\UserRegistryInterface;
@@ -57,6 +59,66 @@ class AuthenticatorTest extends UnitTestCase {
     $authenticator = $this->createAuthenticator();
     $this->assertInstanceOf(AuthenticatorInterface::class, $authenticator);
     $this->assertInstanceOf(FastLogoutInterface::class, $authenticator);
+    $this->assertInstanceOf(UrlLoginInterface::class, $authenticator);
+  }
+
+  public function testLoginWithUrlStaysOnTheLandingPage(): void {
+    $visited = new \ArrayObject();
+    $session = $this->createNavigatingSessionMock(static fn(string $url, string $locator): bool => $url === 'http://localhost/user/reset/7/1/hash/login' && $locator === 'body.logged-in', $visited);
+
+    $auth_backend = $this->createAuthBackendMock();
+    $auth_backend->expects($this->once())->method('login');
+
+    $backend_registry = $this->createMock(BackendRegistryInterface::class);
+    $backend_registry->method('hasCapability')->willReturn(TRUE);
+    $backend_registry->method('getBackendFor')->willReturn($auth_backend);
+    $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
+
+    $user_registry = new UserRegistry();
+    $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'previous']));
+
+    $user = new EntityStub('user', NULL, ['uid' => 7, 'name' => 'alice']);
+    $this->createAuthenticator($session, $user_registry, $backend_registry)->loginWithUrl($user, '/user/reset/7/1/hash/login');
+
+    $this->assertSame($user, $user_registry->getCurrentUser());
+    $this->assertSame(['http://localhost/user/reset/7/1/hash/login'], $visited->getArrayCopy());
+  }
+
+  public function testLoginWithUrlResetsTheSessionFirst(): void {
+    $session = $this->createMock(Session::class);
+    $session->method('getPage')->willReturn($this->createConfiguredMock(DocumentElement::class, ['has' => TRUE]));
+    $session->method('getDriver')->willReturn($this->createMock(DriverInterface::class));
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $calls = [];
+    $session->method('reset')->willReturnCallback(static function () use (&$calls): void {
+      $calls[] = 'reset';
+    });
+    $session->method('visit')->willReturnCallback(static function (string $url) use (&$calls): void {
+      $calls[] = $url;
+    });
+
+    $this->createAuthenticator($session)->loginWithUrl(new EntityStub('user', NULL, ['name' => 'alice']), '/one-time');
+
+    $this->assertSame(['reset', 'http://localhost/one-time'], $calls);
+  }
+
+  public function testLoginWithUrlThrowsWhenNotLoggedIn(): void {
+    $session = $this->createNavigatingSessionMock(static fn(string $url, string $locator): bool => $url === 'http://localhost/user/login' && $locator === 'form#user-login');
+
+    $user_registry = new UserRegistry();
+
+    $authenticator = $this->createAuthenticator($session, $user_registry);
+
+    try {
+      $authenticator->loginWithUrl(new EntityStub('user', NULL, ['name' => 'alice']), '/user/reset/7/1/hash/login');
+      $this->fail('Expected the login to fail.');
+    }
+    catch (ExpectationException $exception) {
+      $this->assertSame('The user "alice" is not logged in after visiting the URL "/user/reset/7/1/hash/login".', $exception->getMessage());
+    }
+
+    $this->assertFalse($user_registry->getCurrentUser());
   }
 
   public function testLoginSuccess(): void {

@@ -257,6 +257,27 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertSame(\Drupal::service(OneTimeAuthentication::class)->generateHmac($account, (int) $timestamp), $hash);
   }
 
+  public function testGetOneTimeLoginDirectUrlLinksToTheLoginRoute(): void {
+    $stub = new EntityStub('user', NULL, ['name' => 'direct', 'mail' => 'direct@example.com', 'pass' => 'pw']);
+    $this->core->createUser($stub);
+    $account = User::load($stub->getValue('uid'));
+    $this->assertInstanceOf(User::class, $account);
+
+    $path = $this->core->getOneTimeLoginDirectUrl(new EntityStub('user', NULL, ['uid' => $stub->getValue('uid')]));
+
+    $this->assertMatchesRegularExpression('#^/user/reset/\d+/\d+/[^/]+/login$#', $path);
+    [, , , $uid, $timestamp, $hash] = explode('/', $path);
+    $this->assertSame((string) $account->id(), $uid);
+    $this->assertSame(\Drupal::service(OneTimeAuthentication::class)->generateHmac($account, (int) $timestamp), $hash);
+  }
+
+  public function testGetOneTimeLoginDirectUrlRejectsMissingUser(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessageMatches('/No user with id "999999" exists/');
+
+    $this->core->getOneTimeLoginDirectUrl(new EntityStub('user', NULL, ['uid' => 999999]));
+  }
+
   public function testGetOneTimeLoginUrlRejectsMissingUser(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/No user with id "999999" exists/');

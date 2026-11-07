@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Extension\Registry\UserRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\UserTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
@@ -115,6 +116,45 @@ class UserTraitTest extends UnitTestCase {
     yield from static::dataProviderParseRolesRejectsAnonymous();
   }
 
+  /**
+   * Tests that a user the scenario created logs in as its registered stub.
+   */
+  public function testGetLoginStubReturnsTheRegisteredStub(): void {
+    $registered = new EntityStub('user', NULL, ['uid' => 7, 'name' => 'alice', 'pass' => 'secret']);
+    $user_registry = new UserRegistry();
+    $user_registry->addUser($registered);
+
+    $context = new UserTraitTestImplementation();
+    $context->authSetUserRegistry($user_registry);
+
+    $this->assertSame($registered, $context->callGetLoginStub('alice'));
+  }
+
+  /**
+   * Tests that an existing user the scenario did not create carries its name.
+   */
+  public function testGetLoginStubNamesAnUnregisteredUser(): void {
+    $context = new UserTraitTestImplementation();
+    $context->authSetUserRegistry(new UserRegistry());
+
+    $stub = $context->callGetLoginStub('admin');
+
+    $this->assertSame(['uid' => 1, 'name' => 'admin'], $stub->getValues());
+  }
+
+  /**
+   * Tests that a missing user fails before the registry is read.
+   */
+  public function testGetLoginStubRejectsMissingUser(): void {
+    $context = new UserTraitTestImplementation();
+    $context->authSetUserRegistry(new UserRegistry());
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The user "nobody" does not exist.');
+
+    $context->callGetLoginStub('nobody');
+  }
+
 }
 
 /**
@@ -123,5 +163,25 @@ class UserTraitTest extends UnitTestCase {
 class UserTraitTestImplementation extends WebRawContext {
 
   use UserTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function userGetByName(string $name): EntityStubInterface {
+    $uids = ['alice' => 7, 'admin' => 1];
+
+    if (!isset($uids[$name])) {
+      throw new \RuntimeException(sprintf('The user "%s" does not exist.', $name));
+    }
+
+    return new EntityStub('user', NULL, ['uid' => $uids[$name]]);
+  }
+
+  /**
+   * Runs 'userGetLoginStub()'.
+   */
+  public function callGetLoginStub(string $name): EntityStubInterface {
+    return $this->userGetLoginStub($name);
+  }
 
 }

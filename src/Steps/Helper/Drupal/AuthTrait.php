@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\FastLogoutInterface;
+use DrevOps\BehatSteps\Extension\Auth\UrlLoginInterface;
 use DrevOps\BehatSteps\Extension\Hook\Scope\AfterEntityCreateScope;
 use DrevOps\BehatSteps\Extension\Hook\Scope\AfterUserCreateScope;
 use DrevOps\BehatSteps\Extension\Hook\Scope\BeforeEntityCreateScope;
@@ -216,6 +217,29 @@ trait AuthTrait {
    */
   public function authLogin(EntityStubInterface $user): void {
     $this->authGetAuthenticator()->login($user);
+  }
+
+  /**
+   * Logs the given user in by visiting a URL that logs them in.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
+   *   The user stub the URL logs in.
+   * @param string $path
+   *   The path, relative to the base URL, that logs the user in.
+   *
+   * @throws \RuntimeException
+   *   When the authenticator cannot log in through a URL.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no user is logged in after the visit.
+   */
+  public function authLoginWithUrl(EntityStubInterface $user, string $path): void {
+    $authenticator = $this->authGetAuthenticator();
+
+    if (!$authenticator instanceof UrlLoginInterface) {
+      throw new \RuntimeException(sprintf('The authenticator "%s" cannot log in through a URL.', $authenticator::class));
+    }
+
+    $authenticator->loginWithUrl($user, $path);
   }
 
   /**

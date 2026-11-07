@@ -92,4 +92,21 @@ interface UserCapabilityInterface {
    */
   public function getOneTimeLoginUrl(EntityStubInterface $stub): string;
 
+  /**
+   * Returns the path that logs a user in once, without a confirmation page.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The user stub. Either the saved-entity slot or a 'uid' value must be
+   *   populated so the backend can resolve the account.
+   *
+   * @return string
+   *   The path, relative to the site root, that the one-time login page
+   *   submits to. Visiting it logs the user in and applies the site's
+   *   redirect.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries no id, or no user has the id.
+   */
+  public function getOneTimeLoginDirectUrl(EntityStubInterface $stub): string;
+
 }

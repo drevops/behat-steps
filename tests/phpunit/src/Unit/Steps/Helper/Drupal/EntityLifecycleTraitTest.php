@@ -27,6 +27,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\FastLogoutInterface;
+use DrevOps\BehatSteps\Extension\Auth\UrlLoginInterface;
 use DrevOps\BehatSteps\Extension\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterLanguageCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeLanguageCreate;
@@ -988,6 +989,26 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $authenticator->expects($this->once())->method('login')->with($user);
 
     $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authLogin($user);
+  }
+
+  public function testLoginWithUrlDelegatesToTheAuthenticator(): void {
+    $user = new EntityStub('user', NULL, ['name' => 'alice']);
+
+    /** @var \DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface&\DrevOps\BehatSteps\Extension\Auth\UrlLoginInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
+    $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, UrlLoginInterface::class]);
+    $authenticator->expects($this->once())->method('loginWithUrl')->with($user, '/user/reset/7/1/hash/login');
+    $authenticator->expects($this->never())->method('login');
+
+    $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authLoginWithUrl($user, '/user/reset/7/1/hash/login');
+  }
+
+  public function testLoginWithUrlRejectsAnAuthenticatorWithoutUrlLogin(): void {
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('The authenticator "%s" cannot log in through a URL.', $authenticator::class));
+
+    $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authLoginWithUrl(new EntityStub('user'), '/login');
   }
 
   public function testLogoutDelegatesToTheAuthenticator(): void {
