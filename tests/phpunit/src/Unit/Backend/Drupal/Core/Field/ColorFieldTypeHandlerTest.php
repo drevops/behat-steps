@@ -165,6 +165,18 @@ class ColorFieldTypeHandlerTest extends FieldHandlerUnitTestBase {
       \RuntimeException::class,
       'Invalid color sub-field key "alpha". Use "color" and "opacity".',
     ];
+    yield 'array color rejected' => [
+      ['color' => ['#502001'], 'opacity' => NULL],
+      NULL,
+      \RuntimeException::class,
+      'The color sub-field "color" must be a string, a number or NULL. Got array.',
+    ];
+    yield 'array opacity rejected' => [
+      ['color' => '#502001', 'opacity' => ['0.5']],
+      NULL,
+      \RuntimeException::class,
+      'The color sub-field "opacity" must be a string, a number or NULL. Got array.',
+    ];
     yield 'positional record in a list rejected' => [
       [['#502001', '0.5']],
       NULL,
