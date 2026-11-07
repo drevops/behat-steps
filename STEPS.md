@@ -6141,8 +6141,13 @@ When I fill in the entity reference field "Tags" with the "tags" "taxonomy_term"
 >  Manage Drupal file entities with upload and storage operations.
 >  - Create managed and unmanaged files with specific URIs and content.
 >  - Verify file existence, content, and proper storage locations.
+>  - Assert the rows, row count and columns of CSV files.
 >  - Set up file system directories and clean up created files.
 >  
+>  A CSV file is read with a header row naming its columns, `,` as the
+>  separator and `"` as the enclosure. Its URI may be a stream wrapper URI
+>  such as `temporary://report.csv` or a path on the filesystem.
+>  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:FileTrait`.
 
 
@@ -6269,6 +6274,63 @@ Assert that an unmanaged file exists and does not have specified content
 
 ```gherkin
 Then the unmanaged file at the URI "public://config.txt" should not contain "debug=false"
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the CSV file at the URI :uri should contain the following row:</code></summary>
+
+<br/>
+Assert that a CSV file contains a row with the given values
+<br/><br/>
+
+```gherkin
+Then the CSV file at the URI "temporary://report.csv" should contain the following row:
+  | clip_id | clip-1  |
+  | result  | updated |
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the CSV file at the URI :uri should not contain the following row:</code></summary>
+
+<br/>
+Assert that a CSV file does not contain a row with the given values
+<br/><br/>
+
+```gherkin
+Then the CSV file at the URI "temporary://report.csv" should not contain the following row:
+  | clip_id | clip-1 |
+  | result  | failed |
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the CSV file at the URI :uri should have :count row(s)</code></summary>
+
+<br/>
+Assert that a CSV file has a number of data rows
+<br/><br/>
+
+```gherkin
+Then the CSV file at the URI "temporary://report.csv" should have 3 rows
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the CSV file at the URI :uri should have the following columns:</code></summary>
+
+<br/>
+Assert that a CSV file has exactly the given columns, in order
+<br/><br/>
+
+```gherkin
+Then the CSV file at the URI "temporary://report.csv" should have the following columns:
+  | clip_id | title | result |
 ```
 
 </details>

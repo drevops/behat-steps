@@ -2538,6 +2538,7 @@ function step_acronyms(): array {
   return [
     'AJAX',
     'CSS',
+    'CSV',
     'DTD',
     'ECK',
     'HTML',

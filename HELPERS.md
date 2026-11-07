@@ -53,7 +53,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\EckTrait](#drupalecktrait) | 5 | Manage Drupal ECK entities of an existing entity type and bundle. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 11 | Test Drupal email functionality with content verification. |
 | [Drupal\EntityTrait](#drupalentitytrait) | 2 | Create entities of a type that has no dedicated trait, and reference them. |
-| [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
+| [Drupal\FileTrait](#drupalfiletrait) | 10 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 6 | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | 5 | Enable and disable Drupal modules with automatic state restoration. |
@@ -2482,6 +2482,33 @@ Delete the managed files that match conditions
 </details>
 
 <details>
+  <summary><code>public function fileFindCsvRow(string $uri, array $values): ?array</code></summary>
+
+<br/>
+Find the first data row of a CSV file holding the given values
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fileGetCsvHeader(string $uri): array</code></summary>
+
+<br/>
+Get the columns a CSV file names in its header row
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fileGetCsvRows(string $uri): array</code></summary>
+
+<br/>
+Get the data rows of a CSV file, keyed by column name
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function fileGetUnmanagedContent(string $uri): string</code></summary>
 
 <br/>
@@ -2495,6 +2522,15 @@ Get the content of an unmanaged file
 
 <br/>
 Load multiple files with specified conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fileParseCsv(string $content, string $separator = ',', string $enclosure = '"'): array</code></summary>
+
+<br/>
+Parse CSV content into records
 <br/><br/>
 
 </details>
