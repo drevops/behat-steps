@@ -102,6 +102,38 @@ trait ElementTrait {
   }
 
   /**
+   * Click on the first element matching the selector with the text.
+   *
+   * The element's trimmed text must equal the text exactly.
+   *
+   * @code
+   * When I click on the element "summary" with the text "Expand for existing"
+   * @endcode
+   *
+   * @actor:person
+   * @javascript
+   */
+  #[When('I click on the element :selector with the text :text')]
+  public function elementClickWithText(string $selector, string $text): void {
+    $this->elementGetByText($selector, $text, TRUE)->click();
+  }
+
+  /**
+   * Click on the first element matching the selector with a text containing a value.
+   *
+   * @code
+   * When I click on the element "summary" with a text containing "existing"
+   * @endcode
+   *
+   * @actor:person
+   * @javascript
+   */
+  #[When('I click on the element :selector with a text containing :partial_text')]
+  public function elementClickWithTextContaining(string $selector, string $partial_text): void {
+    $this->elementGetByText($selector, $partial_text, FALSE)->click();
+  }
+
+  /**
    * Follow the link at the 1-based index among all links with the text.
    *
    * @code
@@ -876,6 +908,64 @@ trait ElementTrait {
     }
 
     throw new ExpectationException(sprintf('The element "%s" is not visible on the page.', $selector), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Find the first element matching a CSS selector by its text.
+   *
+   * The text is compared in PHP, not in an XPath expression, so quotes in it
+   * need no escaping.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param string $text
+   *   The text to match.
+   * @param bool $is_exact
+   *   Whether the element's trimmed text must equal the text. When FALSE, the
+   *   element's text must contain it.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The first matching element, or NULL when none carries the text.
+   */
+  public function elementFindByText(string $selector, string $text, bool $is_exact): ?NodeElement {
+    foreach ($this->getSession()->getPage()->findAll('css', $selector) as $element) {
+      $element_text = trim($element->getText());
+
+      if ($is_exact ? $element_text === $text : str_contains($element_text, $text)) {
+        return $element;
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Get the first element matching a CSS selector by its text.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param string $text
+   *   The text to match.
+   * @param bool $is_exact
+   *   Whether the element's trimmed text must equal the text. When FALSE, the
+   *   element's text must contain it.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The first matching element.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no element matching the selector carries the text.
+   */
+  public function elementGetByText(string $selector, string $text, bool $is_exact): NodeElement {
+    $element = $this->elementFindByText($selector, $text, $is_exact);
+
+    if ($element instanceof NodeElement) {
+      return $element;
+    }
+
+    $type = $is_exact ? sprintf('element with the text "%s"', $text) : sprintf('element with a text containing "%s"', $text);
+
+    throw new ElementNotFoundException($this->getSession()->getDriver(), $type, 'css', $selector);
   }
 
   /**

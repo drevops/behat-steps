@@ -878,6 +878,57 @@ Feature: Check that ElementTrait works
     Then I should see "Clicked 2"
 
   @javascript @phpserver
+  Scenario: Assert "When I click on the element :selector with the text :text" clicks the element with the exact text
+    Given I visit "http://cli:8888/elements_relative.html"
+    Then the element "#details-new p" should not be displayed
+    When I click on the element "summary" with the text "Add new"
+    Then the element "#details-new p" should be displayed
+    And the element "#details-existing p" should not be displayed
+    When I click on the element "summary" with the text "Expand for existing (3 items)"
+    Then the element "#details-existing p" should be displayed
+
+  @javascript @phpserver
+  Scenario: Assert "When I click on the element :selector with the text :text" matches text with quotes
+    Given I visit "http://cli:8888/elements_relative.html"
+    When I click on the element "summary" with the text "Editor's pick"
+    Then the element "#details-apostrophe p" should be displayed
+    When I click on the element "summary" with the text 'The "featured" pick'
+    Then the element "#details-double-quote p" should be displayed
+
+  @javascript @phpserver
+  Scenario: Assert "When I click on the element :selector with a text containing :partial_text" clicks the first element containing the text
+    Given I visit "http://cli:8888/elements_relative.html"
+    When I click on the element "summary" with a text containing "for existing"
+    Then the element "#details-existing p" should be displayed
+    And the element "#details-new p" should not be displayed
+    When I click on the element "summary" with a text containing "pick"
+    Then the element "#details-apostrophe p" should be displayed
+    And the element "#details-double-quote p" should not be displayed
+    When I click on the element "summary" with a text containing '"featured"'
+    Then the element "#details-double-quote p" should be displayed
+
+  @test-trait:ElementTrait
+  Scenario Outline: Assert clicking on an element by its text fails when no element matches
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I visit "http://cli:8888/elements_relative.html"
+      <step>
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      <message>
+      """
+    Examples:
+      | step                                                                             | message                                                                        |
+      | When I click on the element ".does-not-exist" with the text "Add new"            | Element with the text "Add new" matching css ".does-not-exist" not found.      |
+      | When I click on the element "summary" with the text "Missing text"               | Element with the text "Missing text" matching css "summary" not found.         |
+      | When I click on the element "summary" with the text "Expand for existing"        | Element with the text "Expand for existing" matching css "summary" not found.  |
+      | When I click on the element ".does-not-exist" with a text containing "Add"       | Element with a text containing "Add" matching css ".does-not-exist" not found. |
+      | When I click on the element "summary" with a text containing "Missing"           | Element with a text containing "Missing" matching css "summary" not found.     |
+
+  @javascript @phpserver
   Scenario: Assert "When I press the button :label with the index :index" presses the Nth match
     Given I visit "http://cli:8888/elements_relative.html"
     When I press the button "Repeated action" with the index 3

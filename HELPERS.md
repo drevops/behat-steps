@@ -13,7 +13,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [DateTrait](#datetrait) | 3 | Convert relative date expressions into timestamps or formatted dates. |
 | [DiagnosticsTrait](#diagnosticstrait) | 12 | Append on-failure diagnostics to the failure message of any failed step. |
 | [DropzoneTrait](#dropzonetrait) | 1 | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
-| [ElementTrait](#elementtrait) | 8 | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [ElementTrait](#elementtrait) | 10 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 13 | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | 8 | Test file download functionality with content verification. |
 | [IframeTrait](#iframetrait) | 1 | Switch between iframes and the root document. |
@@ -541,6 +541,15 @@ Execute JS on an element provided by the selector
 </details>
 
 <details>
+  <summary><code>public function elementFindByText(string $selector, string $text, bool $is_exact): ?NodeElement</code></summary>
+
+<br/>
+Find the first element matching a CSS selector by its text
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function elementFindVisible(string $selector): ?NodeElement</code></summary>
 
 <br/>
@@ -554,6 +563,15 @@ Find the first visible element matching a CSS selector
 
 <br/>
 Get the first element matching a CSS selector
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function elementGetByText(string $selector, string $text, bool $is_exact): NodeElement</code></summary>
+
+<br/>
+Get the first element matching a CSS selector by its text
 <br/><br/>
 
 </details>

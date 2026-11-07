@@ -712,6 +712,32 @@ When I click on the element ".card" with the index 2
 </details>
 
 <details>
+  <summary><code>@When I click on the element :selector with the text :text</code></summary>
+
+<br/>
+Click on the first element matching the selector with the text
+<br/><br/>
+
+```gherkin
+When I click on the element "summary" with the text "Expand for existing"
+```
+
+</details>
+
+<details>
+  <summary><code>@When I click on the element :selector with a text containing :partial_text</code></summary>
+
+<br/>
+Click on the first element matching the selector with a text containing a value
+<br/><br/>
+
+```gherkin
+When I click on the element "summary" with a text containing "existing"
+```
+
+</details>
+
+<details>
   <summary><code>@When I follow the link :link with the index :index</code></summary>
 
 <br/>
