@@ -9,6 +9,7 @@ use Behat\Hook\BeforeSuite;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
 use DrevOps\BehatSteps\Steps\Web\BasicAuthTrait;
+use DrevOps\BehatSteps\Steps\Web\BrowserTimeTrait;
 use DrevOps\BehatSteps\Steps\Web\CommandTrait;
 use DrevOps\BehatSteps\Steps\Web\CookieTrait;
 use DrevOps\BehatSteps\Steps\Web\CsvTrait;
@@ -59,6 +60,7 @@ class WebContext extends WebRawContext {
 
   use AccessibilityTrait;
   use BasicAuthTrait;
+  use BrowserTimeTrait;
   use CommandTrait;
   use CookieTrait;
   use CsvTrait;

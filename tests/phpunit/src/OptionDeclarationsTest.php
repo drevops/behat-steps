@@ -23,6 +23,7 @@ use DrevOps\BehatSteps\Steps\Drupal\TimeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
 use DrevOps\BehatSteps\Steps\Web\BasicAuthTrait;
+use DrevOps\BehatSteps\Steps\Web\BrowserTimeTrait;
 use DrevOps\BehatSteps\Steps\Web\CommandTrait;
 use DrevOps\BehatSteps\Steps\Web\DateTrait;
 use DrevOps\BehatSteps\Steps\Web\DiagnosticsTrait;
@@ -62,6 +63,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversTrait(WatchdogTrait::class)]
 #[CoversTrait(AccessibilityTrait::class)]
 #[CoversTrait(BasicAuthTrait::class)]
+#[CoversTrait(BrowserTimeTrait::class)]
 #[CoversTrait(CommandTrait::class)]
 #[CoversTrait(DateTrait::class)]
 #[CoversTrait(DiagnosticsTrait::class)]
