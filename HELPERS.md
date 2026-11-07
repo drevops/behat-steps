@@ -21,7 +21,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [JsonTrait](#jsontrait) | 7 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 3 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
-| [MetatagTrait](#metatagtrait) | 14 | Assert `<meta>` tags and head/SEO markup in page markup. |
+| [MetatagTrait](#metatagtrait) | 16 | Assert `<meta>` tags and head/SEO markup in page markup. |
 | [ModalTrait](#modaltrait) | 9 | Interact with and assert modals. |
 | [PathTrait](#pathtrait) | 4 | Navigate and verify paths with URL validation. |
 | [RandomTrait](#randomtrait) | 10 | Replace random-value tokens in step arguments and table cells. |
@@ -1074,6 +1074,15 @@ Assert that hreflang alternates are valid
 </details>
 
 <details>
+  <summary><code>public function metatagAssertJsonLdItemHasProperties(string $schema_type, array $properties): void</code></summary>
+
+<br/>
+Assert that a schema.org JSON-LD item of a type has the given properties
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function metatagAssertMetaSetExists(array $names, string $label): void</code></summary>
 
 <br/>
@@ -1123,6 +1132,15 @@ Find the first meta tag carrying every given attribute value
 
 <br/>
 Get the hreflang alternates present on the current page
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function metatagGetJsonLdItems(?string $schema_type = NULL): array</code></summary>
+
+<br/>
+Get the schema.org JSON-LD items on the page
 <br/><br/>
 
 </details>
