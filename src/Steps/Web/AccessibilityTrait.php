@@ -1705,8 +1705,11 @@ HTML;
 
     foreach ($this->accessibilitySkippedPages as $skipped) {
       $url = htmlspecialchars($this->accessibilityFormatUrl($skipped['url']), ENT_XML1 | ENT_QUOTES);
+      // XML 1.0 forbids most control characters, and an attribute value folds
+      // a literal line break into a space.
+      $reason = htmlspecialchars((string) preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $skipped['reason']), ENT_XML1 | ENT_QUOTES);
       $total_tests++;
-      $suites_xml .= sprintf('<testsuite name="%1$s" tests="1" failures="0" errors="0" skipped="1"><testcase classname="accessibility.skipped" name="%1$s"><skipped message="%2$s"/></testcase></testsuite>', $url, htmlspecialchars($skipped['reason'], ENT_XML1 | ENT_QUOTES));
+      $suites_xml .= sprintf('<testsuite name="%1$s" tests="1" failures="0" errors="0" skipped="1"><testcase classname="accessibility.skipped" name="%1$s"><skipped message="%2$s"/></testcase></testsuite>', $url, str_replace(["\r", "\n"], ['&#13;', '&#10;'], $reason));
     }
 
     return sprintf(

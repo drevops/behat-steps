@@ -899,6 +899,17 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertStringContainsString('<tr class="bad"><td class="url">/broken</td><td>Engine &lt;failed&gt; &amp; &quot;stopped&quot;.</td><td class="muted">Feature &gt; Scenario</td></tr>', $report);
   }
 
+  public function testRenderJunitKeepsSkippedReasonValidXml(): void {
+    $sweep = static::createSweep(['http://nginx:8080/broken' => new \RuntimeException("\x1B[31mEngine failed:\x1B[0m\nsession lost.\r\nRetry.")]);
+    $sweep->testSetAutoMode(TRUE);
+    $sweep->accessibilityAssessPages(['/broken', '/'], 'wcag2a');
+
+    $doc = simplexml_load_string($sweep->callRenderJunit());
+
+    $this->assertInstanceOf(\SimpleXMLElement::class, $doc, 'The rendered report is well-formed XML.');
+    $this->assertSame("[31mEngine failed:[0m\nsession lost.\r\nRetry.", (string) ($doc->xpath('//skipped')[0]['message'] ?? ''));
+  }
+
   public function testAggregateOmitsSkippedSectionWithoutSkippedPages(): void {
     $this->assertStringNotContainsString('Pages not assessed', static::renderSample(static::createSampleAggregate(), '2026-01-02 03:04'));
   }
