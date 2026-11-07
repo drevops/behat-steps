@@ -429,6 +429,62 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Compound subdirectory file"
     And the response should contain ".pdf"
 
+  Scenario: Assert color field on node stores a hex value with no opacity
+    Given the following page content exists:
+      | title               | field_color |
+      | [TEST] Single color | #502001     |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content page with the title "[TEST] Single color"
+    Then I should see "#502001 1"
+
+  Scenario: Assert color field on node stores a list of hex values as separate deltas
+    Given the following page content exists:
+      | title             | field_color      |
+      | [TEST] Two colors | #502001, #ffffff |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content page with the title "[TEST] Two colors"
+    Then I should see "#502001 1"
+    And I should see "#ffffff 1"
+
+  Scenario: Assert color field on node stores compound color and opacity records
+    Given the following page content exists:
+      | title                     | field_color                                       |
+      | [TEST] Translucent colors | color:"#502001", opacity:"0.5"; color:"#ffffff"   |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content page with the title "[TEST] Translucent colors"
+    Then I should see "#502001 0.5"
+    And I should see "#ffffff 1"
+
+  Scenario: Assert color field on node stores color and opacity columns and skips a row with both empty
+    Given the following page content exists:
+      | title                      | field_color:color | field_color:opacity |
+      | [TEST] Column color        | #502001           | 0.25                |
+      | [TEST] Column color opaque | #ffffff           |                     |
+      | [TEST] Column color empty  |                   |                     |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content page with the title "[TEST] Column color"
+    Then I should see "#502001 0.25"
+    When I visit the "page" content page with the title "[TEST] Column color opaque"
+    Then I should see "#ffffff 1"
+    When I visit the "page" content page with the title "[TEST] Column color empty"
+    Then I should see "[TEST] Column color empty"
+    And the response should not contain "field--name-field-color"
+
+  @test-trait:Drupal\ContentTrait
+  Scenario: Assert negative color field on node with an opacity and no color fails
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following page content exists:
+        | title               | field_color:color | field_color:opacity |
+        | [TEST] Opacity only |                   | 0.5                 |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The color field record sets the opacity "0.5" but no color.
+      """
+
   Scenario: Assert "When the path alias of the :content_type content with the title :title is set to :alias" works as expected
     Given the following page content exists:
       | title                   |

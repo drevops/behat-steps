@@ -4,10 +4,12 @@ status: true
 dependencies:
   config:
     - field.field.node.page.body
+    - field.field.node.page.field_color
     - field.field.node.page.field_description
     - field.field.node.page.field_test_tags
     - node.type.page
   module:
+    - color_field
     - text
     - user
 _core:
@@ -28,6 +30,15 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: -20
+    region: content
+  field_color:
+    type: color_field_formatter_text
+    label: above
+    settings:
+      format: hex
+      opacity: true
+    third_party_settings: {  }
+    weight: 103
     region: content
   field_description:
     type: text_default
