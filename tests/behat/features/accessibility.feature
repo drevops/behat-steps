@@ -155,54 +155,54 @@ Feature: Check that AccessibilityTrait works
       [accessibility] http://cli:8888/accessibility_clean.html: 0 violations,
       """
 
-  @javascript @phpserver @page-sweep
+  @javascript @page-sweep
   Scenario: Pages in a table pass the accessibility assessment
     When I assess the accessibility of the following pages:
-      | path                                      |
-      | http://cli:8888/accessibility_clean.html  |
-      | http://cli:8888/accessibility_clean2.html |
+      | path                                           |
+      | /sites/default/files/accessibility_clean.html  |
+      | /sites/default/files/accessibility_clean2.html |
 
-  @javascript @phpserver @page-sweep
+  @javascript @page-sweep
   Scenario: Pages in a table pass the accessibility assessment for a specific tag set
     When I assess the accessibility of the following pages for the tags "wcag2a":
-      | path                                      |
-      | http://cli:8888/accessibility_clean.html  |
-      | http://cli:8888/accessibility_clean2.html |
+      | path                                           |
+      | /sites/default/files/accessibility_clean.html  |
+      | /sites/default/files/accessibility_clean2.html |
 
   @test-trait:AccessibilityTrait @page-sweep
   Scenario: A table sweep assesses every page before it fails on violations
     Given some behat configuration
-    And scenario steps tagged with "@javascript @phpserver":
+    And scenario steps tagged with "@javascript":
       """
       When I assess the accessibility of the following pages:
-        | path                                          |
-        | http://cli:8888/accessibility_violations.html |
-        | http://cli:8888/accessibility_clean.html      |
+        | path                                               |
+        | /sites/default/files/accessibility_violations.html |
+        | /sites/default/files/accessibility_clean.html      |
       """
     When the "BEHAT_ACCESSIBILITY_PRINT" environment variable is set to "1"
     And I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Accessibility gate failed on http://cli:8888/accessibility_violations.html
+      Accessibility gate failed on /sites/default/files/accessibility_violations.html
       """
     And the output should contain:
       """
-      [accessibility] http://cli:8888/accessibility_clean.html: 0 violations,
+      [accessibility] /sites/default/files/accessibility_clean.html: 0 violations,
       """
     And the output should not contain:
       """
-      Accessibility gate failed on http://cli:8888/accessibility_clean.html
+      Accessibility gate failed on /sites/default/files/accessibility_clean.html
       """
 
   @test-trait:AccessibilityTrait @page-sweep
   Scenario: A table sweep in automatic warning mode leaves the outcome to the gate
     Given some behat configuration
-    And scenario steps tagged with "@javascript @phpserver @accessibility:warning":
+    And scenario steps tagged with "@javascript @accessibility:warning":
       """
       When I assess the accessibility of the following pages:
-        | path                                          |
-        | http://cli:8888/accessibility_violations.html |
-        | http://cli:8888/accessibility_clean.html      |
+        | path                                               |
+        | /sites/default/files/accessibility_violations.html |
+        | /sites/default/files/accessibility_clean.html      |
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -210,19 +210,19 @@ Feature: Check that AccessibilityTrait works
   @test-trait:AccessibilityTrait @page-sweep
   Scenario: A table sweep skips a page it cannot assess and assesses the rest
     Given some behat configuration
-    And scenario steps tagged with "@javascript @phpserver":
+    And scenario steps tagged with "@javascript":
       """
       When I assess the accessibility of the following pages:
-        | path                                            |
-        | http://cli:8888/accessibility_broken_engine.html |
-        | http://cli:8888/accessibility_clean.html        |
+        | path                                                  |
+        | /sites/default/files/accessibility_broken_engine.html |
+        | /sites/default/files/accessibility_clean.html         |
       """
     When the "BEHAT_ACCESSIBILITY_PRINT" environment variable is set to "1"
     And I run "behat --no-colors"
     Then it should pass
     And the output should contain:
       """
-      [accessibility] http://cli:8888/accessibility_clean.html: 0 violations,
+      [accessibility] /sites/default/files/accessibility_clean.html: 0 violations,
       """
     And a file matching ".logs/test_results/accessibility/junit-*.xml" should contain:
       """
@@ -232,31 +232,31 @@ Feature: Check that AccessibilityTrait works
   @test-trait:AccessibilityTrait @page-sweep
   Scenario: A table sweep lists the skipped pages when it fails on violations
     Given some behat configuration
-    And scenario steps tagged with "@javascript @phpserver":
+    And scenario steps tagged with "@javascript":
       """
       When I assess the accessibility of the following pages:
-        | path                                            |
-        | http://cli:8888/accessibility_broken_engine.html |
-        | http://cli:8888/accessibility_violations.html   |
+        | path                                                  |
+        | /sites/default/files/accessibility_broken_engine.html |
+        | /sites/default/files/accessibility_violations.html    |
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Accessibility gate failed on http://cli:8888/accessibility_violations.html
+      Accessibility gate failed on /sites/default/files/accessibility_violations.html
       """
     And the output should contain:
       """
-      skipped "http://cli:8888/accessibility_broken_engine.html": Accessibility engine failed: engine disabled by the fixture.
+      skipped "/sites/default/files/accessibility_broken_engine.html": Accessibility engine failed: engine disabled by the fixture.
       """
 
   @test-trait:AccessibilityTrait @page-sweep
   Scenario: A table sweep fails when no page could be assessed
     Given some behat configuration
-    And scenario steps tagged with "@javascript @phpserver":
+    And scenario steps tagged with "@javascript":
       """
       When I assess the accessibility of the following pages:
-        | path                                            |
-        | http://cli:8888/accessibility_broken_engine.html |
+        | path                                                  |
+        | /sites/default/files/accessibility_broken_engine.html |
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -265,7 +265,7 @@ Feature: Check that AccessibilityTrait works
       """
     And the output should contain:
       """
-      skipped "http://cli:8888/accessibility_broken_engine.html": Accessibility engine failed: engine disabled by the fixture.
+      skipped "/sites/default/files/accessibility_broken_engine.html": Accessibility engine failed: engine disabled by the fixture.
       """
 
   @javascript @page-sweep
