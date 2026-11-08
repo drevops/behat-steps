@@ -154,9 +154,6 @@
             "drupal/paragraphs": {
                 "Drupal 12: declare the array return on massageFormValues()": "patches/paragraphs-drupal12-massage-form-values.patch"
             },
-            "drupal/pathauto": {
-                "Drupal 12: match the getDefaultOperations() signature": "patches/pathauto-drupal12-default-operations.patch"
-            },
             "drupal/profile": {
                 "Drupal 12: match the getDefaultOperations() signature": "patches/profile-drupal12-default-operations.patch"
             },
