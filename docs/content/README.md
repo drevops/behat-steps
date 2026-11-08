@@ -20,7 +20,7 @@ Feature: Contact page
 
 Each of those lines is a step, and Behat runs a step only when there's PHP code behind it. Behat Steps is that code: hundreds of steps for pages, forms, links, cookies, APIs and Drupal sites. They're already written, documented and tested, so you can go straight to writing scenarios.
 
-The steps come as PHP traits: 28 that work on any website, and 29 that only mean something on a Drupal site. The library [tests its own steps](../../tests/behat/features) to catch false positives and negatives. Every step follows [the same wording rules](../../CONTRIBUTING.md#steps-format), so the language stays consistent from one trait to the next. When no shipped step says what you mean, you write your own. Your step can call the same helpers the shipped steps are built on.
+The steps come as PHP traits: 29 that work on any website, and 29 that only mean something on a Drupal site. The library [tests its own steps](../../tests/behat/features) to catch false positives and negatives. Every step follows [the same wording rules](../../CONTRIBUTING.md#steps-format), so the language stays consistent from one trait to the next. When no shipped step says what you mean, you write your own. Your step can call the same helpers the shipped steps are built on.
 
 ## What you get
 

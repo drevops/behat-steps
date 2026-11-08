@@ -10,6 +10,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [BasicAuthTrait](#basicauthtrait) | 1 | Keep HTTP basic authentication applied across session resets. |
 | [CommandTrait](#commandtrait) | 2 | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | 4 | Verify and inspect browser cookies. |
+| [CsvTrait](#csvtrait) | 9 | Assert the columns, rows and values of CSV files. |
 | [DateTrait](#datetrait) | 3 | Convert relative date expressions into timestamps or formatted dates. |
 | [DiagnosticsTrait](#diagnosticstrait) | 12 | Append on-failure diagnostics to the failure message of any failed step. |
 | [DropzoneTrait](#dropzonetrait) | 1 | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
@@ -398,6 +399,93 @@ Find a cookie by exact or partial name
 
 <br/>
 Get all cookies
+<br/><br/>
+
+</details>
+
+## CsvTrait
+
+[Source](src/Steps/Web/CsvTrait.php), [Steps](STEPS.md#csvtrait)
+
+> Assert the columns, rows and values of CSV files.
+
+<details>
+  <summary><code>public function csvAssertRowExistsWithValues(string $path, array $values): void</code></summary>
+
+<br/>
+Assert that a CSV file contains a row holding the given values
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function csvAssertRowNotExistsWithValues(string $path, array $values): void</code></summary>
+
+<br/>
+Assert that a CSV file contains no row holding the given values
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function csvAssertRowsEqual(string $path, array $expected): void</code></summary>
+
+<br/>
+Assert that the data rows of a CSV file equal the expected rows, in order
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function csvFindRow(string $path, array $values): ?array</code></summary>
+
+<br/>
+Find the first data row of a CSV file holding the given values
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function csvGetHeader(string $path): array</code></summary>
+
+<br/>
+Get the columns a CSV file names in its header row
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function csvGetRows(string $path): array</code></summary>
+
+<br/>
+Get the data rows of a CSV file, keyed by column name
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function csvHasValue(string $path, string $value): bool</code></summary>
+
+<br/>
+Whether a value appears in any field of a CSV file
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function csvParse(string $content, string $separator = ',', string $enclosure = '"'): array</code></summary>
+
+<br/>
+Parse CSV content into records
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function csvReadFile(string $path): string</code></summary>
+
+<br/>
+Read the content of a CSV file
 <br/><br/>
 
 </details>

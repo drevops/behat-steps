@@ -1,0 +1,5 @@
+clip_id,title,result
+clip-1,"First clip, with a comma",updated
+clip-2,"Second ""quoted"" clip",created
+clip-3,"Third clip
+on 2 lines",skipped

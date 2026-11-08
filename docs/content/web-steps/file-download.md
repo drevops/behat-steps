@@ -1,7 +1,7 @@
 ---
 title: "File downloads - Web steps"
 sidebar_label: "File downloads"
-sidebar_position: 7
+sidebar_position: 8
 description: "Test file download functionality with content verification."
 custom_edit_url: null
 ---

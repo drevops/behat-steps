@@ -1,7 +1,7 @@
 ---
 title: "JavaScript errors - Web steps"
 sidebar_label: "JavaScript errors"
-sidebar_position: 10
+sidebar_position: 11
 description: "Automatically detect JavaScript errors during test execution."
 custom_edit_url: null
 ---

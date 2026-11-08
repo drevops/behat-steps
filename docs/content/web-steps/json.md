@@ -1,7 +1,7 @@
 ---
 title: "JSON responses - Web steps"
 sidebar_label: "JSON responses"
-sidebar_position: 11
+sidebar_position: 12
 description: "Assert JSON responses with path and schema checks."
 custom_edit_url: null
 ---

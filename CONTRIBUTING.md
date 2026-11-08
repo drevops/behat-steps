@@ -108,7 +108,7 @@ Which exception a step throws is part of the public contract: consumers catch on
 
 Never throw a plain `\Exception` or an `\InvalidArgumentException` from `src/`.
 
-A trait without a Mink session is one that never calls `$this->getSession()` or `$this->httpRestSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Don't add a session to a trait only to reach `ExpectationException`.
+A trait without a Mink session is one that never calls `$this->getSession()` or `$this->httpRestSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Web\CsvTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Don't add a session to a trait only to reach `ExpectationException`.
 
 In a `@test-trait:` scenario, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
 

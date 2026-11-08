@@ -1,7 +1,7 @@
 ---
 title: "Links - Web steps"
 sidebar_label: "Links"
-sidebar_position: 13
+sidebar_position: 14
 description: "Verify link elements with attribute and content assertions."
 custom_edit_url: null
 ---

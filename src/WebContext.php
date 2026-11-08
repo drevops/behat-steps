@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
 use DrevOps\BehatSteps\Steps\Web\BasicAuthTrait;
 use DrevOps\BehatSteps\Steps\Web\CommandTrait;
 use DrevOps\BehatSteps\Steps\Web\CookieTrait;
+use DrevOps\BehatSteps\Steps\Web\CsvTrait;
 use DrevOps\BehatSteps\Steps\Web\DateTrait;
 use DrevOps\BehatSteps\Steps\Web\DiagnosticsTrait;
 use DrevOps\BehatSteps\Steps\Web\DropzoneTrait;
@@ -60,6 +61,7 @@ class WebContext extends WebRawContext {
   use BasicAuthTrait;
   use CommandTrait;
   use CookieTrait;
+  use CsvTrait;
   use DateTrait;
   use DiagnosticsTrait;
   use DropzoneTrait;
@@ -88,7 +90,7 @@ class WebContext extends WebRawContext {
   /**
    * Rejects a suite that registers more than 1 context carrying this class.
    *
-   * Each registers the same 28 web traits. Behat reports that as a
+   * Each registers the same 29 web traits. Behat reports that as a
    * 'RedundantStepException' naming the first step text it reached.
    *
    * The exception says nothing about the cause.

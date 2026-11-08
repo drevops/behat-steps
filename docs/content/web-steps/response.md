@@ -1,7 +1,7 @@
 ---
 title: "Response headers - Web steps"
 sidebar_label: "Response headers"
-sidebar_position: 22
+sidebar_position: 23
 description: "Verify HTTP response headers."
 custom_edit_url: null
 ---
