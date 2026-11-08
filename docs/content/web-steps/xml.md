@@ -1,7 +1,7 @@
 ---
 title: "XML responses - Web steps"
 sidebar_label: "XML responses"
-sidebar_position: 29
+sidebar_position: 30
 description: "Assert XML responses with element and attribute checks."
 custom_edit_url: null
 ---

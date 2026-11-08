@@ -1,7 +1,7 @@
 ---
 title: "Modals - Web steps"
 sidebar_label: "Modals"
-sidebar_position: 18
+sidebar_position: 19
 description: "Interact with and assert modals."
 custom_edit_url: null
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Paths - Web steps"
 sidebar_label: "Paths"
-sidebar_position: 20
+sidebar_position: 21
 description: "Navigate and verify paths with URL validation."
 custom_edit_url: null
 ---

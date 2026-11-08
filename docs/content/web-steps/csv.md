@@ -1,7 +1,7 @@
 ---
 title: "CSV files - Web steps"
 sidebar_label: "CSV files"
-sidebar_position: 4
+sidebar_position: 5
 description: "Assert the columns, rows and values of CSV files."
 custom_edit_url: null
 ---

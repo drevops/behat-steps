@@ -15,7 +15,7 @@ This page shows what each context includes, which one to extend and where your o
 Each context builds on the one before it:
 
 - `WebRawContext` extends Mink's `RawMinkContext` and has no steps. It holds the plumbing every step relies on: the backends, the browser's capabilities, the 4 HTTP clients, trait options, prerequisite checks and hook dispatch. It comes with 3 helper traits too: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
-- `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`: the 29 traits of [web steps](../web-steps/README.md), which work on any website.
+- `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`: the 30 traits of [web steps](../web-steps/README.md), which work on any website.
 - `DrupalContext` extends `WebContext` and adds every trait under `Steps\Drupal`: the 29 traits of [Drupal steps](../drupal-steps/README.md), and the user registry their login steps need.
 
 A step trait also brings the helper traits it calls. The traits that create content, for example, bring `EntityLifecycleTrait`, which deletes what a scenario created. [Steps layer](../architecture/steps-layer.md) draws how it all fits together.

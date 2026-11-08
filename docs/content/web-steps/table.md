@@ -1,7 +1,7 @@
 ---
 title: "Tables - Web steps"
 sidebar_label: "Tables"
-sidebar_position: 27
+sidebar_position: 28
 description: "Interact with HTML table elements and assert their content."
 custom_edit_url: null
 ---

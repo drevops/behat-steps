@@ -1,7 +1,7 @@
 ---
 title: "Relative dates - Web steps"
 sidebar_label: "Relative dates"
-sidebar_position: 22
+sidebar_position: 23
 description: "Convert relative date expressions into timestamps or formatted dates."
 custom_edit_url: null
 ---
