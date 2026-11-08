@@ -21,7 +21,7 @@
         "drupal/dynamic_entity_reference": "^3.2.4",
         "drupal/eck": "^2.1.0",
         "drupal/paragraphs": "^1.23.0",
-        "drupal/pathauto": "^1.15.0",
+        "drupal/pathauto": "^1.16.0",
         "drupal/redirect": "^1.13.0",
         "drupal/scheduled_transitions": "2.9.0-rc1",
         "drupal/search_api": "^1.43.0",
