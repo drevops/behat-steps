@@ -24,7 +24,7 @@ A step trait also brings the helper traits it calls. The traits that create cont
 
 Pick the context that matches your site:
 
-- On a Drupal site, extend `DrupalContext`. It inherits every web step from `WebContext`, including `I visit` from `PathTrait`. It also inherits the value transforms of `MappingTrait`, `RandomTrait` and `DateTrait`: `{{ }}`, `[?...]` and `[relative:...]`. On a site without the core `dblog` module, the Watchdog check of `DrupalContext` fails every scenario until you enable the module or [switch the check off](usage.md#switch-a-trait-off).
+- On a Drupal site, extend `DrupalContext`. It inherits every web step from `WebContext`, including `I visit` from `PathTrait`. It also inherits the value transforms of `MappingTrait`, `RandomTrait` and `DateTrait`: `{{ }}`, `[?...]` and `[relative:...]`. `EntityTrait` adds a fourth, `[id:...]`, which replaces an entity's label with its ID. On a site without the core `dblog` module, the Watchdog check of `DrupalContext` fails every scenario until you enable the module or [switch the check off](usage.md#switch-a-trait-off).
 - On any other site, extend `WebContext`.
 - Extend `WebRawContext` only when you want to pick every trait yourself, as [Compose your own context](#compose-your-own-context) shows.
 

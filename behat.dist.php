@@ -87,6 +87,7 @@ $profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
     // group. STEPS.md lists every group and option.
     'steps' => [
       'accessibility' => ['sitemap_path' => '/sitemap.xml', 'sitemap_max_depth' => -1, 'sitemap_limit' => 0],
+      'entity' => ['enabled' => TRUE],
       'javascript' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
       'watchdog' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
       'wait' => ['ajax_timeout' => 5],

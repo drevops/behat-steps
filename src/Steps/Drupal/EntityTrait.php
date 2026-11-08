@@ -4,27 +4,54 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\When;
+use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\TokenTrait;
 
 /**
  * Create entities of a type that has no dedicated trait, and reference them.
  *
  * - Create entities of any type from a table of field values.
  * - Fill in an entity reference autocomplete field with an entity's label.
+ * - Replace `[id:...]` tokens in step arguments and table cells with the ID
+ *   of an entity looked up by its label.
  *
  * Covers types such as `commerce_product` or `group`, where a dedicated trait
  * would add vocabulary without adding behavior. Entities created here are
  * removed after the scenario along with every other entity the scenario
  * created.
  *
+ * Possible token formats:
+ * - `[id:ENTITY_TYPE:LABEL]`
+ * - `[id:ENTITY_TYPE.BUNDLE:LABEL]`
+ *
+ * with:
+ * - `ENTITY_TYPE`: the entity type ID, such as `node`, `user` or
+ *   `taxonomy_term`.
+ * - `BUNDLE`: the bundle to restrict the lookup to, such as `article`.
+ * - `LABEL`: the label to match exactly, such as a title or a user name. It
+ *   may hold balanced brackets, as in `[TEST] Page`, but no other token.
+ *
+ * Examples:
+ * - `/print/pdf/user/[id:user:jane]` converted to `/print/pdf/user/12`
+ * - `[id:taxonomy_term.topics:Jazz]` converted to `7`
+ *
+ * When several entities share the label, the newest is used. A token whose
+ * entity does not exist fails the step.
+ *
  * Skip cleanup for 1 type with tag:
  * `@behat-steps-entity-cleanup-skip:commerce_product`.
+ *
+ * Skip token processing with tag: `@behat-steps-skip:EntityTrait`.
  *
  * @title Entities
  *
@@ -34,6 +61,28 @@ trait EntityTrait {
 
   use EntityLifecycleTrait;
   use QueryTrait;
+  use TokenTrait;
+
+  /**
+   * Matches 1 entity ID token.
+   *
+   * The label group recurses into balanced brackets, so a label such as
+   * '[TEST] Page' ends at the bracket closing the token.
+   */
+  protected const string ENTITY_ID_TOKEN_REGEX = '#\[id:(?<entity_type>[a-z0-9_]+)(?:\.(?<bundle>[a-z0-9_]+))?:(?<label>(?:[^\[\]]++|(?<nested>\[(?:[^\[\]]++|(?&nested))*\]))*)\]#';
+
+  /**
+   * Whether token replacement is active for the current scenario.
+   */
+  protected bool $entityEnabled = TRUE;
+
+  /**
+   * Resolves whether the current scenario replaces tokens.
+   */
+  #[BeforeScenario]
+  public function entityBeforeScenario(BeforeScenarioScope $scope): void {
+    $this->entityEnabled = !$this->skipTag(__TRAIT__, $scope);
+  }
 
   /**
    * Create entities of a type from a table of field values.
@@ -175,6 +224,73 @@ trait EntityTrait {
     }
 
     return '"' . str_replace('"', '""', $value) . '"';
+  }
+
+  /**
+   * Replaces every entity ID token inside a scalar step argument.
+   *
+   * @param string $argument
+   *   The raw step argument.
+   *
+   * @return string
+   *   The argument with every entity ID token resolved.
+   */
+  #[Transform('#(.*\[id:[a-z0-9_]+(?:\.[a-z0-9_]+)?:.*\].*)#s')]
+  public function entityTransformValue(string $argument): string {
+    if (!$this->entityEnabled) {
+      return $argument;
+    }
+
+    return $this->entitySubstituteIdTokens($argument);
+  }
+
+  /**
+   * Replaces every entity ID token inside a table's cells.
+   *
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   The raw table argument.
+   *
+   * @return \Behat\Gherkin\Node\TableNode
+   *   The table with every cell's entity ID tokens resolved.
+   */
+  #[Transform('table:*')]
+  public function entityTransformTable(TableNode $table): TableNode {
+    if (!$this->entityEnabled || !str_contains($table->getTableAsString(), '[id:')) {
+      return $table;
+    }
+
+    return $this->tokenReplaceInTable($table, $this->entitySubstituteIdTokens(...));
+  }
+
+  /**
+   * Replace every entity ID token in a string with the ID of its entity.
+   *
+   * @param string $value
+   *   The string to replace tokens in.
+   *
+   * @return string
+   *   The string with every token replaced by the ID of the newest entity
+   *   with the token's label.
+   *
+   * @throws \RuntimeException
+   *   When the bundle does not exist or no entity has the label.
+   */
+  public function entitySubstituteIdTokens(string $value): string {
+    $result = preg_replace_callback(self::ENTITY_ID_TOKEN_REGEX, fn(array $matches): string => $this->entityGetIdByLabel($matches['entity_type'], $matches['label'], $matches['bundle'] === '' ? NULL : $matches['bundle']), $value);
+
+    return $result ?? $value;
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
+   *   The options this trait declares.
+   */
+  protected function entityConfigSchema(): array {
+    return [
+      new Option('enabled', default: TRUE, description: "If `TRUE`, replaces `[id:...]` tokens in step arguments and table cells with the ID of the newest entity with the token's label, though not in multiline text. If `FALSE`, tokens stay as written."),
+    ];
   }
 
 }

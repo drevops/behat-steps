@@ -13,6 +13,7 @@ use DrevOps\BehatSteps\Steps\Drupal\CacheTrait;
 use DrevOps\BehatSteps\Steps\Drupal\ConfigOverrideTrait;
 use DrevOps\BehatSteps\Steps\Drupal\ConfigTrait;
 use DrevOps\BehatSteps\Steps\Drupal\EmailTrait;
+use DrevOps\BehatSteps\Steps\Drupal\EntityTrait;
 use DrevOps\BehatSteps\Steps\Drupal\FileTrait;
 use DrevOps\BehatSteps\Steps\Drupal\ModuleTrait;
 use DrevOps\BehatSteps\Steps\Drupal\QueueTrait;
@@ -51,6 +52,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversTrait(ConfigOverrideTrait::class)]
 #[CoversTrait(ConfigTrait::class)]
 #[CoversTrait(EmailTrait::class)]
+#[CoversTrait(EntityTrait::class)]
 #[CoversTrait(FileTrait::class)]
 #[CoversTrait(ModuleTrait::class)]
 #[CoversTrait(QueueTrait::class)]

@@ -73,6 +73,72 @@ Feature: Check that EntityTrait works
     Then the response status code should be 200
     And the "tags" term with the name "[TEST] Rock" should not exist
 
+  Scenario: An entity ID token in a path resolves to the ID of the user with the name
+    Given the following users exist:
+      | name            | mail                        | status |
+      | test_token_user | test_token_user@example.com | 1      |
+    And I am logged in as a user with the role "administrator"
+    When I visit "/user/[id:user:test_token_user]/edit"
+    Then the path should be "/user/[id:user:test_token_user]/edit"
+    And the response should contain "test_token_user@example.com"
+
+  Scenario: An entity ID token with a bundle resolves to the newest term with a bracketed name
+    Given the following "tags" terms exist:
+      | name              | description                    |
+      | [TEST] Token term | [TEST] Older token description |
+      | [TEST] Token term | [TEST] Newer token description |
+    And I am logged in as a user with the role "administrator"
+    When I visit "/taxonomy/term/[id:taxonomy_term.tags:[TEST] Token term]"
+    Then I should see "[TEST] Newer token description"
+    And I should not see "[TEST] Older token description"
+
+  Scenario: An entity ID token in a table cell resolves before the table is used
+    Given the following page content exists:
+      | title             |
+      | [TEST] Token page |
+    And the following "block_content" entities exist:
+      | info                                                   | type  |
+      | [TEST] Block for page [id:node.page:[TEST] Token page] | basic |
+    And I am logged in as a user with the role "administrator"
+    When I visit "/admin/content/block"
+    Then I should see "[TEST] Block for page [id:node.page:[TEST] Token page]"
+    And I should not see "[id:node.page:"
+
+  @behat-steps-skip:EntityTrait
+  Scenario: The skip tag leaves entity ID tokens as written
+    Given the following "block_content" entities exist:
+      | info                                      | type  |
+      | [TEST] Literal [id:user:test_nonexisting] | basic |
+    And I am logged in as a user with the role "administrator"
+    When I visit "/admin/content/block"
+    Then I should see "[TEST] Literal [id:user:test_nonexisting]"
+
+  @test-trait:Drupal\EntityTrait
+  Scenario: Assert an entity ID token fails with a non-existing entity
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/user/[id:user:test_nonexisting]"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The "user" entity with the label "test_nonexisting" does not exist.
+      """
+
+  @test-trait:Drupal\EntityTrait
+  Scenario: Assert an entity ID token fails with a non-existing bundle
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/taxonomy/term/[id:taxonomy_term.nonexisting:[TEST] Token term]"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The entity type "taxonomy_term" has no bundle "nonexisting".
+      """
+
   @test-trait:Drupal\EntityTrait
   Scenario: Assert negative assertion for "When I fill in the entity reference field :field with the :entity_type entity with the label :label" fails with a non-existing entity
     Given some behat configuration
