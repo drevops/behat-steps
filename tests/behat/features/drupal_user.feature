@@ -442,6 +442,31 @@ Feature: Check that UserTrait works
       | drush_label_user | drush_label_user@myexample.com | Content editor |
     Then the user "drush_label_user" should have the role "content_editor" assigned
 
+  @backend:drush
+  Scenario: Assert "Given the following users exist:" creates a blocked user over Drush
+    Given the following users exist:
+      | name               | mail                             | status | roles          |
+      | drush_blocked_user | drush_blocked_user@myexample.com | 0      | content_editor |
+    Then the user "drush_blocked_user" should be blocked
+    And the user "drush_blocked_user" should have the role "content_editor" assigned
+
+  @test-trait:Drupal\UserTrait
+  Scenario: Assert "Given the following users exist:" fails over Drush for a value Drush cannot set
+    Given a configuration listing the backends "drupal, drush, blackbox"
+    And some behat configuration
+    And scenario steps tagged with "@backend:drush":
+      """
+      Given the following users exist:
+        | name          | mail                        | timezone         |
+        | drush_tz_user | drush_tz_user@myexample.com | Australia/Sydney |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException" exception:
+      """
+      The Drush backend cannot set "timezone" on a user: "drush user:create" takes only a name, a password and an email, and "status" only as 0 or 1. Remove the values, or run the scenario on the "drupal" backend.
+      """
+    And the user with the email "drush_tz_user@myexample.com" should not exist
+
   @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing single role
     Given some behat configuration

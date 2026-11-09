@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal;
 use ConsumerProject\Backend\Alias\LoginAlias;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ParserExposingDrushBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
@@ -155,6 +156,124 @@ class DrushBackendMethodsTest extends UnitTestCase {
   public static function dataProviderCreateUserRunsPreCreateAliases(): \Iterator {
     yield 'the alias value given' => [['login' => 'bob', 'pass' => 'pw'], 'bob', 'bob@example.com'];
     yield 'no alias value' => [['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co'], 'alice', 'alice@ex.co'];
+  }
+
+  /**
+   * Tests that 'createUser()' runs only the commands the stub's values need.
+   *
+   * @param array<string, mixed> $values
+   *   The values of the user stub.
+   * @param array<int, string> $expected_commands
+   *   The commands expected, in order.
+   */
+  #[DataProvider('dataProviderCreateUserRunsTheCommandsTheValuesNeed')]
+  public function testCreateUserRunsTheCommandsTheValuesNeed(array $values, array $expected_commands): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = "User ID   :   7\n";
+    $backend->drushResponses = ['role:list' => static::buildRoleListOutput(['editor' => 'Editor'])];
+    $backend->registerCreationAlias(new LoginAlias());
+
+    $backend->createUser(new EntityStub('user', NULL, $values));
+
+    $this->assertSame($expected_commands, array_column($backend->invocations, 'command'));
+
+    foreach ($backend->invocations as $invocation) {
+      if ($invocation['command'] === 'user:block') {
+        $this->assertSame(['bob'], $invocation['arguments']);
+        $this->assertSame([], $invocation['options']);
+      }
+    }
+  }
+
+  public static function dataProviderCreateUserRunsTheCommandsTheValuesNeed(): \Iterator {
+    $base = ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co'];
+
+    yield 'base values only' => [$base, ['user:create']];
+    yield 'a post-create alias value' => [$base + ['roles' => ['editor']], ['user:create', 'role:list', 'user:role:add']];
+    yield 'a pre-create alias value' => [['login' => 'bob', 'pass' => 'pw'], ['user:create']];
+    yield 'status 1 as a string' => [$base + ['status' => '1'], ['user:create']];
+    yield 'status 1 as an integer' => [$base + ['status' => 1], ['user:create']];
+    yield 'status TRUE' => [$base + ['status' => TRUE], ['user:create']];
+    yield 'status 0 as a string' => [$base + ['status' => '0'], ['user:create', 'user:block']];
+    yield 'status 0 as an integer' => [$base + ['status' => 0], ['user:create', 'user:block']];
+    yield 'status FALSE' => [$base + ['status' => FALSE], ['user:create', 'user:block']];
+    yield 'status 0 and a role' => [$base + ['status' => '0', 'roles' => ['editor']], ['user:create', 'user:block', 'role:list', 'user:role:add']];
+  }
+
+  /**
+   * Tests that 'createUser()' deletes the user when blocking it fails.
+   *
+   * @param array<string, int> $failures
+   *   Failure counts keyed by the command that fails.
+   * @param array<int, string> $expected_commands
+   *   The commands expected, in order.
+   * @param string $expected_message
+   *   The expected exception message.
+   */
+  #[DataProvider('dataProviderCreateUserDeletesTheUserWhenBlockingFails')]
+  public function testCreateUserDeletesTheUserWhenBlockingFails(array $failures, array $expected_commands, string $expected_message): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = "User ID   :   7\n";
+    $backend->drushFailures = $failures;
+
+    try {
+      $backend->createUser(new EntityStub('user', NULL, ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co', 'status' => '0', 'roles' => ['editor']]));
+      $this->fail('Expected a RuntimeException.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame($expected_message, $exception->getMessage());
+    }
+
+    $this->assertSame($expected_commands, array_column($backend->invocations, 'command'));
+    $this->assertSame(['bob'], $backend->invocations[2]['arguments']);
+  }
+
+  public static function dataProviderCreateUserDeletesTheUserWhenBlockingFails(): \Iterator {
+    yield 'the user is deleted' => [['user:block' => 1], ['user:create', 'user:block', 'user:cancel'], 'Drush command "user:block" exited with code 1.'];
+    yield 'the delete fails too' => [['user:block' => 1, 'user:cancel' => 1], ['user:create', 'user:block', 'user:cancel', 'user:information'], 'Drush could not block the user "bob", and could not delete it either. Drush command "user:block" exited with code 1. Drush command "user:cancel" exited with code 1.'];
+  }
+
+  /**
+   * Tests that 'createUser()' rejects a stub before any command runs.
+   *
+   * @param array<string, mixed> $values
+   *   The values of the user stub.
+   * @param class-string<\Throwable> $expected_class
+   *   The expected exception class.
+   * @param string $expected_message
+   *   The expected exception message.
+   */
+  #[DataProvider('dataProviderCreateUserRejectsBeforeCreating')]
+  public function testCreateUserRejectsBeforeCreating(array $values, string $expected_class, string $expected_message): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = "User ID   :   7\n";
+    $backend->registerCreationAlias(new LoginAlias());
+
+    try {
+      $backend->createUser(new EntityStub('user', NULL, $values));
+      $this->fail('Expected an exception.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame($expected_class, $exception::class);
+      $this->assertSame($expected_message, $exception->getMessage());
+    }
+
+    $this->assertSame([], $backend->invocations);
+  }
+
+  public static function dataProviderCreateUserRejectsBeforeCreating(): \Iterator {
+    $base = ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co'];
+    $unsupported = static fn(string $names): string => sprintf('The Drush backend cannot set %s on a user: "drush user:create" takes only a name, a password and an email, and "status" only as 0 or 1. Remove the values, or run the scenario on the "drupal" backend.', $names);
+
+    yield 'a uid value' => [$base + ['uid' => 12], \RuntimeException::class, 'Cannot create the user "bob" with a "uid" value: "drush user:create" assigns the id.'];
+    yield 'an empty uid value' => [$base + ['uid' => NULL], \RuntimeException::class, 'Cannot create the user "bob" with a "uid" value: "drush user:create" assigns the id.'];
+    yield 'a base field' => [$base + ['timezone' => 'Australia/Sydney'], UnsupportedBackendActionException::class, $unsupported('"timezone"')];
+    yield 'several values' => [$base + ['timezone' => 'UTC', 'field_bio' => 'Hi'], UnsupportedBackendActionException::class, $unsupported('"timezone", "field_bio"')];
+    yield 'an empty value' => [$base + ['field_bio' => ''], UnsupportedBackendActionException::class, $unsupported('"field_bio"')];
+    yield 'status 2' => [$base + ['status' => '2'], UnsupportedBackendActionException::class, $unsupported('"status"')];
+    yield 'an empty status' => [$base + ['status' => ''], UnsupportedBackendActionException::class, $unsupported('"status"')];
+    yield 'a supported status and a field' => [$base + ['status' => '0', 'field_bio' => 'Hi'], UnsupportedBackendActionException::class, $unsupported('"field_bio"')];
+    yield 'values beside aliases' => [['login' => 'bob', 'pass' => 'pw', 'roles' => ['editor'], 'langcode' => 'fr'], UnsupportedBackendActionException::class, $unsupported('"langcode"')];
   }
 
   /**
@@ -575,6 +694,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
     yield 'logDelete' => ['logDelete', [[5]], 'watchdog:delete'];
     yield 'searchIndexItems' => ['searchIndexItems', [3], 'search-api:index'];
     yield 'createUser' => ['createUser', [$user], 'user:create', "User ID   :   9\n"];
+    yield 'createUser blocked' => ['createUser', [new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co', 'status' => '0'])], 'user:block', "User ID   :   9\n"];
     yield 'deleteUser' => ['deleteUser', [$user], 'user:cancel'];
     yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'role:list', static::buildRoleListOutput(['admin' => 'Admin'])];
     yield 'getUserRoles' => ['getUserRoles', [$user], 'user:information', '{"7":{"uid":"7","name":"alice","roles":["authenticated"]}}'];

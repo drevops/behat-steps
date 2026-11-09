@@ -566,7 +566,7 @@ A capability sits at the root of `src/Backend` when any backend may provide it, 
 | `SearchIndex` | yes | `search-api:index` |
 | `State` | yes | `state:get`, `state:set` and `state:delete`; no command separates a stored NULL from an absent key, which the Drush backend documents on `stateExists()` |
 | `Term` | in-process | No command creates a term |
-| `User` | yes | `user:create`, `user:cancel`, `user:role:add`, `role:list`, `user:information`, `user:login` and `user:password` |
+| `User` | yes | `user:create`, `user:block`, `user:cancel`, `user:role:add`, `role:list`, `user:information`, `user:login` and `user:password`; `createUser()` rejects any other value with `UnsupportedBackendActionException` |
 | `UserActivity` | in-process | No `user:` command sets the access or login time |
 | `Workflow` | in-process | No command reads a workflow or moves an entity through it |
 

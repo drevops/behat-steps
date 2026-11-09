@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
+use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use Symfony\Component\Process\Process;
@@ -507,9 +508,36 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
   /**
    * {@inheritdoc}
+   *
+   * 'user:create' takes only a name, a password and an email. A 'status' of
+   * 0 runs 'user:block' after it, and a value named after a registered user
+   * alias is left to the alias. Any other value is rejected before an
+   * account is created.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When the stub carries a value no Drush command sets.
+   * @throws \RuntimeException
+   *   When the stub carries a 'uid' value, or Drush reports no user id.
    */
   public function createUser(EntityStubInterface $stub): EntityStubInterface {
     $this->applyPreCreateAliases($stub, 'user');
+
+    if ($stub->hasValue('uid')) {
+      throw new \RuntimeException(sprintf('Cannot create the user "%s" with a "uid" value: "drush user:create" assigns the id.', $stub->getValue('name')));
+    }
+
+    $unsupported = array_keys(array_diff_key($stub->getValues(), array_flip(['name', 'pass', 'mail']), $this->getCreationAliases('user')));
+    $status = $stub->getValue('status');
+
+    // 'user:create' makes an active account, and 'user:block' is the only
+    // command that changes it.
+    if (in_array($status, [0, 1, '0', '1', FALSE, TRUE], TRUE)) {
+      $unsupported = array_values(array_diff($unsupported, ['status']));
+    }
+
+    if ($unsupported !== []) {
+      throw new UnsupportedBackendActionException(sprintf('The Drush backend cannot set "%s" on a user: "drush user:create" takes only a name, a password and an email, and "status" only as 0 or 1. Remove the values, or run the scenario on the "drupal" backend.', implode('", "', $unsupported)));
+    }
 
     $arguments = [(string) $stub->getValue('name')];
     $options = [
@@ -526,6 +554,10 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
     $stub->setValue('uid', $uid);
 
+    if (in_array($status, [0, '0', FALSE], TRUE)) {
+      $this->blockCreatedUser($stub);
+    }
+
     // The stub stays unsaved, because Drush runs in another process and
     // returns no account object. The placeholder carries only the id the
     // post-create aliases read.
@@ -535,6 +567,35 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $this->applyPostCreateAliases($stub, $account, 'user');
 
     return $stub;
+  }
+
+  /**
+   * Blocks a user 'createUser()' has just created.
+   *
+   * A failed create returns no stub, so the account is deleted here when the
+   * block fails.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The stub of the new user, carrying its 'name' and 'uid' values.
+   *
+   * @throws \RuntimeException
+   *   When 'user:block' fails. The message names the delete failure as well
+   *   when the account could not be deleted.
+   */
+  protected function blockCreatedUser(EntityStubInterface $stub): void {
+    try {
+      $this->drush('user:block', [(string) $stub->getValue('name')]);
+    }
+    catch (\RuntimeException $exception) {
+      try {
+        $this->deleteUser($stub);
+      }
+      catch (\RuntimeException $cleanup_exception) {
+        throw new \RuntimeException(sprintf('Drush could not block the user "%s", and could not delete it either. %s %s', $stub->getValue('name'), $exception->getMessage(), $cleanup_exception->getMessage()), 0, $exception);
+      }
+
+      throw $exception;
+    }
   }
 
   /**
