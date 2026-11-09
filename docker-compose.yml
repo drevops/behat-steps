@@ -56,7 +56,7 @@ services:
       - cli
 
   nginx:
-    image: uselagoon/nginx-drupal:26.10.0@sha256:725fd70a12e20963a5b09e54b4b844307f420b8d56625614778376afe13c5cef
+    image: uselagoon/nginx-drupal:26.11.0@sha256:afd23a155fd30534185fcad4300b458e56a3fa1b3e0172c48a7bcc472c8eca17
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
