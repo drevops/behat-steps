@@ -555,7 +555,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $stub->setValue('uid', $uid);
 
     if (in_array($status, [0, '0', FALSE], TRUE)) {
-      $this->drush('user:block', $arguments);
+      $this->blockCreatedUser($stub);
     }
 
     // The stub stays unsaved, because Drush runs in another process and
@@ -567,6 +567,35 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $this->applyPostCreateAliases($stub, $account, 'user');
 
     return $stub;
+  }
+
+  /**
+   * Blocks a user 'createUser()' has just created.
+   *
+   * A failed create returns no stub, so the account is deleted here when the
+   * block fails.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The stub of the new user, carrying its 'name' and 'uid' values.
+   *
+   * @throws \RuntimeException
+   *   When 'user:block' fails. The message names the delete failure as well
+   *   when the account could not be deleted.
+   */
+  protected function blockCreatedUser(EntityStubInterface $stub): void {
+    try {
+      $this->drush('user:block', [(string) $stub->getValue('name')]);
+    }
+    catch (\RuntimeException $exception) {
+      try {
+        $this->deleteUser($stub);
+      }
+      catch (\RuntimeException $cleanup_exception) {
+        throw new \RuntimeException(sprintf('Drush could not block the user "%s", and could not delete it either. %s %s', $stub->getValue('name'), $exception->getMessage(), $cleanup_exception->getMessage()), 0, $exception);
+      }
+
+      throw $exception;
+    }
   }
 
   /**

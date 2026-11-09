@@ -201,6 +201,39 @@ class DrushBackendMethodsTest extends UnitTestCase {
   }
 
   /**
+   * Tests that 'createUser()' deletes the user when blocking it fails.
+   *
+   * @param array<string, int> $failures
+   *   Failure counts keyed by the command that fails.
+   * @param array<int, string> $expected_commands
+   *   The commands expected, in order.
+   * @param string $expected_message
+   *   The expected exception message.
+   */
+  #[DataProvider('dataProviderCreateUserDeletesTheUserWhenBlockingFails')]
+  public function testCreateUserDeletesTheUserWhenBlockingFails(array $failures, array $expected_commands, string $expected_message): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = "User ID   :   7\n";
+    $backend->drushFailures = $failures;
+
+    try {
+      $backend->createUser(new EntityStub('user', NULL, ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co', 'status' => '0', 'roles' => ['editor']]));
+      $this->fail('Expected a RuntimeException.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame($expected_message, $exception->getMessage());
+    }
+
+    $this->assertSame($expected_commands, array_column($backend->invocations, 'command'));
+    $this->assertSame(['bob'], $backend->invocations[2]['arguments']);
+  }
+
+  public static function dataProviderCreateUserDeletesTheUserWhenBlockingFails(): \Iterator {
+    yield 'the user is deleted' => [['user:block' => 1], ['user:create', 'user:block', 'user:cancel'], 'Drush command "user:block" exited with code 1.'];
+    yield 'the delete fails too' => [['user:block' => 1, 'user:cancel' => 1], ['user:create', 'user:block', 'user:cancel', 'user:information'], 'Drush could not block the user "bob", and could not delete it either. Drush command "user:block" exited with code 1. Drush command "user:cancel" exited with code 1.'];
+  }
+
+  /**
    * Tests that 'createUser()' rejects a stub before any command runs.
    *
    * @param array<string, mixed> $values
