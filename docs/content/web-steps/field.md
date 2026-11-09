@@ -1,7 +1,7 @@
 ---
 title: "Form fields - Web steps"
 sidebar_label: "Form fields"
-sidebar_position: 9
+sidebar_position: 10
 description: "Manipulate form fields and verify widget functionality."
 custom_edit_url: null
 ---

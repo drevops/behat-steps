@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Extension\Browser\Fixtures;
 
 use Behat\Mink\Driver\DriverInterface;
 use DrevOps\BehatSteps\Extension\Browser\BrowserAdapterBase;
+use DrevOps\BehatSteps\Extension\Browser\Capability\ClockCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpClient\MockHttpClient;
 /**
  * Declares every capability for any driver, including a mocked one.
  */
-class AnyDriverAdapter extends BrowserAdapterBase implements CookieCapabilityInterface, HttpClientCapabilityInterface, JavascriptCapabilityInterface, KeyboardCapabilityInterface, RequestHeaderCapabilityInterface {
+class AnyDriverAdapter extends BrowserAdapterBase implements ClockCapabilityInterface, CookieCapabilityInterface, HttpClientCapabilityInterface, JavascriptCapabilityInterface, KeyboardCapabilityInterface, RequestHeaderCapabilityInterface {
 
   /**
    * Cookies this adapter reports.
@@ -26,6 +27,13 @@ class AnyDriverAdapter extends BrowserAdapterBase implements CookieCapabilityInt
    * @var array<int, array{name: string, value: string}>
    */
   public static array $cookies = [];
+
+  /**
+   * Clock calls this adapter received, as method and argument pairs.
+   *
+   * @var array<int, array{0: string, 1: int|string|null}>
+   */
+  public array $clockCalls = [];
 
   /**
    * Keys this adapter was asked to trigger, as XPath and key pairs.
@@ -46,6 +54,27 @@ class AnyDriverAdapter extends BrowserAdapterBase implements CookieCapabilityInt
    */
   public static function supports(DriverInterface $driver): bool {
     return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function clockSetTime(int $timestamp): void {
+    $this->clockCalls[] = ['clockSetTime', $timestamp];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function clockSetTimezone(string $timezone): void {
+    $this->clockCalls[] = ['clockSetTimezone', $timezone];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function clockReset(): void {
+    $this->clockCalls[] = ['clockReset', NULL];
   }
 
   /**

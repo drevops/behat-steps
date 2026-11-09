@@ -13,6 +13,7 @@ use DrevOps\BehatSteps\Extension\Browser\Adapter\BrowserKitAdapter;
 use DrevOps\BehatSteps\Extension\Browser\Adapter\ChromeAdapter;
 use DrevOps\BehatSteps\Extension\Browser\Adapter\Selenium2Adapter;
 use DrevOps\BehatSteps\Extension\Browser\BrowserCapabilityResolver;
+use DrevOps\BehatSteps\Extension\Browser\Capability\ClockCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
@@ -22,6 +23,8 @@ use DrevOps\BehatSteps\Tests\Unit\Extension\Browser\Fixtures\AnyDriverAdapter;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\BrowserKit\AbstractBrowser;
+use WebDriver\Session;
 
 /**
  * Tests which capability each shipped adapter declares.
@@ -71,6 +74,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     $resolver = new BrowserCapabilityResolver();
 
     $all = [
+      ClockCapabilityInterface::class,
       CookieCapabilityInterface::class,
       HttpClientCapabilityInterface::class,
       JavascriptCapabilityInterface::class,
@@ -93,11 +97,11 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     // A WebDriver session cannot add request headers and holds no client.
     yield 'selenium2' => [
       Selenium2Driver::class,
-      [CookieCapabilityInterface::class, JavascriptCapabilityInterface::class, KeyboardCapabilityInterface::class],
+      [ClockCapabilityInterface::class, CookieCapabilityInterface::class, JavascriptCapabilityInterface::class, KeyboardCapabilityInterface::class],
     ];
     yield 'chrome' => [
       ChromeDriver::class,
-      [CookieCapabilityInterface::class, JavascriptCapabilityInterface::class, KeyboardCapabilityInterface::class, RequestHeaderCapabilityInterface::class],
+      [ClockCapabilityInterface::class, CookieCapabilityInterface::class, JavascriptCapabilityInterface::class, KeyboardCapabilityInterface::class, RequestHeaderCapabilityInterface::class],
     ];
   }
 
@@ -160,6 +164,72 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     foreach (Selenium2Adapter::SYN_METHODS as $method) {
       $this->assertTrue($reflection->hasMethod($method), sprintf('%s still declares %s().', Selenium2Driver::class, $method));
     }
+  }
+
+  /**
+   * Tests that the WebDriver session still declares its request method.
+   *
+   * The Selenium2 adapter sends CDP commands through it by reflection.
+   */
+  public function testWebDriverSessionStillDeclaresTheReflectedMethod(): void {
+    $this->skipWithoutDriver(Selenium2Driver::class);
+
+    $this->assertTrue((new \ReflectionClass(Session::class))->hasMethod(Selenium2Adapter::SESSION_REQUEST_METHOD), sprintf('%s still declares %s().', Session::class, Selenium2Adapter::SESSION_REQUEST_METHOD));
+  }
+
+  /**
+   * Tests that the Chrome driver still declares its page connection.
+   *
+   * The Chrome adapter sends CDP commands through it by reflection.
+   */
+  public function testChromeStillDeclaresTheReflectedProperty(): void {
+    $this->skipWithoutDriver(ChromeDriver::class);
+
+    $this->assertTrue((new \ReflectionClass(ChromeDriver::class))->hasProperty(ChromeAdapter::PAGE_PROPERTY), sprintf('%s still declares $%s.', ChromeDriver::class, ChromeAdapter::PAGE_PROPERTY));
+  }
+
+  /**
+   * Tests that no adapter signature names a class of a browser driver package.
+   *
+   * PHP loads a class named in an overriding method's signature when it loads
+   * the adapter, to check the override. A browser driver package that is
+   * absent, or that raises a deprecation as it loads, would then fail every
+   * scenario through the resolver.
+   *
+   * @param class-string $adapter
+   *   The adapter class to read.
+   */
+  #[DataProvider('dataProviderAdapterSignaturesNameNoDriverPackageClass')]
+  public function testAdapterSignaturesNameNoDriverPackageClass(string $adapter): void {
+    $allowed = ['DrevOps\\BehatSteps\\', DriverInterface::class, AbstractBrowser::class];
+    $violations = [];
+
+    foreach (static::reflect($adapter)->getMethods() as $method) {
+      $types = array_map(static fn(\ReflectionParameter $parameter): ?\ReflectionType => $parameter->getType(), $method->getParameters());
+      $types[] = $method->getReturnType();
+
+      foreach ($types as $type) {
+        if (!$type instanceof \ReflectionNamedType || $type->isBuiltin()) {
+          continue;
+        }
+
+        $name = $type->getName();
+        // A class in the global namespace, such as '\WeakMap', is PHP's own.
+        $is_allowed = !str_contains($name, '\\') || array_filter($allowed, static fn(string $prefix): bool => str_starts_with($name, $prefix)) !== [];
+
+        if (!$is_allowed) {
+          $violations[] = sprintf('%s() names %s', $method->getName(), $name);
+        }
+      }
+    }
+
+    $this->assertSame([], $violations);
+  }
+
+  public static function dataProviderAdapterSignaturesNameNoDriverPackageClass(): \Iterator {
+    yield 'browserkit' => [BrowserKitAdapter::class];
+    yield 'selenium2' => [Selenium2Adapter::class];
+    yield 'chrome' => [ChromeAdapter::class];
   }
 
   /**

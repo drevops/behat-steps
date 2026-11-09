@@ -1,7 +1,7 @@
 ---
 title: "Responsive layouts - Web steps"
 sidebar_label: "Responsive layouts"
-sidebar_position: 24
+sidebar_position: 25
 description: "Test responsive layouts with viewport control."
 custom_edit_url: null
 ---

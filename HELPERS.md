@@ -8,6 +8,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | --- | --- | --- |
 | [AccessibilityTrait](#accessibilitytrait) | 26 | Assess accessibility of rendered pages. |
 | [BasicAuthTrait](#basicauthtrait) | 1 | Keep HTTP basic authentication applied across session resets. |
+| [BrowserTimeTrait](#browsertimetrait) | 2 | Set the time and the timezone a page's JavaScript reads in the browser. |
 | [CommandTrait](#commandtrait) | 2 | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | 4 | Verify and inspect browser cookies. |
 | [CsvTrait](#csvtrait) | 9 | Assert the columns, rows and values of CSV files. |
@@ -333,6 +334,30 @@ Execute the engine against the current page and return raw results
 
 <br/>
 Apply the resolved credentials to the session
+<br/><br/>
+
+</details>
+
+## BrowserTimeTrait
+
+[Source](src/Steps/Web/BrowserTimeTrait.php), [Steps](STEPS.md#browsertimetrait)
+
+> Set the time and the timezone a page's JavaScript reads in the browser.
+
+<details>
+  <summary><code>public function browserTimeApplyTime(int $timestamp): void</code></summary>
+
+<br/>
+Applies a time to the browser clock of the pages loaded from now on
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function browserTimeApplyTimezone(string $name): void</code></summary>
+
+<br/>
+Applies a timezone to the browser
 <br/><br/>
 
 </details>

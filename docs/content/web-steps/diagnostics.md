@@ -1,7 +1,7 @@
 ---
 title: "Failure diagnostics - Web steps"
 sidebar_label: "Failure diagnostics"
-sidebar_position: 7
+sidebar_position: 8
 description: "Append on-failure diagnostics to the failure message of any failed step."
 custom_edit_url: null
 ---

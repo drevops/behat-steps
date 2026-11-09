@@ -1,7 +1,7 @@
 ---
 title: "Messages - Web steps"
 sidebar_label: "Messages"
-sidebar_position: 16
+sidebar_position: 17
 description: "Assert status, error, warning and success messages rendered on the page."
 custom_edit_url: null
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Random values - Web steps"
 sidebar_label: "Random values"
-sidebar_position: 21
+sidebar_position: 22
 description: "Replace random-value tokens in step arguments and table cells."
 custom_edit_url: null
 ---

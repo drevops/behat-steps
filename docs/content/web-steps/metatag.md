@@ -1,7 +1,7 @@
 ---
 title: "Meta tags - Web steps"
 sidebar_label: "Meta tags"
-sidebar_position: 17
+sidebar_position: 18
 description: "Assert <meta> tags and head/SEO markup in page markup."
 custom_edit_url: null
 ---

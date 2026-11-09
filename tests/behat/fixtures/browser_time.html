@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Browser time</title>
+</head>
+<body>
+<h1>Browser time</h1>
+
+<dl>
+  <dt>Timestamp</dt>
+  <dd id="timestamp"></dd>
+  <dt>UTC time</dt>
+  <dd id="utc"></dd>
+  <dt>Local time</dt>
+  <dd id="local"></dd>
+  <dt>Date without new</dt>
+  <dd id="string"></dd>
+  <dt>Timezone</dt>
+  <dd id="timezone"></dd>
+  <dt>Instance of Date</dt>
+  <dd id="instance"></dd>
+  <dt>Parsed date</dt>
+  <dd id="parsed"></dd>
+</dl>
+
+<p id="banner" data-deadline="2026-12-25T00:00:00Z"></p>
+
+<script>
+  (function () {
+    function pad(value) {
+      return String(value).padStart(2, '0');
+    }
+
+    var now = new Date();
+
+    document.getElementById('timestamp').textContent = String(Math.floor(Date.now() / 1000));
+    document.getElementById('utc').textContent = now.toISOString();
+    document.getElementById('local').textContent = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+    document.getElementById('string').textContent = typeof Date() === 'string' ? 'string' : 'not a string';
+    document.getElementById('timezone').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    document.getElementById('instance').textContent = now instanceof Date ? 'yes' : 'no';
+    document.getElementById('parsed').textContent = new Date('2000-01-02T03:04:05Z').toISOString();
+
+    var banner = document.getElementById('banner');
+    var remaining = new Date(banner.getAttribute('data-deadline')) - new Date();
+    banner.textContent = remaining > 0 ? 'Sale ends in ' + Math.ceil(remaining / 60000) + ' minutes' : 'Sale has ended';
+  })();
+</script>
+</body>
+</html>

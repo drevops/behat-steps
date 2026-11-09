@@ -32,7 +32,7 @@
         <mxCell id="ctx-web-raw" value="&lt;b&gt;WebRawContext&lt;/b&gt;&lt;br&gt;no steps: backend, browser,&lt;br&gt;HTTP and option access" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#F9A825;" vertex="1" parent="grp-contexts">
           <mxGeometry x="20" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="ctx-web" value="&lt;b&gt;WebContext&lt;/b&gt;&lt;br&gt;adds the 29 web step traits" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#F9A825;" vertex="1" parent="grp-contexts">
+        <mxCell id="ctx-web" value="&lt;b&gt;WebContext&lt;/b&gt;&lt;br&gt;adds the 30 web step traits" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#F9A825;" vertex="1" parent="grp-contexts">
           <mxGeometry x="310" y="50" width="230" height="70" as="geometry" />
         </mxCell>
         <mxCell id="ctx-drupal" value="&lt;b&gt;DrupalContext&lt;/b&gt;&lt;br&gt;adds the 29 Drupal step traits" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#F9A825;" vertex="1" parent="grp-contexts">
@@ -50,7 +50,7 @@
         <mxCell id="st-helper" value="&lt;b&gt;Steps\Helper&lt;/b&gt;&lt;br&gt;15 helper traits, no steps:&lt;br&gt;entity lifecycle, login, strings" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-steps">
           <mxGeometry x="600" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="st-web" value="&lt;b&gt;Steps\Web&lt;/b&gt;&lt;br&gt;29 traits: pages, forms,&lt;br&gt;elements, JSON, REST" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-steps">
+        <mxCell id="st-web" value="&lt;b&gt;Steps\Web&lt;/b&gt;&lt;br&gt;30 traits: pages, forms,&lt;br&gt;elements, JSON, REST" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#1565C0;" vertex="1" parent="grp-steps">
           <mxGeometry x="890" y="50" width="230" height="70" as="geometry" />
         </mxCell>
         <mxCell id="grp-extension" value="Extension layer: src/Extension" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#F3E5F5;swimlaneFillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=1.5;" vertex="1" parent="grp-library">

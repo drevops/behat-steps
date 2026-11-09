@@ -6,7 +6,9 @@ namespace DrevOps\BehatSteps\Extension\Browser\Adapter;
 
 use Behat\Mink\Driver\DriverInterface;
 use DMore\ChromeDriver\ChromeDriver;
+use DMore\ChromeDriver\ChromePage;
 use DrevOps\BehatSteps\Extension\Browser\BrowserAdapterBase;
+use DrevOps\BehatSteps\Extension\Browser\Capability\ClockCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\KeyboardCapabilityInterface;
@@ -15,7 +17,16 @@ use DrevOps\BehatSteps\Extension\Browser\Capability\RequestHeaderCapabilityInter
 /**
  * Capabilities of the CDP-based Chrome browser driver.
  */
-class ChromeAdapter extends BrowserAdapterBase implements CookieCapabilityInterface, JavascriptCapabilityInterface, KeyboardCapabilityInterface, RequestHeaderCapabilityInterface {
+class ChromeAdapter extends BrowserAdapterBase implements ClockCapabilityInterface, CookieCapabilityInterface, JavascriptCapabilityInterface, KeyboardCapabilityInterface, RequestHeaderCapabilityInterface {
+
+  use DevToolsClockTrait;
+
+  /**
+   * Browser driver property this adapter reaches through reflection.
+   *
+   * The browser driver keeps its CDP connection to the page private.
+   */
+  public const string PAGE_PROPERTY = 'page';
 
   /**
    * Keycodes for the keys whose default action must fire.
@@ -95,6 +106,32 @@ class ChromeAdapter extends BrowserAdapterBase implements CookieCapabilityInterf
     /** @var \DMore\ChromeDriver\ChromeDriver $driver */
     $driver = $this->driver;
     $driver->setRequestHeader($name, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * The native return type stays 'object': a narrower one would load the
+   * browser driver's classes with this adapter, which must load without them.
+   *
+   * @return \DMore\ChromeDriver\ChromePage
+   *   The page connection.
+   */
+  protected function devToolsConnection(): object {
+    $page = (new \ReflectionProperty(ChromeDriver::class, self::PAGE_PROPERTY))->getValue($this->driver);
+
+    if (!$page instanceof ChromePage) {
+      throw new \RuntimeException('The Chrome browser driver has no page connection.');
+    }
+
+    return $page;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function devToolsSend(string $method, array $params): array {
+    return $this->devToolsConnection()->send($method, $params);
   }
 
 }
