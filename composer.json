@@ -48,7 +48,7 @@
         "ergebnis/composer-normalize": "^2.56.0",
         "justinrainbow/json-schema": "^6.6.1",
         "lullabot/mink-selenium2-driver": "^1.7.4",
-        "mglaman/phpstan-drupal": "^2.3.0",
+        "mglaman/phpstan-drupal": "^2.4.0",
         "nikic/php-parser": "^5.9.0",
         "php-parallel-lint/php-parallel-lint": "^1.4",
         "phpcompatibility/php-compatibility": "^10.0.0-alpha2@alpha",
