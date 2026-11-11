@@ -167,6 +167,10 @@ class DrushBackendTest extends UnitTestCase {
       " --------- ----------- ----------- --------------- ------------- \n  User ID   User name   User mail   User roles      User status  \n --------- ----------- ----------- --------------- ------------- \n  1         admin       a@ex.co     administrator   1            \n --------- ----------- ----------- --------------- ------------- \n",
       1,
     ];
+    yield 'drush 14 success message' => [
+      "\n [OK] Created a new user with uid 13                                            \n\n",
+      13,
+    ];
   }
 
 }
