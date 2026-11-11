@@ -960,7 +960,7 @@ The Drupal 12 grid has no `chrome_headless` leg. The Chrome browser driver doesn
 Building the Drupal 12 fixture takes 3 requirements the Drupal 11 fixture doesn't share:
 
 - `mglaman/composer-drupal-lenient`, with an `extra.drupal-lenient.allowed-list` naming every contrib module whose `drupal/core` requirement excludes Drupal 12. The plugin strips that core constraint, so the module installs. A module comes off the list after the release at its floor declares `^12`. A Composer plugin only shapes a solve it's already installed for, and the fixture has no solution until this one runs. So [scripts/provision.php](scripts/provision.php) installs it globally before the build update, and Composer loads global plugins for local projects.
-- `drush/drush ^14@dev`, with `minimum-stability` set to `dev` and `prefer-stable`.
+- `drush/drush`, pinned to the `14.x-dev` commit `79ed161`, with `minimum-stability` set to `dev` and `prefer-stable`. Later `14.x-dev` commits run `user:cancel` through core's `batch_process()`, and the command fails with `Route required`. Change the pin back to `^14@dev` after Drush fixes `user:cancel`.
 - `drupal/scheduled_transitions`, pinned in `d12/composer.json` to a release that declares Drupal 12.
 
 The Drush backend supports Drush 13 and newer. It runs each command by its canonical colon-separated name, such as `pm:install` or `core:cron`, which every supported release registers, and never by a legacy alias such as `pm-enable` or `cron`. `DrushBackendMethodsTest` fails a command issued in any other form, and the `@backend:drush` scenarios run the cache, cron and user commands against the Drush each fixture installs.
