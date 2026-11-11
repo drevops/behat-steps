@@ -52,11 +52,11 @@ final class ExperimentalRegistry implements ExperimentalRegistryInterface {
    * {@inheritdoc}
    */
   public function fallback(string $id, string $message, \Throwable $exception): void {
+    $this->record($id, $message);
+
     if ($this->strict) {
       throw $exception;
     }
-
-    $this->record($id, $message);
   }
 
   /**

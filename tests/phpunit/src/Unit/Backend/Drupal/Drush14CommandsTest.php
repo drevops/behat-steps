@@ -76,7 +76,7 @@ class Drush14CommandsTest extends UnitTestCase {
     }
 
     $this->assertNotContains('entity:delete', array_column($backend->invocations, 'command'));
-    $this->assertSame([], $registry->getNotices());
+    $this->assertSame([Commands::USER_DELETE_NOTICE], array_keys($registry->getNotices()));
   }
 
   public function testDeleteUserTakesNoFallbackForMissingUser(): void {
@@ -91,15 +91,41 @@ class Drush14CommandsTest extends UnitTestCase {
     $this->assertSame([], $registry->getNotices());
   }
 
-  public function testDeleteUserRejectsAccountWithoutPrintedId(): void {
+  /**
+   * Tests that the fallback deletes nothing without a positive integer id.
+   *
+   * @param array<string, mixed> $values
+   *   The values of the user stub.
+   * @param string $information
+   *   The output 'user:information' prints for the account.
+   * @param string $expected_message
+   *   The message the delete is expected to fail with.
+   */
+  #[DataProvider('dataProviderDeleteUserRejectsAccountWithoutUserId')]
+  public function testDeleteUserRejectsAccountWithoutUserId(array $values, string $information, string $expected_message): void {
     $backend = $this->createBackend(new ExperimentalRegistry());
     $backend->drushFailures = ['user:cancel' => 1];
-    $backend->drushResponses = ['user:information' => '{"7":{"name":"alice"}}'];
+    $backend->drushResponses = ['user:information' => $information];
 
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Drush did not print the id of the user "alice".');
+    try {
+      $backend->deleteUser(new EntityStub('user', NULL, $values));
+      $this->fail('The fallback ran without a user id.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame($expected_message, $exception->getMessage());
+    }
 
-    $backend->deleteUser(new EntityStub('user', NULL, ['name' => 'alice']));
+    $this->assertNotContains('entity:delete', array_column($backend->invocations, 'command'));
+  }
+
+  public static function dataProviderDeleteUserRejectsAccountWithoutUserId(): \Iterator {
+    $template = 'Cannot delete the user "%s" with "entity:delete": "%s" is not a user id.';
+
+    yield 'a name whose account prints no id' => [['name' => 'alice'], '{"7":{"name":"alice"}}', sprintf($template, 'alice', 'null')];
+    yield 'a name whose account prints an empty id' => [['name' => 'alice'], '{"7":{"uid":"","name":"alice"}}', sprintf($template, 'alice', '')];
+    yield 'a name whose account prints id 0' => [['name' => 'alice'], '{"0":{"uid":"0","name":"alice"}}', sprintf($template, 'alice', '0')];
+    yield 'a uid of FALSE beside a name' => [['name' => 'alice', 'uid' => FALSE], '{}', sprintf($template, '', '')];
+    yield 'a uid that is not a number' => [['name' => 'alice', 'uid' => '7; drop'], '{}', sprintf($template, '7; drop', '7; drop')];
   }
 
   /**

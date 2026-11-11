@@ -71,7 +71,7 @@ class ExperimentalRegistryTest extends UnitTestCase {
     $this->assertSame(['an.id' => ['message' => 'Message.', 'count' => 1]], $registry->getNotices());
   }
 
-  public function testFallbackRethrowsTheFailureWhenStrict(): void {
+  public function testFallbackRecordsTheNoticeAndRethrowsTheFailureWhenStrict(): void {
     $registry = new ExperimentalRegistry(TRUE);
     $exception = new \LogicException('Failure.');
 
@@ -83,7 +83,7 @@ class ExperimentalRegistryTest extends UnitTestCase {
       $this->assertSame($exception, $caught);
     }
 
-    $this->assertSame([], $registry->getNotices());
+    $this->assertSame(['an.id' => ['message' => 'Message.', 'count' => 1]], $registry->getNotices());
   }
 
 }

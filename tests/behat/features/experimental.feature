@@ -53,9 +53,9 @@ Feature: Experimental code paths
       """
       The test failure the fallback absorbs.
       """
-    And the output should not contain:
+    And the output should contain:
       """
-      [test.fallback]
+      [test.fallback] The test fallback absorbed a failure. (1 time)
       """
 
   @test-trait:PathTrait

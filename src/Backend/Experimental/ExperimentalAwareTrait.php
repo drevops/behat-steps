@@ -51,7 +51,7 @@ trait ExperimentalAwareTrait {
   }
 
   /**
-   * Records a fallback taken over a failure, or rethrows it in strict mode.
+   * Records a fallback over a failure, then rethrows it in strict mode.
    *
    * @param string $id
    *   The stable ID of the code path.

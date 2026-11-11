@@ -39,6 +39,9 @@ class Commands extends BaseCommands {
   /**
    * Resolves the id of a user stub, reading it from Drush for a name.
    *
+   * 'entity:delete' with no id deletes every entity of the type, so only a
+   * positive integer id is returned.
+   *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The user stub.
    *
@@ -46,19 +49,14 @@ class Commands extends BaseCommands {
    *   The user id.
    *
    * @throws \RuntimeException
-   *   When Drush prints no id for the account.
+   *   When the stub or Drush gives no positive integer id for the account.
    */
   protected function resolveUserId(EntityStubInterface $stub): string {
     [$key, $value] = $this->resolveUserIdentifier($stub);
+    $uid = $key === 'uid' ? $value : ($this->readUserInformation($stub)['uid'] ?? NULL);
 
-    if ($key === 'uid') {
-      return $value;
-    }
-
-    $uid = $this->readUserInformation($stub)['uid'] ?? NULL;
-
-    if (!is_scalar($uid) || (string) $uid === '') {
-      throw new \RuntimeException(sprintf('Drush did not print the id of the user "%s".', $value));
+    if (!is_scalar($uid) || preg_match('/^[1-9]\d*$/', (string) $uid) !== 1) {
+      throw new \RuntimeException(sprintf('Cannot delete the user "%s" with "entity:delete": "%s" is not a user id.', $value, is_scalar($uid) ? (string) $uid : get_debug_type($uid)));
     }
 
     return (string) $uid;
