@@ -9,6 +9,8 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalRegistry;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -262,6 +264,37 @@ class BackendRegistryTest extends UnitTestCase {
     $registry->setScenarioBackends(['capable' => 'capable']);
 
     $this->assertNull($registry->getResolvedBackendFor(CacheCapabilityInterface::class));
+  }
+
+  public function testResolvingHandsTheExperimentalRegistryToAnAwareBackend(): void {
+    $experimental_registry = new ExperimentalRegistry();
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ExperimentalAwareInterface::class]);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+    $backend->expects($this->once())->method('setExperimentalRegistry')->with($experimental_registry);
+    $registry = new BackendRegistry(['aware' => $backend], $experimental_registry);
+    $registry->setScenarioBackends(['aware' => 'aware']);
+
+    $registry->getBackend('aware');
+  }
+
+  public function testRegisteringHandsNoExperimentalRegistryToTheBackend(): void {
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ExperimentalAwareInterface::class]);
+    $backend->expects($this->never())->method('setExperimentalRegistry');
+
+    new BackendRegistry(['aware' => $backend], new ExperimentalRegistry());
+  }
+
+  public function testResolvingWithoutAnExperimentalRegistryLeavesTheBackendAlone(): void {
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ExperimentalAwareInterface::class]);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+    $backend->expects($this->never())->method('setExperimentalRegistry');
+    $registry = new BackendRegistry(['aware' => $backend]);
+    $registry->setScenarioBackends(['aware' => 'aware']);
+
+    $registry->getBackend('aware');
   }
 
   public function testGetEnvironmentThrowsBeforeScenarioStarts(): void {

@@ -4,45 +4,36 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Backend\Drupal;
 
-use DrevOps\BehatSteps\Backend\Alias\CreationAliasRegistryTrait;
-use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
+use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
 use DrevOps\BehatSteps\Backend\Capability\CreationAliasCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Drush\Commands;
+use DrevOps\BehatSteps\Backend\Drupal\Drush\CommandsInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
-use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
-use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalRegistryInterface;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use Symfony\Component\Process\Process;
 
 /**
  * Drives a Drupal site via the Drush CLI.
+ *
+ * The backend runs each Drush command, and forwards every capability call to
+ * the commands of the Drush major it detects.
  */
-class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInterface {
-
-  use CreationAliasRegistryTrait;
+class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInterface, ExperimentalAwareInterface {
 
   /**
-   * The most log entries 1 read asks Drush for.
+   * Lowest Drush major the backend supports.
    */
-  protected const int LOG_READ_COUNT = 100000;
+  protected const int MINIMUM_VERSION = 13;
 
   /**
-   * The level of each severity label 'watchdog:show' prints.
-   *
-   * @var array<string, int>
+   * Class name of the commands for a Drush major, as a sprintf() format.
    */
-  protected const array LOG_SEVERITIES = [
-    'emergency' => self::SEVERITY_EMERGENCY,
-    'alert' => self::SEVERITY_ALERT,
-    'critical' => self::SEVERITY_CRITICAL,
-    'error' => self::SEVERITY_ERROR,
-    'warning' => self::SEVERITY_WARNING,
-    'notice' => self::SEVERITY_NOTICE,
-    'info' => self::SEVERITY_INFO,
-    'debug' => self::SEVERITY_DEBUG,
-  ];
+  protected const string VERSION_COMMANDS_CLASS = 'DrevOps\\BehatSteps\\Backend\\Drupal\\Drush%d\\Commands';
 
   /**
    * The drush alias.
@@ -65,6 +56,16 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * The major version of the Drush binary, read on first use.
    */
   protected ?int $drushMajorVersion = NULL;
+
+  /**
+   * The commands the backend delegates to, built on first use.
+   */
+  protected ?CommandsInterface $commands = NULL;
+
+  /**
+   * The experimental registry handed to the commands.
+   */
+  protected ?ExperimentalRegistryInterface $experimentalRegistry = NULL;
 
   /**
    * Whether the backend has been bootstrapped.
@@ -100,12 +101,15 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   The path to the drush binary.
    * @param \DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface|null $random
    *   Random generator, or NULL for the package default.
+   * @param string|null $commandsClass
+   *   The class of the commands to build, or NULL for the commands this
+   *   package ships for the detected major.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
    *   Thrown when neither an alias nor a root path is given, when either is
    *   empty, or when the root path cannot be resolved.
    */
-  public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?RandomGeneratorInterface $random = NULL) {
+  public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?RandomGeneratorInterface $random = NULL, protected readonly ?string $commandsClass = NULL) {
     if ($alias !== NULL && trim(ltrim($alias, '@')) === '') {
       throw new BootstrapException(sprintf('The drush alias "%s" names no site. Pass NULL to leave it out.', $alias));
     }
@@ -137,15 +141,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
     $this->binary = $binary;
     $this->random = $random ?? new RandomGenerator();
-
-    $this->registerDefaultCreationAliases();
-  }
-
-  /**
-   * Populates the creation-alias registry with the backend's default aliases.
-   */
-  protected function registerDefaultCreationAliases(): void {
-    $this->registerCreationAlias(new RolesAlias($this));
   }
 
   /**
@@ -174,6 +169,68 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    */
   public function processBatch(): void {
     // Drush is expected to handle batch processing internally.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDrushVersion(): int {
+    return $this->drushMajorVersion ??= $this->detectMajorVersion();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCommands(): CommandsInterface {
+    if (!$this->commands instanceof CommandsInterface) {
+      $this->setCommands($this->createCommands($this->commandsClass ?? $this->getVersionCommandsClass()));
+    }
+
+    return $this->commands;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setCommands(CommandsInterface $commands): void {
+    $this->assertCommandsFitVersion($commands);
+
+    if ($this->experimentalRegistry instanceof ExperimentalRegistryInterface) {
+      $commands->setExperimentalRegistry($this->experimentalRegistry);
+    }
+
+    $this->commands = $commands;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * The registry is handed to the commands once they are built, so setting it
+   * runs no Drush command.
+   *
+   * @internal
+   *   Injection point called by the backend registry.
+   */
+  public function setExperimentalRegistry(ExperimentalRegistryInterface $registry): void {
+    $this->experimentalRegistry = $registry;
+    $this->commands?->setExperimentalRegistry($registry);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCreationAliases(string $entity_type): array {
+    return $this->getCommands()->getCreationAliases($entity_type);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * The alias is registered on the commands, which run it when they create a
+   * user.
+   */
+  public function registerCreationAlias(CreationAliasInterface $alias): void {
+    $this->getCommands()->registerCreationAlias($alias);
   }
 
   /**
@@ -207,854 +264,259 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function cacheClear(): void {
-    $this->drush('cache:rebuild');
+    $this->getCommands()->cacheClear();
   }
 
   /**
    * {@inheritdoc}
    */
   public function cacheClearStatic(): void {
-    // The drush backend does each operation as a separate request;
-    // therefore, 'cacheClearStatic' can be a no-op.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function configGet(string $name, ?string $key = NULL): mixed {
-    return $this->configRead($name, $key, TRUE);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function configGetOriginal(string $name, ?string $key = NULL): mixed {
-    return $this->configRead($name, $key, FALSE);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function configSet(string $name, string $key, mixed $value): void {
-    $this->drush('config:set', [$name, $key, (string) json_encode($value)], [
-      'yes' => NULL,
-      'input-format' => 'yaml',
-    ]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function configExists(string $name): bool {
-    // 'config:get' exits non-zero for an object that does not exist, so the
-    // exit code indicates existence without a second command.
-    return $this->drushResult('config:get', [$name], ['format' => 'json'])->exitCode === 0;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function configGetData(string $name): array {
-    $data = $this->configRead($name, NULL, FALSE);
-
-    return is_array($data) ? $data : [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function configSetData(string $name, array $data): void {
-    // Drush exposes no whole-object replace and 'config:set' assigns only the
-    // given keys, so the object is deleted first to drop its other keys. The
-    // delete and the write are 2 commands, so the previous data is read first
-    // and restored when the write fails.
-    $original = $this->configGetData($name);
-
-    // An empty object has no keys to drop. 'config:set' rejects an empty
-    // object, so deleting one would leave nothing to restore when the write
-    // fails.
-    if ($original !== []) {
-      $this->configDelete($name);
-    }
-
-    if ($data === []) {
-      return;
-    }
-
-    try {
-      $this->configWriteData($name, $data);
-    }
-    catch (\RuntimeException $exception) {
-      try {
-        if ($original !== []) {
-          $this->configWriteData($name, $original);
-        }
-      }
-      // @codeCoverageIgnoreStart
-      catch (\RuntimeException) {
-        // Restoring failed as well. The write failure below is the error
-        // reported, so the restore failure is discarded.
-      }
-
-      // @codeCoverageIgnoreEnd
-      throw $exception;
-    }
-  }
-
-  /**
-   * Assigns every key of a configuration object in 1 command.
-   *
-   * @param string $name
-   *   The configuration object name.
-   * @param array<int|string, mixed> $data
-   *   The data to assign.
-   *
-   * @throws \RuntimeException
-   *   When the command exits with a non-zero status.
-   */
-  protected function configWriteData(string $name, array $data): void {
-    $this->drush('config:set', [$name, '?', (string) json_encode($data)], [
-      'yes' => NULL,
-      'input-format' => 'yaml',
-    ]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function configDelete(string $name): void {
-    // 'config:delete' fails on an object that does not exist, while Drupal's
-    // own config API treats deleting one as a no-op.
-    if (!$this->configExists($name)) {
-      return;
-    }
-
-    $this->drush('config:delete', [$name], ['yes' => NULL]);
-  }
-
-  /**
-   * Reads a configuration value through 'drush config:get'.
-   *
-   * @param string $name
-   *   The configuration object name.
-   * @param string|null $key
-   *   The key within the object, or NULL for the whole object.
-   * @param bool $with_overrides
-   *   Whether module and 'settings.php' overrides are applied. Without them
-   *   the read returns the stored value a write replaces.
-   *
-   * @return mixed
-   *   The value, or NULL when the object or key does not exist.
-   */
-  protected function configRead(string $name, ?string $key, bool $with_overrides): mixed {
-    $options = ['format' => 'json'];
-
-    if ($with_overrides) {
-      $options['include-overridden'] = NULL;
-    }
-
-    $arguments = $key !== NULL ? [$name, $key] : [$name];
-    $result = $this->drushResult('config:get', $arguments, $options);
-
-    if ($result->exitCode !== 0) {
-      return NULL;
-    }
-
-    $decoded = json_decode(trim($result->output), TRUE);
-    $envelope_key = $name . ':' . $key;
-
-    // For a single key, 'config:get' returns a 1-entry map keyed
-    // '<name>:<key>' instead of the bare value.
-    if ($key !== NULL && is_array($decoded) && array_key_exists($envelope_key, $decoded)) {
-      return $decoded[$envelope_key];
-    }
-
-    return $decoded;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function stateGet(string $name): mixed {
-    $result = $this->drushResult('state:get', [$name], ['format' => 'json']);
-
-    if ($result->exitCode !== 0) {
-      return NULL;
-    }
-
-    $decoded = json_decode(trim($result->output), TRUE);
-
-    // 'state:get' returns a 1-entry map keyed by the state key.
-    if (is_array($decoded) && array_key_exists($name, $decoded)) {
-      return $decoded[$name];
-    }
-
-    return $decoded;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function stateSet(string $name, mixed $value): void {
-    $this->drush('state:set', [$name, (string) json_encode($value)], [
-      'yes' => NULL,
-      'input-format' => 'json',
-    ]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function stateDelete(string $name): void {
-    $this->drush('state:delete', [$name], ['yes' => NULL]);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * Drush exposes no existence check over the state key-value store. A key
-   * holding NULL therefore reads the same as an absent one on this backend.
-   */
-  public function stateExists(string $name): bool {
-    return $this->stateGet($name) !== NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function cronRun(): bool {
-    $this->drush('core:cron');
-    return TRUE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function moduleInstall(string $module_name): void {
-    $this->drush('pm:install', [$module_name], ['yes' => NULL]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function moduleUninstall(string $module_name): void {
-    $this->drush('pm:uninstall', [$module_name], ['yes' => NULL]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function moduleIsEnabled(string $module_name): bool {
-    return $this->moduleIsListed($module_name, 'enabled');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function moduleIsPresent(string $module_name): bool {
-    return $this->moduleIsListed($module_name, 'enabled,disabled');
-  }
-
-  /**
-   * Whether 'drush pm:list' reports a module under any of the given statuses.
-   *
-   * @param string $module_name
-   *   The module machine name.
-   * @param string $status
-   *   Comma-separated statuses to restrict the listing to.
-   */
-  protected function moduleIsListed(string $module_name, string $status): bool {
-    $result = $this->drushResult('pm:list', [], [
-      'format' => 'json',
-      'type' => 'module',
-      'status' => $status,
-      // The filter matches any substring of a name, so it only narrows the
-      // listing; the exact machine name is looked up in the result.
-      'filter' => $module_name,
-    ]);
-
-    if ($result->exitCode !== 0) {
-      return FALSE;
-    }
-
-    $modules = json_decode(trim($result->output), TRUE);
-
-    return is_array($modules) && array_key_exists($module_name, $modules);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function createRole(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
-    $random = $this->getRandom();
-    $rid = $id ?? strtolower($random->name(8, TRUE));
-    $role_label = $label ?? ($id ?? trim($random->name(8, TRUE)));
-
-    $this->drush('role:create', [$rid, $role_label], []);
-
-    foreach ($permissions as $permission) {
-      $this->drush('role:perm:add', [$rid, $permission], []);
-    }
-
-    return new EntityStub('user_role', NULL, ['id' => $rid, 'label' => $role_label]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function deleteRole(string $role_name): void {
-    $this->drushDelete('role:delete', [$role_name], [], fn(): bool => $this->configExists('user.role.' . $role_name));
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * 'user:create' takes only a name, a password and an email. A 'status' of
-   * 0 runs 'user:block' after it, and a value named after a registered user
-   * alias is left to the alias. Any other value is rejected before an
-   * account is created.
-   *
-   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
-   *   When the stub carries a value no Drush command sets.
-   * @throws \RuntimeException
-   *   When the stub carries a 'uid' value, or Drush reports no user id.
-   */
-  public function createUser(EntityStubInterface $stub): EntityStubInterface {
-    $this->applyPreCreateAliases($stub, 'user');
-
-    if ($stub->hasValue('uid')) {
-      throw new \RuntimeException(sprintf('Cannot create the user "%s" with a "uid" value: "drush user:create" assigns the id.', $stub->getValue('name')));
-    }
-
-    $unsupported = array_keys(array_diff_key($stub->getValues(), array_flip(['name', 'pass', 'mail']), $this->getCreationAliases('user')));
-    $status = $stub->getValue('status');
-
-    // 'user:create' makes an active account, and 'user:block' is the only
-    // command that changes it.
-    if (in_array($status, [0, 1, '0', '1', FALSE, TRUE], TRUE)) {
-      $unsupported = array_values(array_diff($unsupported, ['status']));
-    }
-
-    if ($unsupported !== []) {
-      throw new UnsupportedBackendActionException(sprintf('The Drush backend cannot set "%s" on a user: "drush user:create" takes only a name, a password and an email, and "status" only as 0 or 1. Remove the values, or run the scenario on the "drupal" backend.', implode('", "', $unsupported)));
-    }
-
-    $arguments = [(string) $stub->getValue('name')];
-    $options = [
-      'password' => (string) $stub->getValue('pass'),
-      'mail' => (string) $stub->getValue('mail'),
-    ];
-
-    $result = $this->drush('user:create', $arguments, $options);
-    $uid = $this->parseUserId($result);
-
-    if (!$uid) {
-      throw new \RuntimeException(sprintf('Drush did not report a user id after creating "%s". Output: %s', $stub->getValue('name'), $result));
-    }
-
-    $stub->setValue('uid', $uid);
-
-    if (in_array($status, [0, '0', FALSE], TRUE)) {
-      $this->blockCreatedUser($stub);
-    }
-
-    // The stub stays unsaved, because Drush runs in another process and
-    // returns no account object. The placeholder carries only the id the
-    // post-create aliases read.
-    $account = new \stdClass();
-    $account->uid = $uid;
-
-    $this->applyPostCreateAliases($stub, $account, 'user');
-
-    return $stub;
-  }
-
-  /**
-   * Blocks a user 'createUser()' has just created.
-   *
-   * A failed create returns no stub, so the account is deleted here when the
-   * block fails.
-   *
-   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The stub of the new user, carrying its 'name' and 'uid' values.
-   *
-   * @throws \RuntimeException
-   *   When 'user:block' fails. The message names the delete failure as well
-   *   when the account could not be deleted.
-   */
-  protected function blockCreatedUser(EntityStubInterface $stub): void {
-    try {
-      $this->drush('user:block', [(string) $stub->getValue('name')]);
-    }
-    catch (\RuntimeException $exception) {
-      try {
-        $this->deleteUser($stub);
-      }
-      catch (\RuntimeException $cleanup_exception) {
-        throw new \RuntimeException(sprintf('Drush could not block the user "%s", and could not delete it either. %s %s', $stub->getValue('name'), $exception->getMessage(), $cleanup_exception->getMessage()), 0, $exception);
-      }
-
-      throw $exception;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function deleteUser(EntityStubInterface $stub): void {
-    $name = (string) $stub->getValue('name');
-    $uid = (string) $stub->getValue('uid');
-
-    if ($name === '' && $uid === '') {
-      throw new \RuntimeException('Cannot delete a user from a stub without a "name" or "uid" value.');
-    }
-
-    $arguments = $name !== '' ? [$name] : [];
-    $lookup = $name !== '' ? [] : ['uid' => $uid];
-
-    $this->drushDelete('user:cancel', $arguments, ['yes' => NULL, 'delete-content' => NULL] + $lookup, fn(): bool => $this->drushResult('user:information', $arguments, $lookup)->exitCode === 0);
-  }
-
-  /**
-   * Runs a Drush command that deletes a target, tolerating a missing target.
-   *
-   * A Drush delete command exits non-zero when its target does not exist,
-   * while the capability contract treats deleting a missing target as a
-   * no-op. The existence check runs only after a failure, so a successful
-   * delete costs 1 Drush call.
-   *
-   * @param string $command
-   *   The Drush command that deletes the target.
-   * @param array<int, string> $arguments
-   *   Positional arguments to pass to Drush.
-   * @param array<string, string|bool|null> $options
-   *   Options to pass to Drush.
-   * @param \Closure(): bool $exists
-   *   Reports whether the target still exists.
-   *
-   * @throws \RuntimeException
-   *   When the command fails and the target still exists.
-   */
-  protected function drushDelete(string $command, array $arguments, array $options, \Closure $exists): void {
-    try {
-      $this->drush($command, $arguments, $options);
-    }
-    catch (\RuntimeException $exception) {
-      if ($exists()) {
-        throw $exception;
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function addUserRole(EntityStubInterface $stub, string $role): void {
-    $arguments = [
-      $this->resolveRoleId($role),
-      (string) $stub->getValue('name'),
-    ];
-    $this->drush('user:role:add', $arguments);
-  }
-
-  /**
-   * Resolves a role machine name or label to the role's machine name.
-   *
-   * 'user:role:add' takes only a machine name, so a label is looked up in the
-   * roles 'role:list' reports. Both match regardless of case, and a machine
-   * name matches before a label.
-   *
-   * @param string $role
-   *   The role machine name or label.
-   *
-   * @return string
-   *   The role machine name.
-   *
-   * @throws \RuntimeException
-   *   When no role has the machine name or the label.
-   */
-  protected function resolveRoleId(string $role): string {
-    $roles = json_decode(trim($this->drush('role:list', [], ['format' => 'json'])), TRUE);
-    $roles = is_array($roles) ? $roles : [];
-    $needle = mb_strtolower($role);
-
-    foreach (array_keys($roles) as $rid) {
-      if (mb_strtolower((string) $rid) === $needle) {
-        return (string) $rid;
-      }
-    }
-
-    foreach ($roles as $rid => $row) {
-      $label = is_array($row) ? ($row['label'] ?? NULL) : NULL;
-
-      if (is_string($label) && mb_strtolower($label) === $needle) {
-        return (string) $rid;
-      }
-    }
-
-    throw new \RuntimeException(sprintf('No role "%s" exists.', $role));
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * 'user:login' prints the link that logs the user in without a click, so
-   * its trailing '/login' segment is dropped to reach the one-time login page.
-   * A stub without an id is resolved by its 'name' value.
-   */
-  public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
-    return $this->readOneTimeLoginPath($stub);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * A stub without an id is resolved by its 'name' value.
-   */
-  public function getOneTimeLoginDirectUrl(EntityStubInterface $stub): string {
-    return $this->readOneTimeLoginPath($stub) . '/login';
-  }
-
-  /**
-   * Reads the path of a user's one-time login page from 'user:login'.
-   *
-   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The user stub.
-   *
-   * @return string
-   *   The path of the link Drush prints, without a trailing '/login' segment.
-   *
-   * @throws \RuntimeException
-   *   When Drush prints no one-time login link.
-   */
-  protected function readOneTimeLoginPath(EntityStubInterface $stub): string {
-    [$key, $value] = $this->resolveUserIdentifier($stub);
-    $options = [$key => $value];
-
-    // Drush 13 opens the link in a browser unless told not to. Drush 14 has
-    // neither the option nor the browser launch.
-    if ($this->getDrushMajorVersion() < 14) {
-      $options['no-browser'] = NULL;
-    }
-
-    $link = trim($this->drush('user:login', [], $options));
-    $path = parse_url($link, PHP_URL_PATH);
-
-    if (!is_string($path) || preg_match('#^(.*/user/reset/[^/]+/[^/]+/[^/]+)(?:/login)?$#', $path, $matches) !== 1) {
-      throw new \RuntimeException(sprintf('Drush did not print a one-time login link. Output: %s', $link));
-    }
-
-    return $matches[1];
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * A stub without an id is resolved by its 'name' value.
-   */
-  public function getUserRoles(EntityStubInterface $stub): array {
-    $roles = $this->readUserInformation($stub)['roles'] ?? [];
-
-    return array_values(array_map(strval(...), is_array($roles) ? $roles : []));
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * 'user:password' takes only a name, so a stub without a 'name' value is
-   * looked up by its id first. An account without a name, such as the
-   * anonymous one, is rejected.
-   */
-  public function setUserPassword(EntityStubInterface $stub, string $password): void {
-    $name = $stub->getValue('name');
-
-    if (!is_string($name) || $name === '') {
-      $name = (string) ($this->readUserInformation($stub)['name'] ?? '');
-    }
-
-    if ($name === '') {
-      throw new \RuntimeException(sprintf('Cannot set the password of the user "%s": Drush printed no name for the account.', $this->resolveUserIdentifier($stub)[1]));
-    }
-
-    $this->drush('user:password', [$name, $password]);
-  }
-
-  /**
-   * Reads the account a user stub stands for through 'user:information'.
-   *
-   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The user stub.
-   *
-   * @return array<array-key, mixed>
-   *   The fields 'user:information' prints for the account.
-   *
-   * @throws \RuntimeException
-   *   When the stub carries neither an id nor a name, no user has it, or Drush
-   *   prints no account.
-   */
-  protected function readUserInformation(EntityStubInterface $stub): array {
-    [$key, $value] = $this->resolveUserIdentifier($stub);
-
-    // The command takes names as its argument and ids as an option.
-    $arguments = $key === 'name' ? [$value] : [];
-    $options = $key === 'uid' ? ['uid' => $value, 'format' => 'json'] : ['format' => 'json'];
-
-    $output = trim($this->drush('user:information', $arguments, $options));
-    $accounts = json_decode($output, TRUE);
-    $account = is_array($accounts) ? reset($accounts) : FALSE;
-
-    if (!is_array($account)) {
-      throw new \RuntimeException(sprintf('Drush did not print the account of the user "%s". Output: %s', $value, $output));
-    }
-
-    return $account;
-  }
-
-  /**
-   * Resolves what Drush identifies the account of a user stub by.
-   *
-   * The id is read first, from the saved entity or the 'uid' value, and the
-   * 'name' value is the fallback.
-   *
-   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The user stub.
-   *
-   * @return array{0: 'uid'|'name', 1: string}
-   *   The kind of identifier and its value.
-   *
-   * @throws \RuntimeException
-   *   When the stub carries neither an id nor a name.
-   */
-  protected function resolveUserIdentifier(EntityStubInterface $stub): array {
-    $uid = $stub->getId() ?? $stub->getValue('uid');
-
-    if ($uid !== NULL && $uid !== '') {
-      return ['uid', (string) $uid];
-    }
-
-    $name = $stub->getValue('name');
-
-    if (is_string($name) && $name !== '') {
-      return ['name', $name];
-    }
-
-    throw new \RuntimeException('Cannot resolve a user from the stub: neither the saved entity, a "uid" value nor a "name" value is set.');
-  }
-
-  /**
-   * Returns the major version of the Drush binary, read once per backend.
-   *
-   * @throws \RuntimeException
-   *   When Drush does not print its version.
-   */
-  protected function getDrushMajorVersion(): int {
-    if ($this->drushMajorVersion !== NULL) {
-      return $this->drushMajorVersion;
-    }
-
-    $output = trim($this->drush('version', [], ['format' => 'json']));
-    $data = json_decode($output, TRUE);
-    $version = is_array($data) ? ($data['drush-version'] ?? NULL) : NULL;
-
-    if (!is_string($version) || preg_match('/^(\d+)\./', $version, $matches) !== 1) {
-      throw new \RuntimeException(sprintf('Drush did not print its version. Output: %s', $output));
-    }
-
-    $this->drushMajorVersion = (int) $matches[1];
-
-    return $this->drushMajorVersion;
+    $this->getCommands()->cacheClearStatic();
   }
 
   /**
    * {@inheritdoc}
    */
   public function cacheClearBin(string $bin): void {
-    $this->drush('cache:clear', ['bin', $bin]);
+    $this->getCommands()->cacheClearBin($bin);
   }
 
   /**
    * {@inheritdoc}
    */
   public function cacheInvalidateTags(array $tags): void {
-    if ($tags === []) {
-      return;
-    }
-
-    $this->drush('cache:tags', [implode(',', $tags)]);
+    $this->getCommands()->cacheInvalidateTags($tags);
   }
 
   /**
    * {@inheritdoc}
-   *
-   * Drush cannot list the entries of a bin, so the bin is emptied whole.
    */
   public function cacheDeletePagePath(string $bin, string $path, bool $is_pattern = FALSE): void {
-    $this->cacheClearBin($bin);
+    $this->getCommands()->cacheDeletePagePath($bin, $path, $is_pattern);
   }
 
   /**
    * {@inheritdoc}
-   *
-   * 'queue:list' reports only the queues a worker processes, so a queue
-   * without a worker reports 0 items.
+   */
+  public function configGet(string $name, ?string $key = NULL): mixed {
+    return $this->getCommands()->configGet($name, $key);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configGetOriginal(string $name, ?string $key = NULL): mixed {
+    return $this->getCommands()->configGetOriginal($name, $key);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configSet(string $name, string $key, mixed $value): void {
+    $this->getCommands()->configSet($name, $key, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configExists(string $name): bool {
+    return $this->getCommands()->configExists($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configGetData(string $name): array {
+    return $this->getCommands()->configGetData($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configSetData(string $name, array $data): void {
+    $this->getCommands()->configSetData($name, $data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configDelete(string $name): void {
+    $this->getCommands()->configDelete($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateGet(string $name): mixed {
+    return $this->getCommands()->stateGet($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateSet(string $name, mixed $value): void {
+    $this->getCommands()->stateSet($name, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateDelete(string $name): void {
+    $this->getCommands()->stateDelete($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateExists(string $name): bool {
+    return $this->getCommands()->stateExists($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cronRun(): bool {
+    return $this->getCommands()->cronRun();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleInstall(string $module_name): void {
+    $this->getCommands()->moduleInstall($module_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleUninstall(string $module_name): void {
+    $this->getCommands()->moduleUninstall($module_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleIsEnabled(string $module_name): bool {
+    return $this->getCommands()->moduleIsEnabled($module_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleIsPresent(string $module_name): bool {
+    return $this->getCommands()->moduleIsPresent($module_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createRole(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
+    return $this->getCommands()->createRole($permissions, $id, $label);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteRole(string $role_name): void {
+    $this->getCommands()->deleteRole($role_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createUser(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCommands()->createUser($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteUser(EntityStubInterface $stub): void {
+    $this->getCommands()->deleteUser($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addUserRole(EntityStubInterface $stub, string $role): void {
+    $this->getCommands()->addUserRole($stub, $role);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
+    return $this->getCommands()->getOneTimeLoginUrl($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOneTimeLoginDirectUrl(EntityStubInterface $stub): string {
+    return $this->getCommands()->getOneTimeLoginDirectUrl($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUserRoles(EntityStubInterface $stub): array {
+    return $this->getCommands()->getUserRoles($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserPassword(EntityStubInterface $stub, string $password): void {
+    $this->getCommands()->setUserPassword($stub, $password);
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function queueCountItems(string $queue): int {
-    $row = $this->listQueues()[$queue] ?? NULL;
-    $items = is_array($row) ? $row['items'] ?? 0 : 0;
-
-    return is_numeric($items) ? (int) $items : 0;
+    return $this->getCommands()->queueCountItems($queue);
   }
 
   /**
    * {@inheritdoc}
    */
   public function queueDelete(string $queue): void {
-    $this->drushDelete('queue:delete', [$queue], [], fn(): bool => array_key_exists($queue, $this->listQueues()));
+    $this->getCommands()->queueDelete($queue);
   }
 
   /**
    * {@inheritdoc}
    */
   public function queueProcess(string $queue, int $limit, int $lease_time): int {
-    if ($limit === 0) {
-      return 0;
-    }
-
-    $options = ['items-limit' => (string) $limit, 'lease-time' => (string) $lease_time];
-    $result = $this->drushChecked('queue:run', [$queue], $options);
-
-    // The count is logged, so it lands on stderr.
-    if (preg_match('/Processed (\d+) items? from the/', $result->output . $result->errorOutput, $matches) !== 1) {
-      throw new \RuntimeException(sprintf('Drush did not report how many items of the queue "%s" it processed. Output: %s', $queue, $result->output . $result->errorOutput));
-    }
-
-    return (int) $matches[1];
-  }
-
-  /**
-   * Lists the queues Drush reports, keyed by queue name.
-   *
-   * @return array<array-key, mixed>
-   *   The rows of 'queue:list'.
-   */
-  protected function listQueues(): array {
-    $queues = json_decode(trim($this->drush('queue:list', [], ['format' => 'json'])), TRUE);
-
-    return is_array($queues) ? $queues : [];
+    return $this->getCommands()->queueProcess($queue, $limit, $lease_time);
   }
 
   /**
    * {@inheritdoc}
    */
   public function logGetLastId(): int {
-    $entries = $this->readLogEntries(1);
-
-    return $entries === [] ? 0 : max(array_keys($entries));
+    return $this->getCommands()->logGetLastId();
   }
 
   /**
    * {@inheritdoc}
-   *
-   * 'watchdog:show' renders each message with its placeholders, so an entry
-   * carries the rendered message and no variables.
    */
   public function logRead(array $types, int $after_id, int $severity): array {
-    if ($types === []) {
-      return [];
-    }
-
-    $rows = $this->readLogEntries(static::LOG_READ_COUNT, $severity);
-
-    // A full read whose oldest entry is still newer than the watermark has
-    // left entries unread.
-    if ($rows !== [] && count($rows) >= static::LOG_READ_COUNT && min(array_keys($rows)) > $after_id) {
-      throw new \RuntimeException(sprintf('The log holds more than %d entries newer than the id %d, which is more than 1 read fetches.', static::LOG_READ_COUNT, $after_id));
-    }
-
-    $entries = [];
-
-    foreach ($rows as $wid => $row) {
-      if ($wid <= $after_id || !in_array($row['type'] ?? NULL, $types, TRUE)) {
-        continue;
-      }
-
-      $entries[$wid] = $this->normalizeLogEntry($wid, $row);
-    }
-
-    ksort($entries);
-
-    return array_values($entries);
+    return $this->getCommands()->logRead($types, $after_id, $severity);
   }
 
   /**
    * {@inheritdoc}
    */
   public function logDelete(array $ids): void {
-    foreach ($ids as $id) {
-      $this->drushDelete('watchdog:delete', [(string) $id], ['yes' => NULL], fn(): bool => $this->drushResult('watchdog:show-one', [(string) $id])->exitCode === 0);
-    }
-  }
-
-  /**
-   * Reads the newest log entries, keyed by id.
-   *
-   * @param int $count
-   *   The most entries to read.
-   * @param int|null $severity
-   *   The least severe level to include, or NULL for every level.
-   *
-   * @return array<int, array<string, mixed>>
-   *   The entries 'watchdog:show' prints, keyed by id.
-   */
-  protected function readLogEntries(int $count, ?int $severity = NULL): array {
-    $options = ['format' => 'json', 'count' => (string) $count, 'extended' => NULL];
-
-    if ($severity !== NULL) {
-      $options['severity-min'] = (string) $severity;
-    }
-
-    $decoded = json_decode(trim($this->drush('watchdog:show', [], $options)), TRUE);
-    $entries = [];
-
-    foreach (is_array($decoded) ? $decoded : [] as $wid => $row) {
-      if (is_numeric($wid) && is_array($row)) {
-        $entries[(int) $wid] = $row;
-      }
-    }
-
-    return $entries;
-  }
-
-  /**
-   * Shapes a 'watchdog:show' row like a log entry.
-   *
-   * @param int $wid
-   *   The entry id.
-   * @param array<string, mixed> $row
-   *   The row, with the severity as the label Drush prints.
-   *
-   * @return array<string, mixed>
-   *   The entry, with the severity as a level where the label is known.
-   */
-  protected function normalizeLogEntry(int $wid, array $row): array {
-    $severity = $row['severity'] ?? NULL;
-
-    if (is_string($severity)) {
-      $severity = static::LOG_SEVERITIES[strtolower($severity)] ?? $severity;
-    }
-
-    return ['wid' => $wid, 'severity' => $severity, 'variables' => []] + $row;
+    $this->getCommands()->logDelete($ids);
   }
 
   /**
    * {@inheritdoc}
    */
   public function searchIndexItems(int $limit): void {
-    if ($limit === 0) {
-      return;
-    }
-
-    $this->drush('search-api:index', [], ['limit' => (string) $limit]);
+    $this->getCommands()->searchIndexItems($limit);
   }
 
   /**
@@ -1233,46 +695,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   }
 
   /**
-   * Parses the user id from drush 'user:create' output.
-   *
-   * Supports the legacy key-value format ("User ID : 123"), the Drush 12+
-   * table format and the Drush 14 success message ("Created a new user with
-   * uid 123"). In the table format, the ID is the first numeric value in the
-   * data row.
-   */
-  protected function parseUserId(string $info): ?int {
-    if (preg_match('/User ID\s+:\s+(\d+)/', $info, $matches) === 1) {
-      return (int) $matches[1];
-    }
-
-    if (preg_match('/Created a new user with uid (\d+)/', $info, $matches) === 1) {
-      return (int) $matches[1];
-    }
-
-    if (preg_match('/User ID/', $info) === 1) {
-      $lines = explode("\n", trim($info));
-
-      foreach ($lines as $line) {
-        $trimmed = trim($line, " \t\n\r\0\x0B-");
-
-        if ($trimmed === '') {
-          continue;
-        }
-
-        if (str_contains($trimmed, 'User ID')) {
-          continue;
-        }
-
-        if (preg_match('/^\s*(\d+)\s/', $line, $matches) === 1) {
-          return (int) $matches[1];
-        }
-      }
-    }
-
-    return NULL;
-  }
-
-  /**
    * Parses options into individual argv entries.
    *
    * @param array<string, string|bool|null> $arguments
@@ -1296,6 +718,146 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     }
 
     return $options;
+  }
+
+  /**
+   * Detects the major version of the Drush binary.
+   *
+   * @return int
+   *   The major version number, 13 or higher.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
+   *   When the major is below 13.
+   * @throws \RuntimeException
+   *   When Drush does not print its version.
+   */
+  protected function detectMajorVersion(): int {
+    $output = trim($this->drush('version', [], ['format' => 'json']));
+    $data = json_decode($output, TRUE);
+    $version = is_array($data) ? ($data['drush-version'] ?? NULL) : NULL;
+
+    if (!is_string($version) || preg_match('/^(\d+)\./', $version, $matches) !== 1) {
+      throw new \RuntimeException(sprintf('Drush did not print its version. Output: %s', $output));
+    }
+
+    if ((int) $matches[1] < static::MINIMUM_VERSION) {
+      throw new BootstrapException(sprintf('Unsupported Drush version %s. Drush %d or higher is required.', $version, static::MINIMUM_VERSION));
+    }
+
+    return (int) $matches[1];
+  }
+
+  /**
+   * Gets the commands class this package ships for the detected major.
+   *
+   * Takes the commands of the newest major at or below the detected one, or
+   * the base 'Commands' when there are none. Drush 15 gets 'Drush14\Commands'
+   * when that class exists and 'Drush15\Commands' does not.
+   *
+   * @return class-string
+   *   The commands class.
+   */
+  protected function getVersionCommandsClass(): string {
+    for ($major = $this->getDrushVersion(); $major >= static::MINIMUM_VERSION; $major--) {
+      $class = sprintf(static::VERSION_COMMANDS_CLASS, $major);
+
+      if (class_exists($class)) {
+        return $class;
+      }
+    }
+
+    return Commands::class;
+  }
+
+  /**
+   * Builds commands of the given class.
+   *
+   * The constructor receives the backend as the runner and the random
+   * generator, in the order the base 'Commands' constructor takes them.
+   *
+   * @param string $class
+   *   The commands class to build.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Drupal\Drush\CommandsInterface
+   *   The commands.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
+   *   When the class does not exist, does not implement 'CommandsInterface'
+   *   or cannot be instantiated.
+   */
+  protected function createCommands(string $class): CommandsInterface {
+    if (!class_exists($class)) {
+      throw new BootstrapException(sprintf('Commands class "%s" does not exist.', $class));
+    }
+
+    if (!is_subclass_of($class, CommandsInterface::class)) {
+      throw new BootstrapException(sprintf('Commands class "%s" must implement "%s".', $class, CommandsInterface::class));
+    }
+
+    if (!(new \ReflectionClass($class))->isInstantiable()) {
+      throw new BootstrapException(sprintf('Commands class "%s" must be instantiable.', $class));
+    }
+
+    return new $class($this, $this->random);
+  }
+
+  /**
+   * Asserts that commands built on commands of this package fit the major.
+   *
+   * Commands that neither are nor extend commands of this package pass.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Drupal\Drush\CommandsInterface $commands
+   *   The commands to check.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
+   *   When the nearest commands of this package the commands are or extend
+   *   are the ones for another major.
+   */
+  protected function assertCommandsFitVersion(CommandsInterface $commands): void {
+    $package_commands = $this->findPackageCommandsClass($commands::class);
+
+    if ($package_commands === NULL) {
+      return;
+    }
+
+    $version_commands = $this->getVersionCommandsClass();
+
+    if ($package_commands === $version_commands) {
+      return;
+    }
+
+    if ($package_commands === $commands::class) {
+      throw new BootstrapException(sprintf('Commands class "%s" is not the commands class for Drush %d. Use "%s" instead.', $commands::class, $this->getDrushVersion(), $version_commands));
+    }
+
+    $template = 'Commands class "%s" extends "%s", which is not the commands class for Drush %d. Extend "%s" instead.';
+
+    throw new BootstrapException(sprintf($template, $commands::class, $package_commands, $this->getDrushVersion(), $version_commands));
+  }
+
+  /**
+   * Finds the commands class of this package that a class is or extends.
+   *
+   * Commands of this package are named by 'VERSION_COMMANDS_CLASS' with the
+   * major filled in, or left out for the base 'Commands'.
+   *
+   * @param class-string $class
+   *   The class to inspect.
+   *
+   * @return string|null
+   *   The nearest of the class and its parents named as commands of this
+   *   package, or NULL when there is none.
+   */
+  protected function findPackageCommandsClass(string $class): ?string {
+    $pattern = '/^' . str_replace('%d', '\d*', preg_quote(static::VERSION_COMMANDS_CLASS, '/')) . '$/';
+
+    for ($current = $class; $current !== FALSE; $current = get_parent_class($current)) {
+      if (preg_match($pattern, $current) === 1) {
+        return $current;
+      }
+    }
+
+    return NULL;
   }
 
 }

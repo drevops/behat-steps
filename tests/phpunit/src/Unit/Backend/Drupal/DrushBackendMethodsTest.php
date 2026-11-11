@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal;
 
 use ConsumerProject\Backend\Alias\LoginAlias;
+use DrevOps\BehatSteps\Backend\Drupal\Drush\Commands;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
@@ -1001,11 +1002,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
   }
 
   public function testLogReadRejectsReadThatOverflowsItsCount(): void {
-    $backend = new class('alias') extends RecordingDrushBackend {
-
-      protected const int LOG_READ_COUNT = 2;
-
-    };
+    $backend = $this->createBackendReadingTwoLogEntries();
     $backend->drushResponse = '{"9":{"wid":"9","type":"php","severity":"Error","message":"Newest"},"8":{"wid":"8","type":"php","severity":"Error","message":"Older"}}';
 
     $this->expectException(\RuntimeException::class);
@@ -1015,11 +1012,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
   }
 
   public function testLogReadAcceptsFullReadReachingTheWatermark(): void {
-    $backend = new class('alias') extends RecordingDrushBackend {
-
-      protected const int LOG_READ_COUNT = 2;
-
-    };
+    $backend = $this->createBackendReadingTwoLogEntries();
     $backend->drushResponse = '{"6":{"wid":"6","type":"php","severity":"Error","message":"Newest"},"5":{"wid":"5","type":"php","severity":"Error","message":"Watermark"}}';
 
     $this->assertSame([6], array_column($backend->logRead(['php'], 5, 4), 'wid'));
@@ -1065,11 +1058,11 @@ class DrushBackendMethodsTest extends UnitTestCase {
   #[DataProvider('dataProviderGetOneTimeLoginUrl')]
   public function testGetOneTimeLoginUrl(EntityStub $stub, array $expected_options): void {
     $backend = $this->createBackend();
-    $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}', 'user:login' => "http://default/sub/user/reset/7/1700000000/abc-DEF_1/login\n"];
+    $backend->drushResponses = ['user:login' => "http://default/sub/user/reset/7/1700000000/abc-DEF_1/login\n"];
 
     $this->assertSame('/sub/user/reset/7/1700000000/abc-DEF_1', $backend->getOneTimeLoginUrl($stub));
-    $this->assertSame('user:login', $backend->invocations[1]['command']);
-    $this->assertSame($expected_options + ['no-browser' => NULL], $backend->invocations[1]['options']);
+    $this->assertSame('user:login', $backend->invocations[0]['command']);
+    $this->assertSame($expected_options + ['no-browser' => NULL], $backend->invocations[0]['options']);
   }
 
   public static function dataProviderGetOneTimeLoginUrl(): \Iterator {
@@ -1088,6 +1081,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
   #[DataProvider('dataProviderGetOneTimeLoginUrlPassesNoBrowserOnlyBelowDrush14')]
   public function testGetOneTimeLoginUrlPassesNoBrowserOnlyBelowDrush14(string $version_output, array $expected_options): void {
     $backend = $this->createBackend();
+    $backend->fakeVersion = NULL;
     $backend->drushResponses = ['version' => $version_output, 'user:login' => 'http://default/user/reset/7/1/hash/login'];
 
     $backend->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 7]));
@@ -1100,10 +1094,12 @@ class DrushBackendMethodsTest extends UnitTestCase {
   public static function dataProviderGetOneTimeLoginUrlPassesNoBrowserOnlyBelowDrush14(): \Iterator {
     yield 'Drush 13' => ['{"drush-version":"13.8.0"}', ['uid' => '7', 'no-browser' => NULL]];
     yield 'Drush 14' => ['{"drush-version":"14.0.0-dev"}', ['uid' => '7']];
+    yield 'Drush 15 takes the Drush 14 commands' => ['{"drush-version":"15.0.0"}', ['uid' => '7']];
   }
 
   public function testGetOneTimeLoginUrlReadsTheDrushVersionOnce(): void {
     $backend = $this->createBackend();
+    $backend->fakeVersion = NULL;
     $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}', 'user:login' => 'http://default/user/reset/7/1/hash/login'];
 
     $backend->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 7]));
@@ -1114,6 +1110,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   public function testGetOneTimeLoginUrlRejectsMissingDrushVersion(): void {
     $backend = $this->createBackend();
+    $backend->fakeVersion = NULL;
     $backend->drushResponses = ['version' => 'Drush printed a warning.'];
 
     $this->expectException(\RuntimeException::class);
@@ -1134,11 +1131,11 @@ class DrushBackendMethodsTest extends UnitTestCase {
   #[DataProvider('dataProviderGetOneTimeLoginDirectUrl')]
   public function testGetOneTimeLoginDirectUrl(string $link, string $expected): void {
     $backend = $this->createBackend();
-    $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}', 'user:login' => $link];
+    $backend->drushResponses = ['user:login' => $link];
 
     $this->assertSame($expected, $backend->getOneTimeLoginDirectUrl(new EntityStub('user', NULL, ['uid' => 7])));
-    $this->assertSame('user:login', $backend->invocations[1]['command']);
-    $this->assertSame(['uid' => '7', 'no-browser' => NULL], $backend->invocations[1]['options']);
+    $this->assertSame('user:login', $backend->invocations[0]['command']);
+    $this->assertSame(['uid' => '7', 'no-browser' => NULL], $backend->invocations[0]['options']);
   }
 
   public static function dataProviderGetOneTimeLoginDirectUrl(): \Iterator {
@@ -1306,6 +1303,21 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   protected function createBackend(): RecordingDrushBackend {
     return new RecordingDrushBackend('alias');
+  }
+
+  /**
+   * Builds a backend whose commands read at most 2 log entries at a time.
+   */
+  protected function createBackendReadingTwoLogEntries(): RecordingDrushBackend {
+    $backend = $this->createBackend();
+
+    $backend->setCommands(new class($backend, $backend->getRandom()) extends Commands {
+
+      protected const int LOG_READ_COUNT = 2;
+
+    });
+
+    return $backend;
   }
 
   /**

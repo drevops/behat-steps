@@ -12,8 +12,16 @@ use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
  *
  * Both entry points are stubbed, because a backend method calls
  * 'drushResult()' when a non-zero exit is an answer rather than a failure.
+ *
+ * The Drush major is preset, so building the commands records no 'version'
+ * call. A test of the detection sets 'fakeVersion' to NULL.
  */
 class RecordingDrushBackend extends DrushBackend {
+
+  /**
+   * The Drush major the backend reports, or NULL to detect it through Drush.
+   */
+  public ?int $fakeVersion = 13;
 
   /**
    * Log of Drush invocations.
@@ -73,6 +81,13 @@ class RecordingDrushBackend extends DrushBackend {
     $this->record($command, $arguments, $options);
 
     return new DrushResult($this->drushExitCode, $this->drushResponses[$command] ?? $this->drushResponse, '');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function detectMajorVersion(): int {
+    return $this->fakeVersion ?? parent::detectMajorVersion();
   }
 
   /**

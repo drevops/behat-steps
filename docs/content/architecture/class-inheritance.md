@@ -14,7 +14,7 @@ This view shows what extends what. Select the diagram to zoom in.
 The diagram holds 7 inheritance trees, 1 per panel:
 
 - Contexts. `WebRawContext` extends Mink's `RawMinkContext` and implements `BackendAwareInterface`, which the context initializer injects the extension's services through. `DrupalContext` adds `UserAwareInterface`, for the user registry and the authenticator. Your project's context extends 1 of the 3.
-- Backends. A backend declares each capability it provides as an interface it implements, most of them through its own backend interface, so checking whether it provides a capability is an `instanceof`. `DrupalBackend` hands the Drupal work to `Core`, which the `drupal.core` option replaces.
+- Backends. A backend declares each capability it provides as an interface it implements, most of them through its own backend interface, so checking whether it provides a capability is an `instanceof`. `DrupalBackend` hands the Drupal work to `Core`, which the `drupal.core` option replaces. `DrushBackend` hands each capability to the commands for its Drush major: `Drush\Commands` for Drush 13, extended by `Drush14\Commands` for what Drush 14 changed. The `drush.commands` option replaces them.
 - Field handlers. 1 handler per field type, all built on `AbstractHandler`. The `drupal.field_handlers` option adds a handler or replaces a shipped one.
 - Creation aliases. A creation alias handles a column an entity can't take as written: `AuthorAlias` turns an author's name into a `uid` before a node is created, and `RolesAlias` assigns a user's roles after the user is created.
 - Browser adapters. 1 adapter per browser driver family, declaring the browser capabilities that driver provides. A step requests a capability such as `JavascriptCapabilityInterface`, never a browser driver.
@@ -36,6 +36,7 @@ The services the extension builds each have 1 implementation of their interface,
 | `Extension\ServiceContainer\BackendProviderInterface` | `Extension\Drupal\ServiceContainer\DrupalBackendProvider` |
 | `Backend\Entity\EntityStubInterface` | `EntityStub` |
 | `Backend\Random\RandomGeneratorInterface` | `RandomGenerator` |
+| `Backend\Experimental\ExperimentalRegistryInterface` | `ExperimentalRegistry` |
 | `Backend\Drupal\Core\Field\FieldClassifierInterface` | `FieldClassifier` |
 | `Backend\Drupal\Core\Field\FieldShapeClassifierInterface` | `FieldShapeClassifier` |
 | `Backend\Drupal\Core\Field\Parser\EntityFieldParserInterface` | `EntityFieldParser` |
@@ -49,7 +50,7 @@ These classes are where the library plugs into Behat, Mink and Symfony:
 | `Extension\ServiceContainer\Driver\BrowserKitFactory` | `Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory`, which it replaces for `browserkit_http` sessions |
 | `Extension\Context\Initializer\BackendAwareInitializer` | `Behat\Behat\Context\Initializer\ContextInitializer` |
 | `Extension\Context\Attribute\HookAttributeReader` | `Behat\Behat\Context\Attribute\AttributeReader` |
-| `Extension\Listener\BackendListener`, `SkipTagListener` | `Symfony\Component\EventDispatcher\EventSubscriberInterface` |
+| `Extension\Listener\BackendListener`, `SkipTagListener`, `ExperimentalListener` | `Symfony\Component\EventDispatcher\EventSubscriberInterface` |
 | `Extension\Selector\RegionSelector` | `Behat\Mink\Selector\SelectorInterface` |
 | `Extension\Generator\ClassGenerator` | `Behat\Behat\Context\ContextClass\ClassGenerator` |
 | `Extension\Browser\Element\DocumentElement` | `Behat\Mink\Element\TraversableElement`, aliased over Mink's `DocumentElement` so page text reads as a browser renders it |

@@ -63,7 +63,15 @@ $profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
       'binary' => 'vendor/bin/drush',
       'root' => 'web',
       'global_options' => '--uri=http://your-site.local',
+      // A class such as AcmeCommands::class replaces the commands the package
+      // ships for the detected Drush major.
+      'commands' => NULL,
       'creation_aliases' => [],
+    ],
+    // With 'strict' set, an experimental fallback throws the failure it would
+    // otherwise absorb.
+    'experimental' => [
+      'strict' => FALSE,
     ],
     'text' => [
       'login_url' => '/user',

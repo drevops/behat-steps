@@ -15,9 +15,9 @@ The extension layer, `src/Extension`, connects Behat Steps to Behat and Mink. `B
 
 Each entry names a place where Behat or Mink lets an extension in, then the piece Behat Steps adds there:
 
-- Configuration: `BehatStepsExtension::configure()` declares the `behat_steps` key. It holds `backends`, `regions`, `steps` and `blackbox`, plus 4 login settings: `login_field`, `login_wait`, `text` and `selectors`. `DrupalBackendProvider` adds the `drupal` and `drush` settings.
+- Configuration: `BehatStepsExtension::configure()` declares the `behat_steps` key. It holds `backends`, `regions`, `steps`, `blackbox` and `experimental`, plus 4 login settings: `login_field`, `login_wait`, `text` and `selectors`. `DrupalBackendProvider` adds the `drupal` and `drush` settings.
 - Context initializers: `BackendAwareInitializer` hands each context Behat builds on `WebRawContext` the services that [What your context receives](#what-your-context-receives) lists.
-- Event dispatcher: `SkipTagListener` and then `BackendListener` run as each scenario starts. The first rejects a `@behat-steps-skip:` tag that names no composed trait, and the second sets the backend order and publishes the scenario's tags.
+- Event dispatcher: `SkipTagListener` and then `BackendListener` run as each scenario starts. The first rejects a `@behat-steps-skip:` tag that names no composed trait, and the second sets the backend order and publishes the scenario's tags. After the last scenario, `ExperimentalListener` lists the experimental code paths the run took.
 - Attribute readers: `HookAttributeReader` turns `#[BeforeNodeCreate]` and the other creation hook attributes into hooks.
 - Class generator: `ClassGenerator` writes the starter context of `behat --init`, which extends `WebRawContext`.
 - Mink's browser driver factories: `BrowserKitFactory` builds `browserkit_http` sessions exactly as Mink does, and records their `http_client_parameters` for the HTTP clients.
@@ -31,6 +31,7 @@ Each entry names a place where Behat or Mink lets an extension in, then the piec
 - `BackendRegistry`, which holds the backends and each scenario's order, and resolves each `backendFor()` call.
 - `TraitOptionResolverFactory`, which builds the context's option resolver.
 - `HttpClientFactory`, which builds the detached and bare HTTP clients and the default REST session on 1 transport carrying your `browserkit_http` connection settings.
+- `ExperimentalRegistry`, which records each experimental code path that runs. `WebRawContext` implements `ExperimentalAwareInterface` to receive it, and `BackendRegistry` hands the same registry to each backend that implements the interface as a scenario first uses it.
 - The hook dispatcher, the basic authenticator and the extension's parameters.
 
 `DrupalContext` also implements `UserAwareInterface`, so it gets the user registry and the authenticator its login steps need. Each service the extension builds sits behind an interface with 1 implementation, and [Extending the extension layer](../extending/extension.md) shows how to put a class of your own in its place.

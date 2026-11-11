@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\Exception\ParseException;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\SupportedImageHandler;
+use DrevOps\BehatSteps\Backend\Drupal\Drush\Commands;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Extension\Browser\BrowserAdapterInterface;
@@ -41,6 +42,7 @@ class ExtensionPointTest extends UnitTestCase {
     WebRawContext::class => 'A project context extends one of the shipped contexts.',
     BackendInterface::class => 'A project backend may extend a shipped one.',
     Core::class => 'A version core extends it, and so can the class the drupal.core option names.',
+    Commands::class => "A Drush major's commands extend it, and so can the class the drush.commands option names.",
     FieldHandlerInterface::class => 'A handler for another field type extends a shipped one, as OgStandardReferenceHandler does.',
     BrowserAdapterInterface::class => "An adapter for a browser driver derived from a shipped one extends that driver's adapter.",
     HttpClientFactory::class => 'A package replaces the HTTP client factory service with a subclass.',

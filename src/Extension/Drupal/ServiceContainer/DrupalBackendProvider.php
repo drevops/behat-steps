@@ -89,6 +89,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
         ->children()
           ->scalarNode('alias')->info('The Drush site alias every command runs against, with or without the leading "@". It takes precedence over "root" when both are set.')->end()
           ->scalarNode('binary')->defaultValue('vendor/bin/drush')->info('The path to the Drush binary. A relative path resolves against the directory Behat runs in, then its parent. A bare "drush" resolves through "COMPOSER_BIN_DIR", then "vendor/bin/drush" in the directory Behat runs in, then the "PATH".')->end()
+          ->scalarNode('commands')->info('The class of the Drush commands the backend runs, in place of the ones this package ships for the Drush major it detects. The class implements "CommandsInterface", and a class built on shipped commands extends the ones for that major.')->end()
           ->scalarNode('root')->info('The Drupal root passed to Drush as "--root", for a site Drush can\'t find on its own. The directory has to exist. A relative path resolves against the directory Behat runs in.')->end()
           ->scalarNode('global_options')->info('The options added to every Drush command, such as "--uri=http://example.com". The value is split on whitespace, so an option\'s value can\'t hold a space.')->end()
           ->arrayNode('creation_aliases')
@@ -286,7 +287,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
 
     $loader->load('backends/drush.yml');
 
-    foreach (['alias', 'root'] as $key) {
+    foreach (['alias', 'root', 'commands'] as $key) {
       if (($config['drush'][$key] ?? NULL) === '') {
         throw new InvalidConfigurationException(sprintf('Drush "%s" is empty. Set a value, or leave it out.', $key));
       }
@@ -303,6 +304,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     $container->setParameter('behat_steps.backend.drush.binary', $config['drush']['binary']);
 
     $container->setParameter('behat_steps.backend.drush.root', isset($config['drush']['root']) ? self::resolveDirectoryPath($config['drush']['root']) : NULL);
+    $container->setParameter('behat_steps.backend.drush.commands', $config['drush']['commands'] ?? NULL);
     $container->setParameter(self::DRUSH_CREATION_ALIASES_PARAMETER, $config['drush']['creation_aliases'] ?? []);
 
     $this->setDrushOptions($container, $config);

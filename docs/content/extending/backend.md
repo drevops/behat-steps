@@ -12,9 +12,10 @@ Follow this page when your suite needs the backend layer to do something the pac
 - A field handler covers a field type the package ships no handler for, or replaces a shipped one.
 - A creation alias lets your scenarios fill in a column the way a person would.
 - A Core of your own serves a site whose modules change what an operation has to do.
+- Drush commands of your own change what the `drush` backend runs for an operation.
 - A backend of your own reaches the site in a way none of the shipped backends does, such as over the site's own API.
 
-The `drupal` backend takes the first 3 through `drupal.field_handlers`, `drupal.creation_aliases` and `drupal.core`. The `drush` backend takes aliases through `drush.creation_aliases`. These 4 options sit under the `behat_steps` key. [Configuration reference](../guides/configuration-reference.md#extension-options) lists them with every other option of the extension.
+The `drupal` backend takes the first 3 through `drupal.field_handlers`, `drupal.creation_aliases` and `drupal.core`. The `drush` backend takes aliases through `drush.creation_aliases` and commands through `drush.commands`. These 5 options sit under the `behat_steps` key. [Configuration reference](../guides/configuration-reference.md#extension-options) lists them with every other option of the extension.
 
 ## Field handlers
 
@@ -248,6 +249,23 @@ A class built on a Core of the package has to extend the Core for the site's maj
 Naming a Core of the package fails the same way when it isn't the Core for the site's major. The base `Core` fails like this on a major with a version core. The message reads `Core class "..." is not the Core for Drupal N. Use "..." instead.` For a suite running on 2 majors whose Cores differ, pick the class per environment in `behat.php`. A class that implements `CoreInterface` without extending a Core of the package skips this check.
 
 Semantic versioning covers the option, and leaves out `CoreInterface` and the Core classes. A minor release can add a method to the interface, or rename a protected method that `AcmeCore` overrides. A new interface method breaks a class built from scratch, and leaves a class that extends a Core of the package working. To change how a field's value is stored, register a [field handler](#field-handlers) instead.
+
+## Drush commands
+
+The `drush` backend runs each operation through the commands for the Drush major it detects. The base `Drush\Commands` serves Drush 13. `Drush14\Commands` extends it with what Drush 14 changed. The backend picks the newest commands at or below the detected major, the same way the `drupal` backend picks a [Core](#core).
+
+`drush.commands` names a class of your own in place of the shipped commands. The class implements `CommandsInterface`. Extend the commands for your Drush major, and name the class in the option:
+
+```php
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'drush' => [
+    'alias' => 'self',
+    'commands' => \Acme\Behat\AcmeCommands::class,
+  ],
+]));
+```
+
+The backend builds the class with itself as the runner and with the random generator. A class built on commands of the package has to extend the commands for the detected major. Otherwise, the backend fails with a `BootstrapException` that names the class to extend, as it does for a Core. Semantic versioning covers the option, and leaves out `CommandsInterface` and the commands classes.
 
 ## A backend of your own
 
