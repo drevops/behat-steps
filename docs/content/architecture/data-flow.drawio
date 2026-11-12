@@ -80,7 +80,7 @@
         <mxCell id="n-3-3b" value="&lt;b&gt;3.3b backendFor()&lt;/b&gt;&lt;br&gt;BackendRegistry returns the first backend&lt;br&gt;in the order that provides the capability" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#6A1B9A;" vertex="1" parent="band-steps">
           <mxGeometry x="1210" y="190" width="300" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="n-3-4b" value="&lt;b&gt;3.4b DrupalBackend or DrushBackend&lt;/b&gt;&lt;br&gt;Core turns a stub into an entity,&lt;br&gt;or drush runs a command" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#2E7D32;" vertex="1" parent="band-steps">
+        <mxCell id="n-3-4b" value="&lt;b&gt;3.4b DrupalBackend or DrushBackend&lt;/b&gt;&lt;br&gt;Core turns a stub into an entity,&lt;br&gt;or the commands of the Drush major run drush" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#2E7D32;" vertex="1" parent="band-steps">
           <mxGeometry x="1210" y="330" width="300" height="80" as="geometry" />
         </mxCell>
         <mxCell id="n-3-3c" value="&lt;b&gt;3.3c An HTTP client&lt;/b&gt;&lt;br&gt;httpRestSession(), httpPageClient(),&lt;br&gt;httpDetachedClient() or httpBareClient()" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#6A1B9A;" vertex="1" parent="band-steps">
@@ -91,6 +91,9 @@
         </mxCell>
         <mxCell id="n-4-3" value="&lt;b&gt;4.3 The backends delete them&lt;/b&gt;&lt;br&gt;each through its delete capability;&lt;br&gt;a type no backend deletes stays" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#2E7D32;" vertex="1" parent="band-steps">
           <mxGeometry x="1965" y="190" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="n-4-5" value="&lt;b&gt;4.5 ExperimentalListener&lt;/b&gt;&lt;br&gt;after the last scenario: lists&lt;br&gt;the experimental code paths the run took" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#6A1B9A;" vertex="1" parent="band-steps">
+          <mxGeometry x="1965" y="330" width="300" height="80" as="geometry" />
         </mxCell>
         <mxCell id="n-3-4a" value="&lt;b&gt;3.4a The page&lt;/b&gt;&lt;br&gt;the site answers the browser's request" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#546E7A;dashed=1;" vertex="1" parent="band-site">
           <mxGeometry x="870" y="50" width="300" height="70" as="geometry" />
@@ -152,7 +155,15 @@
         <mxCell id="e-4-2" value="delete" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="n-4-2" target="n-4-3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e-4-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="n-4-3" target="n-4-4">
+        <mxCell id="e-4-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="n-4-3" target="n-4-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2320" y="730" />
+              <mxPoint x="2320" y="1145" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-4-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="n-4-3" target="n-4-5">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="d-3-a" value="HTML" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#78909C;dashed=1;endArrow=open;endFill=0;exitX=0.55;exitY=0;exitDx=0;exitDy=0;entryX=0.55;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="n-3-4a" target="n-3-3a">

@@ -12,6 +12,7 @@ use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
 use DrevOps\BehatSteps\Backend\Capability\CreationAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -30,7 +31,7 @@ class DrushBackendCreationAliasesTest extends UnitTestCase {
   }
 
   public function testRolesAliasRegisteredForUser(): void {
-    $backend = new DrushBackend('test-alias');
+    $backend = new RecordingDrushBackend('test-alias');
 
     $aliases = $backend->getCreationAliases('user');
 
@@ -39,20 +40,20 @@ class DrushBackendCreationAliasesTest extends UnitTestCase {
   }
 
   public function testNoContentAliasesByDefault(): void {
-    $backend = new DrushBackend('test-alias');
+    $backend = new RecordingDrushBackend('test-alias');
 
     $this->assertSame([], $backend->getCreationAliases('node'));
     $this->assertSame([], $backend->getCreationAliases('taxonomy_term'));
   }
 
   public function testGetCreationAliasesReturnsEmptyForUnknown(): void {
-    $backend = new DrushBackend('test-alias');
+    $backend = new RecordingDrushBackend('test-alias');
 
     $this->assertSame([], $backend->getCreationAliases('unknown_type'));
   }
 
   public function testRegisterCreationAliasReplacesByName(): void {
-    $backend = new DrushBackend('test-alias');
+    $backend = new RecordingDrushBackend('test-alias');
 
     $replacement = new class implements PostCreateAliasInterface {
 
@@ -92,7 +93,7 @@ class DrushBackendCreationAliasesTest extends UnitTestCase {
   }
 
   public function testRegisterCreationAliasRegistersAnotherEntityType(): void {
-    $backend = new DrushBackend('test-alias');
+    $backend = new RecordingDrushBackend('test-alias');
     $alias = new LoginAlias();
 
     $backend->registerCreationAlias($alias);
@@ -102,7 +103,7 @@ class DrushBackendCreationAliasesTest extends UnitTestCase {
   }
 
   public function testRegisterCreationAliasRejectsAliasThatNeverRuns(): void {
-    $backend = new DrushBackend('test-alias');
+    $backend = new RecordingDrushBackend('test-alias');
 
     $alias = new class implements CreationAliasInterface {
 

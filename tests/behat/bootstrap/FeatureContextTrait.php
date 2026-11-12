@@ -104,6 +104,30 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Record a test experimental notice.
+   *
+   * @code
+   * When I record the test experimental notice "test.notice"
+   * @endcode
+   */
+  #[When('I record the test experimental notice :id')]
+  public function testRecordExperimentalNotice(string $id): void {
+    $this->experimentalRecord($id, 'The test notice was recorded.');
+  }
+
+  /**
+   * Take a test experimental fallback over a test failure.
+   *
+   * @code
+   * When I take the test experimental fallback "test.fallback"
+   * @endcode
+   */
+  #[When('I take the test experimental fallback :id')]
+  public function testTakeExperimentalFallback(string $id): void {
+    $this->experimentalFallback($id, 'The test fallback absorbed a failure.', new \RuntimeException('The test failure the fallback absorbs.'));
+  }
+
+  /**
    * Assert that a cookie exists.
    */
   #[Given('cookie :name exists')]

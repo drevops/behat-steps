@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Extension\Drupal\ServiceContainer;
 use ConsumerProject\Backend\Alias\AuthorIdAlias;
 use ConsumerProject\Backend\Alias\HeadlineAlias;
 use ConsumerProject\Backend\Alias\LoginAlias;
+use ConsumerProject\Backend\ConsumerCommands;
 use ConsumerProject\Backend\ConsumerCore;
 use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
 use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
@@ -255,7 +256,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
     // The in-process backend's bootstrap moves into the Drupal root before the
     // lazy Drush backend is first used.
     chdir($project . '/web');
-    $backend->getCreationAliases('user');
+    $backend->isBootstrapped();
 
     $this->assertSame(realpath($project . '/web'), (new \ReflectionProperty(DrushBackend::class, 'root'))->getValue($backend));
   }
@@ -290,6 +291,27 @@ class DrupalBackendProviderTest extends UnitTestCase {
     yield 'an empty root beside an alias' => [['alias' => '@self', 'root' => ''], 'Drush "root" is empty. Set a value, or leave it out.'];
     yield 'an empty root alone' => [['root' => ''], 'Drush "root" is empty. Set a value, or leave it out.'];
     yield 'both empty' => [['alias' => '', 'root' => ''], 'Drush "alias" is empty. Set a value, or leave it out.'];
+    yield 'empty commands' => [['alias' => '@self', 'commands' => ''], 'Drush "commands" is empty. Set a value, or leave it out.'];
+  }
+
+  /**
+   * Tests that the commands class reaches the backend's arguments.
+   *
+   * @param array<string, mixed> $drush
+   *   The Drush settings, before schema normalization.
+   * @param string|null $expected
+   *   The commands class the container is expected to hold.
+   */
+  #[DataProvider('dataProviderLoadSetsTheCommandsClass')]
+  public function testLoadSetsTheCommandsClass(array $drush, ?string $expected): void {
+    $container = $this->load(['drush' => $drush]);
+
+    $this->assertSame($expected, $container->getParameter('behat_steps.backend.drush.commands'));
+  }
+
+  public static function dataProviderLoadSetsTheCommandsClass(): \Iterator {
+    yield 'left out' => [['alias' => '@self'], NULL];
+    yield 'given' => [['alias' => '@self', 'commands' => ConsumerCommands::class], ConsumerCommands::class];
   }
 
   /**

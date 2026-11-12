@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Context\Initializer;
 
 use Behat\Behat\Context\Context;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalRegistry;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Config\TraitOptionResolverFactoryInterface;
@@ -86,10 +88,28 @@ class BackendAwareInitializerTest extends UnitTestCase {
     $initializer->initializeContext($context);
   }
 
+  public function testExperimentalAwareContextReceivesTheExperimentalRegistry(): void {
+    $experimental_registry = new ExperimentalRegistry();
+
+    /** @var \Behat\Behat\Context\Context&\DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface&\PHPUnit\Framework\MockObject\MockObject $context */
+    $context = $this->createMockForIntersectionOfInterfaces([Context::class, ExperimentalAwareInterface::class]);
+    $context->expects($this->once())->method('setExperimentalRegistry')->with($experimental_registry);
+
+    $this->createInitializer($experimental_registry)->initializeContext($context);
+  }
+
+  public function testExperimentalAwareContextIsLeftAloneWithoutRegistry(): void {
+    /** @var \Behat\Behat\Context\Context&\DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface&\PHPUnit\Framework\MockObject\MockObject $context */
+    $context = $this->createMockForIntersectionOfInterfaces([Context::class, ExperimentalAwareInterface::class]);
+    $context->expects($this->never())->method('setExperimentalRegistry');
+
+    $this->createInitializer()->initializeContext($context);
+  }
+
   /**
    * Builds an initializer over stubbed collaborators.
    */
-  protected function createInitializer(): BackendAwareInitializer {
+  protected function createInitializer(?ExperimentalRegistry $experimental_registry = NULL): BackendAwareInitializer {
     return new BackendAwareInitializer(
       $this->createMock(BackendRegistryInterface::class),
       static::PARAMETERS,
@@ -99,6 +119,7 @@ class BackendAwareInitializerTest extends UnitTestCase {
       $this->createMock(UserRegistryInterface::class),
       $this->createMock(TraitOptionResolverFactoryInterface::class),
       $this->createMock(HttpClientFactoryInterface::class),
+      $experimental_registry,
     );
   }
 

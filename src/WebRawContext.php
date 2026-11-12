@@ -13,6 +13,8 @@ use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\Scope\HookScope;
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareTrait;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Extension\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Browser\BrowserCapabilityResolver;
@@ -43,8 +45,8 @@ use Symfony\Component\HttpClient\HttpClient;
  * Root context carrying the plumbing every suite needs.
  *
  * Provides backend access, authentication delegation, option resolution,
- * prerequisite checks and the hook dispatcher, and composes 3 of the web
- * helper traits. It registers no step definitions and references no Drupal
+ * prerequisite checks, the hook dispatcher and the experimental registry, and
+ * composes 3 of the web helper traits. It registers no step definitions and references no Drupal
  * class.
  *
  * A context composed out of a chosen set of traits extends this class.
@@ -58,8 +60,9 @@ use Symfony\Component\HttpClient\HttpClient;
  * @see \DrevOps\BehatSteps\WebContext
  * @see \DrevOps\BehatSteps\DrupalContext
  */
-class WebRawContext extends RawMinkContext implements BackendAwareInterface {
+class WebRawContext extends RawMinkContext implements BackendAwareInterface, ExperimentalAwareInterface {
 
+  use ExperimentalAwareTrait;
   use LastStepTrait;
   use ParametersTrait {
     setParameters as protected setParameterValues;

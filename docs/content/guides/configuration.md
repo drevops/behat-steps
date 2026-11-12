@@ -236,7 +236,7 @@ Repeated tags promote their names in the configured order: `@backend:blackbox @b
 
 `@backend:NAME` takes a name as the `backends` list writes it. A keyed entry's name is its key, such as `api`. A bare entry's name is the entry itself. The tag reorders the configured list and never adds to it. A name outside the list stops the whole run at that scenario's start, so a typo can't silently run the wrong backend. No tag can hand a Drupal backend to a `smoke` profile that lists only `blackbox`. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
 
-The backends also take classes of your own through the `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases` and `drupal.core` options, which [Extending the backend layer](../extending/backend.md) covers.
+The backends also take classes of your own through the `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases`, `drupal.core` and `drush.commands` options, which [Extending the backend layer](../extending/backend.md) covers.
 
 ### Trait options
 
@@ -292,6 +292,30 @@ The 2 levels, `steps` and a context's `config`, differ in how strictly they're r
 Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in your context sits outside these layers and replaces the resolution entirely. Use that override for anything the configuration can't express.
 
 [Extending the step vocabulary](../extending/steps.md#declare-options-for-a-trait-of-your-own) covers declaring options for a trait of your own, and [Extending the extension layer](../extending/extension.md#replace-option-resolution) covers replacing the resolution itself.
+
+### Experimental code paths
+
+An experimental code path is a workaround that the package may remove later, such as a fallback over a failing command of a pre-release dependency. Each path has a stable ID. For example, `drush14.user-delete` deletes a user with `entity:delete` when Drush 14's `user:cancel` fails.
+
+After the run, Behat lists every path that ran, with how many times it ran:
+
+```
+--- Experimental behavior used in this run:
+
+    [drush14.user-delete] Drush 14 "user:cancel" failed on an existing account, so the account was deleted with "entity:delete" instead. (12 times)
+```
+
+The list never changes the run's result. To see what fails without the workarounds, set `experimental.strict`:
+
+```php
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'experimental' => ['strict' => TRUE],
+]));
+```
+
+In strict mode, every fallback throws the failure it would have absorbed. A strict run that passes shows the workaround is no longer needed.
+
+A context of your own records its own experimental paths with `experimentalRecord()` and `experimentalFallback()` on `WebRawContext`. Both take a stable ID and a message, and `experimentalFallback()` also takes the exception it absorbs.
 
 ## 3. Tags
 

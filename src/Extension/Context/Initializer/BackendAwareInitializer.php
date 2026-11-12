@@ -7,6 +7,8 @@ namespace DrevOps\BehatSteps\Extension\Context\Initializer;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Initializer\ContextInitializer;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalRegistryInterface;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Config\TraitOptionResolverFactoryInterface;
@@ -41,6 +43,9 @@ final readonly class BackendAwareInitializer implements ContextInitializer {
    *   Builds a context's option resolver out of the shared collaborators.
    * @param \DrevOps\BehatSteps\Extension\Http\HttpClientFactoryInterface $httpClientFactory
    *   Builds the detached and bare browsers on the shared transport.
+   * @param \DrevOps\BehatSteps\Backend\Experimental\ExperimentalRegistryInterface|null $experimentalRegistry
+   *   The registry a context records its experimental code paths to, or NULL
+   *   to leave each context with its own.
    */
   public function __construct(
     protected BackendRegistryInterface $backendRegistry,
@@ -51,6 +56,7 @@ final readonly class BackendAwareInitializer implements ContextInitializer {
     protected UserRegistryInterface $userRegistry,
     protected TraitOptionResolverFactoryInterface $traitOptionResolverFactory,
     protected HttpClientFactoryInterface $httpClientFactory,
+    protected ?ExperimentalRegistryInterface $experimentalRegistry = NULL,
   ) {}
 
   /**
@@ -59,6 +65,10 @@ final readonly class BackendAwareInitializer implements ContextInitializer {
   public function initializeContext(Context $context): void {
     if ($context instanceof ParametersAwareInterface) {
       $context->setParameters($this->parameters);
+    }
+
+    if ($this->experimentalRegistry instanceof ExperimentalRegistryInterface && $context instanceof ExperimentalAwareInterface) {
+      $context->setExperimentalRegistry($this->experimentalRegistry);
     }
 
     if ($context instanceof UserAwareInterface) {

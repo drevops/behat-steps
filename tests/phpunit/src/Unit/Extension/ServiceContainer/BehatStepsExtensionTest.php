@@ -456,6 +456,28 @@ class BehatStepsExtensionTest extends UnitTestCase {
   }
 
   /**
+   * Tests that the experimental mode reaches the container.
+   *
+   * @param array<string, mixed> $config
+   *   The extension configuration.
+   * @param bool $expected
+   *   Whether the container is expected to hold strict mode.
+   */
+  #[DataProvider('dataProviderTheExperimentalModeReachesTheContainer')]
+  public function testTheExperimentalModeReachesTheContainer(array $config, bool $expected): void {
+    $container = $this->load($config);
+
+    $this->assertSame($expected, $container->getParameter(BehatStepsExtension::EXPERIMENTAL_STRICT_PARAMETER));
+  }
+
+  public static function dataProviderTheExperimentalModeReachesTheContainer(): \Iterator {
+    yield 'left out' => [[], FALSE];
+    yield 'a section without strict' => [['experimental' => []], FALSE];
+    yield 'strict off' => [['experimental' => ['strict' => FALSE]], FALSE];
+    yield 'strict on' => [['experimental' => ['strict' => TRUE]], TRUE];
+  }
+
+  /**
    * Tests the backend lists the configuration may declare.
    *
    * @param array<array-key, mixed> $backends

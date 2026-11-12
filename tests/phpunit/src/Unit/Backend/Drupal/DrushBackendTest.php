@@ -23,8 +23,9 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
-use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ParserExposingDrushBackend;
+use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -144,33 +145,33 @@ class DrushBackendTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderParseUserId')]
-  public function testParseUserId(string $drush_output, ?int $expected): void {
-    $backend = new ParserExposingDrushBackend('alias');
-    $result = $backend->callParseUserId($drush_output);
-    $this->assertSame($expected, $result);
+  public function testParseUserId(int $version, string $drush_output, ?int $expected): void {
+    $backend = new RecordingDrushBackend('alias');
+    $backend->fakeVersion = $version;
+    $backend->drushResponses = ['user:create' => $drush_output];
+
+    if ($expected === NULL) {
+      $this->expectException(\RuntimeException::class);
+      $this->expectExceptionMessage('Drush did not report a user id after creating "test".');
+    }
+
+    $stub = $backend->createUser(new EntityStub('user', NULL, ['name' => 'test']));
+
+    $this->assertSame($expected, $stub->getValue('uid'));
   }
 
   public static function dataProviderParseUserId(): \Iterator {
-    yield 'legacy key-value format' => [
-      "User ID   :   550895\nUser name :   test\n",
-      550895,
-    ];
-    yield 'drush 12 table format' => [
-      " --------- ----------- ----------- --------------- ------------- \n  User ID   User name   User mail   User roles      User status  \n --------- ----------- ----------- --------------- ------------- \n  550895    test        test@ex.co  authenticated   1            \n --------- ----------- ----------- --------------- ------------- \n",
-      550895,
-    ];
-    yield 'no user id present' => [
-      "Some random output\n",
-      NULL,
-    ];
-    yield 'drush 12 table uid 1' => [
-      " --------- ----------- ----------- --------------- ------------- \n  User ID   User name   User mail   User roles      User status  \n --------- ----------- ----------- --------------- ------------- \n  1         admin       a@ex.co     administrator   1            \n --------- ----------- ----------- --------------- ------------- \n",
-      1,
-    ];
-    yield 'drush 14 success message' => [
-      "\n [OK] Created a new user with uid 13                                            \n\n",
-      13,
-    ];
+    $table = " --------- ----------- ----------- --------------- ------------- \n  User ID   User name   User mail   User roles      User status  \n --------- ----------- ----------- --------------- ------------- \n  %s    test        test@ex.co  authenticated   1            \n --------- ----------- ----------- --------------- ------------- \n";
+    $success = "\n [OK] Created a new user with uid 13                                            \n\n";
+
+    yield 'drush 13, legacy key-value format' => [13, "User ID   :   550895\nUser name :   test\n", 550895];
+    yield 'drush 13, table format' => [13, sprintf($table, '550895'), 550895];
+    yield 'drush 13, table format with uid 1' => [13, sprintf($table, '1     '), 1];
+    yield 'drush 13, no user id present' => [13, "Some random output\n", NULL];
+    yield 'drush 13, success message is not read' => [13, $success, NULL];
+    yield 'drush 14, success message' => [14, $success, 13];
+    yield 'drush 14, table format' => [14, sprintf($table, '550895'), 550895];
+    yield 'drush 14, no user id present' => [14, "Some random output\n", NULL];
   }
 
 }

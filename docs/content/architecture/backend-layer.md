@@ -26,7 +26,7 @@ So the same step runs in-process under `backends: [drupal, drush]` and over Drus
 ## The 3 backends
 
 - `drupal` is `Backend\Drupal\DrupalBackend`. It bootstraps Drupal inside the Behat process, calls Drupal's API through `Core` and provides 34 of the 35 capabilities.
-- `drush` is `Backend\Drupal\DrushBackend`. It runs `drush` commands against the site and provides 14.
+- `drush` is `Backend\Drupal\DrushBackend`. It runs `drush` commands against the site and provides 14. It detects the Drush major and hands each capability to the commands for that major: `Drush\Commands` for Drush 13 and `Drush14\Commands` for Drush 14 and later. The `drush.commands` option replaces them.
 - `blackbox` is `Backend\BlackboxBackend`. It doesn't reach the site at all: it stands for a site you can only browse, and provides none.
 
 The `drupal` backend exists when your `behat.php` sets the `drupal` key, and `drush` when it sets the `drush` key. `blackbox` always exists.
@@ -50,7 +50,7 @@ A capability method also leaves the site consistent behind it. `moduleInstall()`
 
 ## What the layer may reach
 
-[scripts/lint-layers.php](../../../scripts/lint-layers.php) holds the boundary. `src/Backend` references no Behat, Mink, extension or step code, and its root references no Drupal code either, so its contracts speak of entity types and storage values rather than of Drupal. `src/Backend/Drupal` holds the Drupal-only capabilities, the Drupal and Drush backends and `Core`, with its field handlers and creation aliases. [Layers](../../../CONTRIBUTING.md#layers) lists every rule.
+[scripts/lint-layers.php](../../../scripts/lint-layers.php) holds the boundary. `src/Backend` references no Behat, Mink, extension or step code, and its root references no Drupal code either, so its contracts speak of entity types and storage values rather than of Drupal. `src/Backend/Drupal` holds the Drupal-only capabilities, the Drupal and Drush backends, `Core`, with its field handlers and creation aliases, and the Drush commands for each Drush major. [Layers](../../../CONTRIBUTING.md#layers) lists every rule.
 
 ## Where to next
 

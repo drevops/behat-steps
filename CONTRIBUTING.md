@@ -280,6 +280,7 @@ These are the extension points. Each one stays open, along with every class that
 - **The contexts**: `WebRawContext`, `WebContext` and `DrupalContext`, 1 of which a project's own context extends.
 - **The backends**: a project backend may extend `DrupalBackend`, `DrushBackend` or `BlackboxBackend` rather than implement `BackendInterface` from scratch.
 - **`Core`**: a version core extends it to change what its Drupal major changed. The class the `drupal.core` option names can extend the Core for the site's major.
+- **`Drush\Commands`**: the commands for a later Drush major, such as `Drush14\Commands`, extend it to change what that major changed. The class the `drush.commands` option names can extend the commands for the detected major.
 - **The field handlers**: a handler for another field type extends a shipped one, the way `OgStandardReferenceHandler` extends `EntityReferenceHandler`.
 - **The browser adapters**: an adapter for a browser driver derived from a shipped one extends that driver's adapter.
 - **`HttpClientFactory`**: a package replaces the `behat_steps.http_client_factory` service with a subclass, as [docs/content/extending/extension.md](docs/content/extending/extension.md#the-http-client-factory-and-browser-adapters) describes.
@@ -443,7 +444,7 @@ The harness steps keep their own wording, placeholders, patterns and signatures.
 
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Extension` on `Backend`. The 3 contexts at the package root, `WebRawContext`, `WebContext` and `DrupalContext`, sit above all 3 layers and are the only classes that reach every layer. So a project extends 1 of them and gets the whole stack.
 
-- **`src/Backend`** is the part that talks to the site: it bootstraps a Drupal site in-process or shells out to Drush, creates entities and expands field values into their storage shape. It references neither Behat nor Mink, so it works outside a Behat run. Its root holds what any backend may provide: `BackendInterface`, `BlackboxBackend`, `EntityStub`, the creation alias contracts, the exceptions, the random generator and the capabilities any backend may implement. `Backend\Drupal` holds the Drupal and Drush backends, `Core` with its field handlers and Drupal creation aliases, and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `ConfigEntity`, `Core`, `Draggableviews`, `Drush`, `EntityDefinition`, `FieldHandler`, `File`, `Log`, `MenuLink`, `Module`, `Node`, `PathAlias`, `Queue`, `QueueItem`, `Redirect`, `SearchApi`, `SearchIndex`, `State`, `Term`, `UserActivity` and `Workflow`.
+- **`src/Backend`** is the part that talks to the site: it bootstraps a Drupal site in-process or shells out to Drush, creates entities and expands field values into their storage shape. It references neither Behat nor Mink, so it works outside a Behat run. Its root holds what any backend may provide: `BackendInterface`, `BlackboxBackend`, `EntityStub`, the creation alias contracts, the exceptions, the random generator, the experimental registry and the capabilities any backend may implement. `Backend\Drupal` holds the Drupal and Drush backends, `Core` with its field handlers and Drupal creation aliases, the Drush commands for each Drush major, and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `ConfigEntity`, `Core`, `Draggableviews`, `Drush`, `EntityDefinition`, `FieldHandler`, `File`, `Log`, `MenuLink`, `Module`, `Node`, `PathAlias`, `Queue`, `QueueItem`, `Redirect`, `SearchApi`, `SearchIndex`, `State`, `Term`, `UserActivity` and `Workflow`.
 - **`src/Extension`** is the Behat extension, in these directories:
   - `ServiceContainer/`: `BehatStepsExtension`, which reads the `behat_steps` configuration and builds the container, and `BackendProviderInterface`, which each backend provider implements to contribute to it. `ServiceContainer/Driver/` holds the `browserkit_http` browser driver factory.
   - `Registry/`: the backend, user and scenario tag registries.
@@ -566,7 +567,7 @@ A capability sits at the root of `src/Backend` when any backend may provide it, 
 | `SearchIndex` | yes | `search-api:index` |
 | `State` | yes | `state:get`, `state:set` and `state:delete`; no command separates a stored NULL from an absent key, which the Drush backend documents on `stateExists()` |
 | `Term` | in-process | No command creates a term |
-| `User` | yes | `user:create`, `user:block`, `user:cancel`, `user:role:add`, `role:list`, `user:information`, `user:login` and `user:password`; `createUser()` rejects any other value with `UnsupportedBackendActionException` |
+| `User` | yes | `user:create`, `user:block`, `user:cancel`, `user:role:add`, `role:list`, `user:information`, `user:login` and `user:password`; `createUser()` rejects any other value with `UnsupportedBackendActionException`. On Drush 14, a failed `user:cancel` falls back to `entity:delete` as an experimental code path |
 | `UserActivity` | in-process | No `user:` command sets the access or login time |
 | `Workflow` | in-process | No command reads a workflow or moves an entity through it |
 

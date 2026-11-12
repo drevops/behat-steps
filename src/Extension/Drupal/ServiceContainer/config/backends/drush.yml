@@ -15,5 +15,6 @@ services:
       - "%behat_steps.backend.drush.root%"
       - "%behat_steps.backend.drush.binary%"
       - "@behat_steps.backend.random"
+      - "%behat_steps.backend.drush.commands%"
     tags:
       - { name: behat_steps.backend, alias: drush }

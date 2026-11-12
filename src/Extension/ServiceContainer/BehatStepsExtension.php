@@ -39,6 +39,11 @@ final class BehatStepsExtension implements ExtensionInterface {
   public const string BACKENDS_PARAMETER = 'behat_steps.backends';
 
   /**
+   * Container parameter holding whether experimental fallbacks rethrow.
+   */
+  public const string EXPERIMENTAL_STRICT_PARAMETER = 'behat_steps.experimental.strict';
+
+  /**
    * Service ID of the transport the detached and bare browsers send through.
    */
   public const string TRANSPORT_SERVICE = 'behat_steps.http_client';
@@ -229,6 +234,16 @@ final class BehatStepsExtension implements ExtensionInterface {
       ->end()
       ->arrayNode('blackbox')
         ->info("The backend that drives the site through the browser only. It's always registered and takes no options, so this section changes nothing. It provides no capability, so a step that asks for one fails when no other backend in the scenario's order provides it.")
+      ->end()
+      ->arrayNode('experimental')
+        ->info('How the experimental code paths behave. An experimental code path is a workaround or a behavior that may still change, such as a fallback over a failing command of a pre-release dependency. Each one that runs is listed once at the end of the run, with how many times it ran, whatever this section sets.')
+        ->addDefaultsIfNotSet()
+        ->children()
+          ->booleanNode('strict')
+            ->defaultFalse()
+            ->info('Whether an experimental fallback throws the failure it would otherwise absorb, so the run shows what fails without the workaround. A strict run that passes shows the workaround is no longer needed.')
+          ->end()
+        ->end()
       ->end();
 
     // phpcs:enable
@@ -322,6 +337,7 @@ final class BehatStepsExtension implements ExtensionInterface {
     $container->setParameter('behat_steps.parameters', $config);
     $container->setParameter('behat_steps.regions', $regions);
     $container->setParameter(self::BACKENDS_PARAMETER, $config['backends'] ?? []);
+    $container->setParameter(self::EXPERIMENTAL_STRICT_PARAMETER, (bool) ($config['experimental']['strict'] ?? FALSE));
   }
 
   /**

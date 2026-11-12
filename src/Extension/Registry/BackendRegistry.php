@@ -7,6 +7,8 @@ namespace DrevOps\BehatSteps\Extension\Registry;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalAwareInterface;
+use DrevOps\BehatSteps\Backend\Experimental\ExperimentalRegistryInterface;
 
 /**
  * Default implementation of the backend registry service.
@@ -44,8 +46,11 @@ final class BackendRegistry implements BackendRegistryInterface {
    *
    * @param array<string, \DrevOps\BehatSteps\Backend\BackendInterface> $backends
    *   Backends to register, keyed by name.
+   * @param \DrevOps\BehatSteps\Backend\Experimental\ExperimentalRegistryInterface|null $experimentalRegistry
+   *   The registry a resolved backend records its experimental code paths to,
+   *   or NULL to leave each backend with its own.
    */
-  public function __construct(array $backends = []) {
+  public function __construct(array $backends = [], protected readonly ?ExperimentalRegistryInterface $experimentalRegistry = NULL) {
     foreach ($backends as $name => $backend) {
       $this->registerBackend($name, $backend);
     }
@@ -183,10 +188,17 @@ final class BackendRegistry implements BackendRegistryInterface {
 
   /**
    * Bootstraps a backend and records that this scenario resolved it.
+   *
+   * The experimental registry is handed over here rather than at
+   * registration, so registering a backend never builds it.
    */
   protected function resolve(BackendInterface $backend): BackendInterface {
     if (!in_array($backend, $this->resolvedBackends, TRUE)) {
       $this->resolvedBackends[] = $backend;
+    }
+
+    if ($this->experimentalRegistry instanceof ExperimentalRegistryInterface && $backend instanceof ExperimentalAwareInterface) {
+      $backend->setExperimentalRegistry($this->experimentalRegistry);
     }
 
     if (!$backend->isBootstrapped()) {

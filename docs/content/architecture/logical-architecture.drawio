@@ -59,7 +59,7 @@
         <mxCell id="ex-service-container" value="&lt;b&gt;ServiceContainer&lt;/b&gt;&lt;br&gt;BehatStepsExtension&lt;br&gt;wires the services" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
           <mxGeometry x="20" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="ex-listener-registry" value="&lt;b&gt;Listener + Registry&lt;/b&gt;&lt;br&gt;per scenario: backend order,&lt;br&gt;tags, users" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
+        <mxCell id="ex-listener-registry" value="&lt;b&gt;Listener + Registry&lt;/b&gt;&lt;br&gt;backend order, tags, users;&lt;br&gt;experimental notices" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
           <mxGeometry x="310" y="50" width="230" height="70" as="geometry" />
         </mxCell>
         <mxCell id="ex-config-prerequisite" value="&lt;b&gt;Config + Prerequisite&lt;/b&gt;&lt;br&gt;trait options, what a trait&lt;br&gt;needs from the site" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-extension">
@@ -83,7 +83,7 @@
         <mxCell id="be-interface" value="&lt;b&gt;BackendInterface&lt;/b&gt;&lt;br&gt;plus 11 capability interfaces&lt;br&gt;any backend may provide" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#2E7D32;" vertex="1" parent="grp-backend">
           <mxGeometry x="310" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="be-drush" value="&lt;b&gt;Drupal\DrushBackend&lt;/b&gt;&lt;br&gt;14 capabilities:&lt;br&gt;runs drush commands" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#2E7D32;" vertex="1" parent="grp-backend">
+        <mxCell id="be-drush" value="&lt;b&gt;Drupal\DrushBackend&lt;/b&gt;&lt;br&gt;14 capabilities: runs drush&lt;br&gt;through its Drush major's commands" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#2E7D32;" vertex="1" parent="grp-backend">
           <mxGeometry x="600" y="50" width="230" height="70" as="geometry" />
         </mxCell>
         <mxCell id="be-drupal" value="&lt;b&gt;Drupal\DrupalBackend&lt;/b&gt;&lt;br&gt;34 capabilities: Drupal&lt;br&gt;in this PHP process" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#2E7D32;" vertex="1" parent="grp-backend">
